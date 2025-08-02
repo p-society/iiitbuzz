@@ -1,8 +1,8 @@
 import crypto from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import jwt from "jsonwebtoken";
-import { DrizzleClient } from "../db/index.js";
-import { users } from "../db/schema/user.schema.js";
+import { DrizzleClient } from "../db/index";
+import { users } from "../db/schema/user.schema";
 import {
 	createUserSchema,
 	type GoogleTokenInfo,
@@ -11,11 +11,11 @@ import {
 	type JwtPayload,
 	jwtPayloadSchema,
 } from "../dto/auth.dto.js";
-import { env } from "../envSchema.js";
+import { env } from "../envSchema";
 import type {
 	AuthenticatedRequest,
 	AuthenticationMiddleware,
-} from "../types/auth.types.js";
+} from "../types/auth.types";
 
 export async function authRoutes(fastify: FastifyInstance) {
 	fastify.get("/google/callback", async (request, reply) => {

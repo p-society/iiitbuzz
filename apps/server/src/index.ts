@@ -1,10 +1,10 @@
 import "dotenv/config";
-import { env } from "./envSchema";
 import fastifyCookie from "@fastify/cookie";
 import fastifyCors from "@fastify/cors";
 import fastifyOauth2 from "@fastify/oauth2";
 import Fastify from "fastify";
 import { DrizzleClient } from "./db/index";
+import { env } from "./envSchema";
 import { appRouter } from "./routers/index";
 
 const baseCorsConfig = {
