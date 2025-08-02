@@ -9,15 +9,7 @@ export const googleCallbackQuerySchema = z.object({
 
 export const googleTokenInfoSchema = z.object({
 	email: z.string().email("Invalid email format"),
-	email_verified: z
-		.union([z.boolean(), z.string()])
-		.transform((val) => {
-			if (typeof val === "string") {
-				return val === "true";
-			}
-			return val;
-		})
-		.optional(),
+	email_verified: z.string().optional(),
 	name: z.string().optional(),
 	given_name: z.string().optional(),
 	family_name: z.string().optional(),

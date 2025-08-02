@@ -1,10 +1,10 @@
 import "dotenv/config";
+import { env } from "./envSchema";
 import fastifyCookie from "@fastify/cookie";
 import fastifyCors from "@fastify/cors";
 import fastifyOauth2 from "@fastify/oauth2";
 import Fastify from "fastify";
-import { DrizzleClient } from "./db/index.js";
-import { env } from "./envSchema.js";
+import { DrizzleClient } from "./db/index";
 import { appRouter } from "./routers/index";
 
 const baseCorsConfig = {
@@ -20,12 +20,12 @@ const fastify = Fastify({
 });
 
 fastify.register(fastifyCookie, {
-	secret: env.JWT_SECRET, 
+	secret: env.JWT_SECRET,
 	parseOptions: {
 		httpOnly: true,
 		secure: env.NODE_ENV === "production",
 		sameSite: "lax",
-		maxAge: 60 * 60 * 24 * 7, 
+		maxAge: 60 * 60 * 24 * 7,
 	},
 });
 
@@ -84,7 +84,7 @@ const shutdown = async () => {
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
-fastify.listen({ port: Number(env.PORT) }, (err) => {
+fastify.listen({ port: env.PORT }, (err) => {
 	if (err) {
 		fastify.log.error(err);
 		process.exit(1);

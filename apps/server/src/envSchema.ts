@@ -15,7 +15,7 @@ export const envSchema = z.object({
 		.string()
 		.url("FRONTEND_URL must be a valid URL")
 		.default("http://localhost:5000"),
-	PORT: z.string().regex(/^\d+$/, "PORT must be a number").default("3000"),
+	PORT: z.coerce.number().int().default(3000),
 	NODE_ENV: z
 		.enum(["development", "production", "test"])
 		.default("development"),
