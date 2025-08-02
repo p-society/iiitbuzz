@@ -19,14 +19,13 @@ const fastify = Fastify({
 	logger: true,
 });
 
-// Register cookie plugin first (required by @fastify/oauth2)
 fastify.register(fastifyCookie, {
-	secret: env.JWT_SECRET, // Use same secret for cookie signing
+	secret: env.JWT_SECRET, 
 	parseOptions: {
 		httpOnly: true,
 		secure: env.NODE_ENV === "production",
 		sameSite: "lax",
-		maxAge: 60 * 60 * 24 * 7, // 7 days
+		maxAge: 60 * 60 * 24 * 7, 
 	},
 });
 
@@ -42,7 +41,6 @@ fastify.register(fastifyOauth2, {
 	scope: ["openid", "profile", "email"],
 	startRedirectPath: "/auth/google",
 	callbackUri: env.GOOGLE_REDIRECT_URI,
-	// Configure secure cookies for OAuth2 state and PKCE
 	cookie: {
 		secure: env.NODE_ENV === "production",
 		httpOnly: true,

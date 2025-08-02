@@ -11,6 +11,10 @@ export const envSchema = z.object({
 		.string()
 		.url("GOOGLE_REDIRECT_URI must be a valid URL"),
 	CORS_ORIGIN: z.string().min(1, "CORS_ORIGIN is required"),
+	FRONTEND_URL: z
+		.string()
+		.url("FRONTEND_URL must be a valid URL")
+		.default("http://localhost:5000"),
 	PORT: z.string().regex(/^\d+$/, "PORT must be a number").default("3000"),
 	NODE_ENV: z
 		.enum(["development", "production", "test"])

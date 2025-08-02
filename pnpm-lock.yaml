@@ -51,7 +51,7 @@ importers:
         specifier: ^8.14.1
         version: 8.16.3
       zod:
-        specifier: ^3.25.16
+        specifier: ^3.25.67
         version: 3.25.67
     devDependencies:
       '@types/jsonwebtoken':

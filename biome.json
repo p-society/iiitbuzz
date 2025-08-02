@@ -18,10 +18,13 @@
 		"rules": {
 			"recommended": true,
 			"complexity": {
-				"noBannedTypes": "warn"
+				"noBannedTypes": "error"
 			},
 			"correctness": {
 				"noEmptyPattern": "warn"
+			},
+			"suspicious": {
+				"noExplicitAny": "error"
 			}
 		}
 	},
