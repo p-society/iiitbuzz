@@ -10,7 +10,7 @@ import {
 	googleTokenInfoSchema,
 	type JwtPayload,
 	jwtPayloadSchema,
-} from "../dto/auth.dto.js";
+} from "../dto/auth.dto";
 import { env } from "../envSchema";
 import type {
 	AuthenticatedRequest,
