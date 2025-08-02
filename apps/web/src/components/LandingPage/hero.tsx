@@ -1,22 +1,20 @@
 import { Button } from "@/components/ui/button";
 
-
 const Bee = () => {
-    return (
-        <div className="bee-container">
-            <div className="bee-body">
-                <div className="body"></div>
-                <div className="wing1"></div>
-                <div className="wing2"></div>
-                <div className="stinger"></div>
-                <div className="eyes">
-                    <div className="pupil"></div>
-                </div>
-            </div>
-        </div>
-    );
+	return (
+		<div className="bee-container">
+			<div className="bee-body">
+				<div className="body"></div>
+				<div className="wing1"></div>
+				<div className="wing2"></div>
+				<div className="stinger"></div>
+				<div className="eyes">
+					<div className="pupil"></div>
+				</div>
+			</div>
+		</div>
+	);
 };
-
 
 const Hero = () => {
 	return (
@@ -72,15 +70,15 @@ const Hero = () => {
 						</div>
 					</div>
 
-                    <div className="flex justify-center items-center gap-4 mb-6">
-                        <h1
-                            className="pixel-font text-4xl md:text-6xl lg:text-7xl glitch-text font-bold text-primary ghibli-title"
-                            data-text="IIITBuzz"
-                        >
-                            IIITBuzz
-                        </h1>
-                        <Bee />
-                    </div>
+					<div className="flex justify-center items-center gap-4 mb-6">
+						<h1
+							className="pixel-font text-4xl md:text-6xl lg:text-7xl glitch-text font-bold text-primary ghibli-title"
+							data-text="IIITBuzz"
+						>
+							IIITBuzz
+						</h1>
+						<Bee />
+					</div>
 
 					<p className="text-2xl md:text-3xl  mb-8 text-primary font-bold ghibli-title pixel-font">
 						CONNECT • LEARN • WIN • REPEAT
@@ -88,7 +86,7 @@ const Hero = () => {
 
 					<div className="neo-brutal-card p-8 mb-8 max-w-2xl mx-auto ghibli-card ">
 						<p className="text-lg md:text-xl mb-4 text-foreground pixel-font">
-						    <b>	🎓 The ultimate community forum for IIIT students!</b>
+							<b> 🎓 The ultimate community forum for IIIT students!</b>
 						</p>
 						<p className="text-muted-foreground public-sans-font">
 							Connect, collaborate, and conquer your academic journey with

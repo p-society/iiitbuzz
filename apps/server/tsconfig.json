@@ -3,7 +3,8 @@
 		"target": "ESNext",
 		"module": "ESNext",
 		"moduleResolution": "bundler",
-		"verbatimModuleSyntax": true,
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
 		"strict": true,
 		"skipLibCheck": true,
 		"baseUrl": "./",
@@ -12,6 +13,7 @@
 		},
 		"outDir": "./dist",
 		"types": ["node"],
+		"typeRoots": ["./src/types", "./node_modules/@types"],
 		"composite": true,
 		"jsx": "react-jsx"
 	},

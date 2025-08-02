@@ -56,23 +56,30 @@ const Footer = () => {
 							QUICK LINKS
 						</h4>
 						<ul className="space-y-2 text-sm">
-							{["About Us", "Features", "Contact", "Help & Support"].map((link) => (
-								<li key={link}>
-									<a
-										href={`#${link.toLowerCase().replace(/ & | /g, "-")}`}
-										className="text-muted hover:text-primary transition-colors"
-									>
-										{link}
-									</a>
-								</li>
-							))}
+							{["About Us", "Features", "Contact", "Help & Support"].map(
+								(link) => (
+									<li key={link}>
+										<a
+											href={`#${link.toLowerCase().replace(/ & | /g, "-")}`}
+											className="text-muted hover:text-primary transition-colors"
+										>
+											{link}
+										</a>
+									</li>
+								),
+							)}
 						</ul>
 					</div>
 
 					<div>
 						<h4 className="pixel-font text-sm text-primary mb-4">POLICIES</h4>
 						<ul className="space-y-2 text-sm">
-							{["Privacy Policy", "Terms of Service", "Community Guidelines", "Cookie Policy"].map((policy) => (
+							{[
+								"Privacy Policy",
+								"Terms of Service",
+								"Community Guidelines",
+								"Cookie Policy",
+							].map((policy) => (
 								<li key={policy}>
 									<a
 										href={`#${policy.toLowerCase().replace(/ /g, "-")}`}
