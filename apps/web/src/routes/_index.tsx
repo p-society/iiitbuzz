@@ -8,8 +8,6 @@ export default function HomePage() {
 		<div className="flex flex-col min-h-screen">
 			<Header />
 			<div className="relative flex-1">
-				{/* Pattern background covers all main content */}
-				<div className="absolute inset-0 pixel-pattern opacity-10 -z-10" />
 				<main className="relative z-10">
 					<Hero />
 					<FeaturesPage />

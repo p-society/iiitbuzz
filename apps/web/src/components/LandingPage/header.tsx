@@ -8,7 +8,7 @@ const Header = () => {
 			<div className="container mx-auto px-4 py-4 flex items-center justify-between">
 				<Link to="/" className="flex items-center space-x-2">
 					<img
-						src="/public/images/logo.png"
+						src="/images/logo.png"
 						alt="IIITBuzz Logo"
 						className="w-8 h-8"
 					/>

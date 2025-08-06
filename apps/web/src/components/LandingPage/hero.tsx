@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router"
 
 const Bee = () => {
 	return (
@@ -21,28 +22,7 @@ const Hero = () => {
 		<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
 			<div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-background z-0" />
 
-			<div className="absolute inset-0 overflow-hidden pointer-events-none z-10">
-				<div
-					className="absolute top-10 left-10 w-2 h-2 bg-accent rounded-full animate-bounce"
-					style={{ animationDelay: "0s", animationDuration: "3s" }}
-				></div>
-				<div
-					className="absolute top-20 right-20 w-1 h-1 bg-primary rounded-full animate-bounce"
-					style={{ animationDelay: "1s", animationDuration: "4s" }}
-				></div>
-				<div
-					className="absolute top-40 left-1/4 w-1.5 h-1.5 bg-secondary rounded-full animate-bounce"
-					style={{ animationDelay: "2s", animationDuration: "5s" }}
-				></div>
-				<div
-					className="absolute bottom-20 right-10 w-2 h-2 bg-accent rounded-full animate-bounce"
-					style={{ animationDelay: "0.5s", animationDuration: "3.5s" }}
-				></div>
-				<div
-					className="absolute bottom-40 left-16 w-1 h-1 bg-primary rounded-full animate-bounce"
-					style={{ animationDelay: "1.5s", animationDuration: "4.5s" }}
-				></div>
-			</div>
+
 
 			<div className="container mx-auto px-4 text-center relative z-20">
 				<div className="max-w-4xl mx-auto fade-in-up">
@@ -95,13 +75,14 @@ const Hero = () => {
 						</p>
 					</div>
 
-					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in-up">
-						<Button
-							size="lg"
-							className="neo-brutal-button bg-foreground text-black hover:bg-primary/90 border-primary text-lg px-8 py-6 ghibli-button pixel-font"
-						>
-							🚀 JOIN THE BUZZ
-						</Button>
+                    <Link to="/login">
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in-up">
+                            <Button
+                                size="lg"
+                                className="neo-brutal-button bg-foreground text-black hover:bg-primary/90 border-primary text-lg px-8 py-6 ghibli-button pixel-font"
+                            >
+                                🚀 JOIN THE BUZZ
+                            </Button>
 						<Button
 							size="lg"
 							variant="outline"
@@ -110,6 +91,7 @@ const Hero = () => {
 							📖 EXPLORE FIRST
 						</Button>
 					</div>
+                    </Link>
 
 					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto fade-in-up">
 						<div className="neo-brutal-card p-4 bg-primary-20 border-foreground ghibli-feature-card">
