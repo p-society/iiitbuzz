@@ -1,12 +1,13 @@
-import Footer from "@/components/ui/footer";
 import { Button } from "@/components/ui/button";
+import Footer from "@/components/ui/footer";
 
 export default function LoginPage() {
 	const redirectToGoogle = () => {
-		const backendUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3000';
-		console.log('Backend URL:', backendUrl); // Debug log
+		const backendUrl =
+			import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3000";
+		console.log("Backend URL:", backendUrl); // Debug log
 		const fullUrl = `${backendUrl}/auth/google`;
-		console.log('Full URL:', fullUrl); // Debug log
+		console.log("Full URL:", fullUrl); // Debug log
 		window.location.assign(fullUrl);
 	};
 
@@ -15,8 +16,6 @@ export default function LoginPage() {
 			<main className="flex-1">
 				<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
 					<div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-background z-0" />
-
-
 
 					<div className="container mx-auto px-4 text-center relative z-20">
 						<div className="max-w-3xl mx-auto fade-in-up">
@@ -50,8 +49,8 @@ export default function LoginPage() {
 									xmlns="http://www.w3.org/2000/svg"
 									viewBox="0 0 533.5 544.3"
 									className="w-5 h-5"
-                                    role="img"
-                                    aria-label="google-icon-title"
+									role="img"
+									aria-label="google-icon-title"
 								>
 									<path
 										fill="#4285f4"

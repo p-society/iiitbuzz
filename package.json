@@ -17,7 +17,7 @@
 		"db:generate:migration": "turbo -F server db:generate",
 		"db:apply:migration": "turbo -F server db:migrate",
 		"lint-fix": "biome lint --fix",
-		"format": "biome format .",
+		"format": "biome format . --write",
 		"type:fix": "biome check . --fix",
 		"check:all": "biome check . --fix && biome lint --fix && biome format ."
 	},
@@ -28,5 +28,5 @@
 		"@commitlint/config-conventional": "^19.8.1",
 		"turbo": "^2.5.4"
 	},
-	"packageManager": "pnpm@9.15.4"
+	"packageManager": "pnpm@10.14.0"
 }

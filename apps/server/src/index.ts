@@ -17,7 +17,7 @@ const baseCorsConfig = {
 
 const fastify = Fastify({
 	logger: true,
-        ignoreTrailingSlash: true
+	ignoreTrailingSlash: true,
 });
 
 fastify.register(fastifyCookie, {
