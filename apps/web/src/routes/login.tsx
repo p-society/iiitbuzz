@@ -1,4 +1,4 @@
-import Footer from "@/components/LandingPage/footer";
+import Footer from "@/components/ui/footer";
 import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {

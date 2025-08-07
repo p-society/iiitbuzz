@@ -1,6 +1,6 @@
 import FeaturesPage from "@/components/LandingPage/features";
-import Footer from "@/components/LandingPage/footer";
-import Header from "@/components/LandingPage/header";
+import Footer from "@/components/ui/footer";
+import Header from "@/components/ui/header";
 import Hero from "@/components/LandingPage/hero";
 
 export default function HomePage() {
