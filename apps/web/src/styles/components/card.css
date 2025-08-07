@@ -1,0 +1,29 @@
+.neo-brutal-card {
+	background-color: var(--card);
+	border-width: 4px;
+	border-style: solid;
+	box-shadow: 8px 8px 0px 0px #000;
+	color: #000;
+}
+
+/* Color variants: yellow, red, green, blue */
+.neo-brutal-card-yellow {
+	background-color: #ffe066;
+}
+
+.neo-brutal-card-red {
+	background-color: #ff6b6b;
+}
+
+.neo-brutal-card-green {
+	background-color: var(--secondary);
+}
+
+.neo-brutal-card-blue {
+	background-color: #4281ff;
+}
+
+.light .neo-brutal-card {
+	backdrop-filter: blur(5px);
+	-webkit-backdrop-filter: blur(5px);
+}

@@ -12,6 +12,7 @@
 	--button-green: #22c55e;
 	--button-yellow: #facc15;
 	--button-red: #ef4444;
+	--brutal-blue: #4281ff;
 	--muted-foreground: #c1cbde;
 	--ring: #c084fc;
 	--footer: #000000b7;
@@ -45,6 +46,7 @@
 	--sidebar-border: #c084fc;
 	--sidebar-ring: #c084fc;
 	--background-image: url("/backgrounds/bg-light.png");
+	--brutal-blue: #4281ff;
 }
 
 .dark {
@@ -76,8 +78,54 @@
 	--sidebar-border: #3c3c4a;
 	--sidebar-ring: #bca4e2;
 	--background-image: url("/backgrounds/bg-dark.png");
+	--brutal-blue: #4281ff;
 }
 
 body {
 	@apply transition-colors duration-500;
+}
+
+@layer base {
+	* {
+		@apply border-border;
+	}
+	body {
+		@apply bg-background text-foreground;
+	}
+}
+
+@layer utilities {
+	.bg-sidebar {
+		background-color: var(--sidebar);
+	}
+	.text-sidebar-foreground {
+		color: var(--sidebar-foreground);
+	}
+	.bg-background {
+		background-color: var(--background);
+	}
+	.bg-surface {
+		background-color: var(--surface);
+	}
+	.text-foreground {
+		color: var(--foreground);
+	}
+	.text-primary {
+		color: var(--text-primary);
+	}
+	.text-secondary {
+		color: var(--text-secondary);
+	}
+	.border-primary {
+		border-color: var(--primary);
+	}
+	.bg-accent {
+		background-color: var(--accent);
+	}
+	.text-accent {
+		color: var(--accent);
+	}
+	.text-muted-foreground {
+		color: var(--muted-foreground);
+	}
 }
