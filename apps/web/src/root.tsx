@@ -8,9 +8,10 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./index.css";
-import "./styles/landingpage.css";
+import "./styles/pages/landingpage.css";
 import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
+import { AuthProvider } from "./contexts/AuthContext";
 
 export const links: Route.LinksFunction = () => [
 	{
@@ -48,12 +49,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
 	return (
-		<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-			<div className="flex flex-col min-h-screen">
-				<Outlet />
-			</div>
-			<Toaster richColors />
-		</ThemeProvider>
+		<AuthProvider>
+			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+				<div className="flex flex-col min-h-screen">
+					<Outlet />
+				</div>
+				<Toaster richColors />
+			</ThemeProvider>
+		</AuthProvider>
 	);
 }
 

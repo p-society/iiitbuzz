@@ -1,4 +1,5 @@
 import { Instagram, Linkedin, Mail, Twitter } from "lucide-react";
+import "@/styles/components/card.css";
 
 const Footer = () => {
 	return (
