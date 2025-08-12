@@ -239,7 +239,10 @@ export async function authRoutes(fastify: FastifyInstance) {
 }
 
 // Authentication middleware - required authentication
-export const authenticateUser: AuthenticationMiddleware = async (request, reply) => {
+export const authenticateUser: AuthenticationMiddleware = async (
+	request,
+	reply,
+) => {
 	try {
 		const token = request.cookies.auth_token;
 
@@ -265,7 +268,10 @@ export const authenticateUser: AuthenticationMiddleware = async (request, reply)
 };
 
 // Optional authentication middleware - doesn't block request if no auth
-export const optionalAuth: AuthenticationMiddleware = async (request, reply) => {
+export const optionalAuth: AuthenticationMiddleware = async (
+	request,
+	reply,
+) => {
 	try {
 		const token = request.cookies.auth_token;
 		if (!token) return; // No token is fine for optional auth

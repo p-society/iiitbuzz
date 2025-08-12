@@ -73,24 +73,25 @@ const Hero = () => {
 						</p>
 					</div>
 
-						<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in-up">
-                            <Link to="/login">
-                            <Button
+					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in-up">
+						<Link to="/login">
+							<Button
 								size="lg"
 								className="neo-brutal-button bg-foreground text-black hover:bg-primary/90 border-primary text-lg px-8 py-6 ghibli-button pixel-font"
 							>
 								🚀 JOIN THE BUZZ
 							</Button>
-                        </Link>
-                        <Link to="/home">
-                        <Button
+						</Link>
+						<Link to="/home">
+							<Button
 								size="lg"
 								variant="outline"
 								className="neo-brutal-button bg-secondary border-primary text-primary hover:bg-secondary  hover:text-black text-lg px-8 py-6 ghibli-button pixel-font"
 							>
 								📖 EXPLORE FIRST
-							</Button></Link>
-						</div>
+							</Button>
+						</Link>
+					</div>
 
 					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto fade-in-up">
 						<div className="neo-brutal-card p-4 bg-primary-20 border-foreground ghibli-feature-card">

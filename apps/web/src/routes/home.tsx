@@ -153,8 +153,7 @@ const Homepage = () => {
 					{/* Main Content */}
 					<main className="flex-1 p-6">
 						{/* Breadcrumb */}
-						<div className="mb-6">
-						</div>
+						<div className="mb-6"></div>
 
 						{/* Forums Section */}
 						<div className="space-y-6">
@@ -300,28 +299,16 @@ const Homepage = () => {
 								</h3>
 								<div className="space-y-2 text-sm text-black para-text-font">
 									<div className="flex justify-between">
-										<span className="text-black">
-											Total Posts:
-										</span>
-										<span className="font-medium text-black">
-											41.5k
-										</span>
+										<span className="text-black">Total Posts:</span>
+										<span className="font-medium text-black">41.5k</span>
 									</div>
 									<div className="flex justify-between">
-										<span className="text-black">
-											Total Topics:
-										</span>
-										<span className="font-medium text-black">
-											5.3k
-										</span>
+										<span className="text-black">Total Topics:</span>
+										<span className="font-medium text-black">5.3k</span>
 									</div>
 									<div className="flex justify-between">
-										<span className="text-black">
-											Total Members:
-										</span>
-										<span className="font-medium text-black">
-											2.1k
-										</span>
+										<span className="text-black">Total Members:</span>
+										<span className="font-medium text-black">2.1k</span>
 									</div>
 								</div>
 							</div>

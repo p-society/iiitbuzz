@@ -16,7 +16,7 @@ const Header = () => {
 
 				<div className="flex items-center space-x-3">
 					<ModeToggle />
-					
+
 					{isLoading ? (
 						// Show loading state
 						<div className="animate-pulse text-sm text-muted-foreground">
@@ -28,7 +28,11 @@ const Header = () => {
 							<span className="text-sm text-foreground">
 								Welcome, {user?.firstName || user?.username || user?.email}!
 							</span>
-							<Link to={user?.username ? `/profile/${user.username}` : '/my/profile'}>
+							<Link
+								to={
+									user?.username ? `/profile/${user.username}` : "/my/profile"
+								}
+							>
 								<Button
 									variant="outline"
 									className="neo-brutal-button border-primary text-primary bg-secondary hover:bg-secondary hover:text-black"

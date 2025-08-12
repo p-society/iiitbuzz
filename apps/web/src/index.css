@@ -83,7 +83,6 @@ body {
 	@apply transition-colors duration-500;
 }
 
-
 @layer utilities {
 	.bg-sidebar {
 		background-color: var(--sidebar);
