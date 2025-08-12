@@ -154,18 +154,11 @@ const Homepage = () => {
 					<main className="flex-1 p-6">
 						{/* Breadcrumb */}
 						<div className="mb-6">
-							<Button
-								variant="ghost"
-								size="sm"
-								className="text-muted-foreground hover:text-foreground"
-							>
-								Home
-							</Button>
 						</div>
 
 						{/* Forums Section */}
 						<div className="space-y-6">
-							<h2 className="text-2xl font-bold text-foreground text-black pixel-font">
+							<h2 className="text-2xl font-bold text-black pixel-font">
 								Threads
 							</h2>
 
@@ -235,10 +228,10 @@ const Homepage = () => {
 					</main>
 
 					{/* Sidebar with brutalist styling */}
-					<aside className="w-80 p-6 border-l-4 border-primary bg-sidebar">
+					<aside className="w-80 p-6 border-l-4 border-primary ">
 						<div className="space-y-8">
 							<div>
-								<h3 className="font-semibold mb-4 flex items-center gap-2 text-sidebar-foreground pixel-font">
+								<h3 className="font-semibold mb-4 flex items-center gap-2 pixel-font">
 									<TrendingUp className="w-4 h-4 text-accent" />
 									Recent Topics
 								</h3>
@@ -257,28 +250,28 @@ const Homepage = () => {
 											}`}
 										>
 											<div className="flex gap-3 items-start">
-												<div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5 bg-accent text-sidebar-foreground">
+												<div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 mt-0.5 bg-accent text-black">
 													{topic.avatar}
 												</div>
 												<div className="flex-1 min-w-0">
 													<div className="flex items-start gap-1">
 														{topic.isPinned && (
-															<Pin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-sidebar-foreground" />
+															<Pin className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-black" />
 														)}
-														<h4 className="text-sm font-medium line-clamp-2 text-sidebar-foreground hover:text-sidebar-foreground para-text-font">
+														<h4 className="text-sm font-medium line-clamp-2 text-black hover:text-black para-text-font">
 															{topic.title}
 														</h4>
 													</div>
-													<div className="flex items-center gap-2 mt-1 text-xs text-sidebar-foreground para-text-font">
+													<div className="flex items-center gap-2 mt-1 text-xs text-black para-text-font">
 														<span>By {topic.author}</span>
 														<span>•</span>
 														<span>{topic.time}</span>
 													</div>
 													<div className="flex items-center justify-between mt-2">
-														<span className="text-xs px-2 py-0.5 rounded-full font-medium bg-accent/20 text-sidebar-foreground para-text-font">
+														<span className="text-xs px-2 py-0.5 rounded-full font-medium bg-accent/20 text-black para-text-font">
 															{topic.category}
 														</span>
-														<span className="text-xs text-sidebar-foreground para-text-font">
+														<span className="text-xs text-black para-text-font">
 															{topic.replies} replies
 														</span>
 													</div>
@@ -290,43 +283,43 @@ const Homepage = () => {
 							</div>
 
 							<div>
-								<h3 className="font-semibold mb-4 flex items-center gap-2 text-sidebar-foreground pixel-font">
+								<h3 className="font-semibold mb-4 flex items-center gap-2 text-black pixel-font">
 									<Users className="w-4 h-4 text-muted-foreground" />
 									Online Users
 								</h3>
-								<div className="text-sm text-sidebar-foreground para-text-font">
+								<div className="text-sm text-black para-text-font">
 									<p>147 members online</p>
 									<p>23 guests online</p>
 								</div>
 							</div>
 
 							<div>
-								<h3 className="font-semibold mb-4 flex items-center gap-2 text-sidebar-foreground pixel-font">
+								<h3 className="font-semibold mb-4 flex items-center gap-2 text-black pixel-font">
 									<Clock className="w-4 h-4 text-muted-foreground" />
 									Forum Stats
 								</h3>
-								<div className="space-y-2 text-sm text-sidebar-foreground para-text-font">
+								<div className="space-y-2 text-sm text-black para-text-font">
 									<div className="flex justify-between">
-										<span className="text-sidebar-foreground">
+										<span className="text-black">
 											Total Posts:
 										</span>
-										<span className="font-medium text-sidebar-foreground">
+										<span className="font-medium text-black">
 											41.5k
 										</span>
 									</div>
 									<div className="flex justify-between">
-										<span className="text-sidebar-foreground">
+										<span className="text-black">
 											Total Topics:
 										</span>
-										<span className="font-medium text-sidebar-foreground">
+										<span className="font-medium text-black">
 											5.3k
 										</span>
 									</div>
 									<div className="flex justify-between">
-										<span className="text-sidebar-foreground">
+										<span className="text-black">
 											Total Members:
 										</span>
-										<span className="font-medium text-sidebar-foreground">
+										<span className="font-medium text-black">
 											2.1k
 										</span>
 									</div>
