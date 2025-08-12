@@ -5,9 +5,7 @@ export default function LoginPage() {
 	const redirectToGoogle = () => {
 		const backendUrl =
 			import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3000";
-		console.log("Backend URL:", backendUrl); // Debug log
 		const fullUrl = `${backendUrl}/auth/google`;
-		console.log("Full URL:", fullUrl); // Debug log
 		window.location.assign(fullUrl);
 	};
 

@@ -46,7 +46,6 @@
 	--sidebar-border: #c084fc;
 	--sidebar-ring: #c084fc;
 	--background-image: url("/backgrounds/bg-light.png");
-	--brutal-blue: #4281ff;
 }
 
 .dark {
@@ -78,7 +77,6 @@
 	--sidebar-border: #3c3c4a;
 	--sidebar-ring: #bca4e2;
 	--background-image: url("/backgrounds/bg-dark.png");
-	--brutal-blue: #4281ff;
 }
 
 body {
