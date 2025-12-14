@@ -1,5 +1,5 @@
-import { eq } from "drizzle-orm";
-import type { FastifyInstance } from "fastify";
+import { count, eq } from "drizzle-orm";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { topics as topicsTable } from "@/db/schema/topic.schema";
 import {
@@ -7,9 +7,57 @@ import {
 	topicIdParamsSchema,
 	updateTopicSchema,
 } from "@/dto/topics.dto";
-import { authenticateUser } from "./auth";
+import { attachUser, authenticateUser } from "./auth";
 
 export async function topicRoutes(fastify: FastifyInstance) {
+	
+	fastify.get(
+	"/topics",
+	{
+	  preHandler: [authenticateUser , attachUser],
+	  schema: {
+		querystring: {
+		  type: "object",
+		  properties: {
+			page: { type: "integer", minimum: 1, default: 1 },
+			limit: { type: "integer", minimum: 1, maximum: 100, default: 10 },
+		  },
+		},
+	  },
+	},
+    async (
+      request: FastifyRequest<{ Querystring: { page: number; limit: number } }>,
+      reply
+    ) => {
+      const { page, limit } = request.query;
+      const offset = (page - 1) * limit;
+      try {
+        const [topics, countResult] = await Promise.all([
+          DrizzleClient.query.topics.findMany({
+            limit: limit,
+            offset: offset,
+            orderBy: (table, { desc }) => [desc(table.createdAt)],
+          }),
+          DrizzleClient.select({ total: count() }).from(topicsTable),
+        ]);
+        return reply.status(200).send({
+          success: true,
+          data: topics,
+          pagination: {
+            page,
+            limit,
+            count: countResult[0]?.total ?? 0,
+          },
+        });
+      } catch (error) {
+        fastify.log.error({ err: error }, "Failed to fetch topics");
+        return reply
+          .status(500)
+          .send({ success: false, error: "Failed to fetch topics" });
+      }
+    }
+  );
+
 	fastify.post(
 		"/topics",
 		{ preHandler: authenticateUser },

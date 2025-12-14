@@ -1,5 +1,5 @@
-import { eq } from "drizzle-orm";
-import type { FastifyInstance } from "fastify";
+import { count, eq } from "drizzle-orm";
+import type { FastifyInstance , FastifyRequest} from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { posts as postsTable } from "@/db/schema/post.schema";
 import {
@@ -7,9 +7,94 @@ import {
 	postIdParamsSchema,
 	updatePostSchema,
 } from "@/dto/posts.dto";
-import { authenticateUser } from "./auth";
+import { threadIdParamsSchema } from "@/dto/threads.dto";
+import { attachUser, authenticateUser } from "./auth";
 
 export async function postRoutes(fastify: FastifyInstance) {
+
+	fastify.get(
+    "/threads/:id/posts",
+    {
+	  preHandler: [authenticateUser , attachUser],
+      schema: {
+        querystring: {
+          type: "object",
+          properties: {
+            page: { type: "integer", minimum: 1, default: 1 },
+            limit: { type: "integer", minimum: 1, maximum: 100, default: 20 },
+          },
+        },
+      },
+    },
+    async (
+      request: FastifyRequest<{
+        Params: { id: string };
+        Querystring: { page: number; limit: number };
+      }>,
+      reply
+    ) => {
+      const { page, limit } = request.query;
+      const offset = (page - 1) * limit;
+      const params = threadIdParamsSchema.safeParse(request.params);
+      if (!params.success)
+        return reply
+          .status(400)
+          .send({ success: false, error: "Invalid thread ID" });
+      const threadId = params.data.id;
+      try {
+        const [threadPosts, countResult] = await Promise.all([
+          DrizzleClient.query.posts.findMany({
+            where: (p, { eq }) => eq(p.threadId, threadId),
+            orderBy: (p, { asc }) => [asc(p.createdAt)],
+            limit: limit,
+            offset: offset,
+          }),
+          DrizzleClient.select({ total: count() })
+            .from(postsTable)
+            .where(eq(postsTable.threadId, threadId)),
+        ]);
+
+        return reply.status(200).send({
+          success: true,
+          posts: threadPosts,
+          pagination: {
+            page,
+            limit,
+            count: countResult[0]?.total ?? 0,
+          },
+        });
+      } catch (error) {
+        fastify.log.error("Error fetching posts for thread:", error);
+        return reply
+          .status(500)
+          .send({ success: false, error: "Failed to fetch posts" });
+      }
+    }
+  );
+	
+    fastify.get(
+        "/posts/:id",
+        { 	  preHandler: [authenticateUser , attachUser ], },
+        async (request, reply) => {
+            const params = postIdParamsSchema.safeParse(request.params);
+            if (!params.success) {
+                return reply.status(400).send({ success: false, error: "Invalid post id" });
+            }
+            try {
+                const post = await DrizzleClient.query.posts.findFirst({
+                    where: (p, { eq }) => eq(p.id, params.data.id),
+                });
+                if (!post) {
+                    return reply.status(404).send({ success: false, error: "Post not found" });
+                }
+                return reply.status(200).send({ success: true, post });
+            } catch (error) {
+                fastify.log.error("Error fetching post:", error);
+                return reply.status(500).send({ success: false, error: "Failed to fetch post" });
+            }
+        }
+    );
+
 	// Create post
 	fastify.post(
 		"/posts",

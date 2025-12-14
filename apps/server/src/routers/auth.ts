@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import jwt from "jsonwebtoken";
 import { users } from "@/db/schema/user.schema";
 import { DrizzleClient } from "../db/index";
@@ -265,6 +265,18 @@ export const authenticateUser: AuthenticationMiddleware = async (
 		request.log.error("Authentication error:", err);
 		return reply.status(401).send({ error: "Invalid authentication token" });
 	}
+};
+
+// user authentication - added by sambhu ( to remove the code redundancy)
+export const attachUser = async (request: FastifyRequest, reply: FastifyReply) => {
+  const authRequest = request as AuthenticatedRequest;
+  const user = await DrizzleClient.query.users.findFirst({
+	where: (u, { eq }) => eq(u.id, authRequest.userId),
+  });
+  if (!user) {
+	return reply.status(404).send({ success: false, error: "User not found" });
+  }
+  authRequest.user = user;
 };
 
 // Optional authentication middleware - doesn't block request if no auth
