@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { MessageSquare, Eye, ThumbsUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { Thread } from "@/types/forum";

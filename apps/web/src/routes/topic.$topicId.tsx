@@ -4,7 +4,7 @@ import Loader from "@/components/loader";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
-import { useParams} from "react-router-dom";
+import { useParams} from "react-router";
 
 
 import { api } from "@/lib/api";
