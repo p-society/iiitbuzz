@@ -119,7 +119,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 
 			if (newUserResult.length > 0) {
 				userId = newUserResult[0].id;
-				redirectPath = `${env.FRONTEND_URL}/user-details`;
+				redirectPath = `${env.FRONTEND_URL}/my/profile`;
 				isNewUser = true;
 				fastify.log.info("New user created", { userId, email });
 			} else {

@@ -45,8 +45,54 @@ body {
 	line-height: 1.6;
 }
 
+:root .landing-theme {
+	/* Backgrounds/Surfaces */
+	--background: #ffffff;
+	--foreground: #e7b52a;
+	--bg: #ffffff;
+	--surface: #f5f5f5;
+	--card: #000;
+	--card-foreground: #030302;
+	--popover: #262626;
+	--popover-foreground: #f5f5f5;
+	--muted: #374151;
+	--input: #374151;
+	--sidebar: #262626;
+	--sidebar-foreground: #f5f5f5;
+	--sidebar-primary: #c084fc;
+	--sidebar-primary-foreground: #f5f5f5;
+	--sidebar-accent: #374151;
+	--sidebar-accent-foreground: #f5f5f5;
+	--sidebar-border: #c084fc;
+	--sidebar-ring: #c084fc;
+	--background-image: url("/backgrounds/bg-light.png");
+
+	/* Primary/Accent Colors */
+	--primary: #040403;
+	--primary-foreground: #ffffff;
+	--secondary: #22c55e;
+	--secondary-foreground: #1a1a1a;
+	--accent: #f87171;
+	--accent-foreground: #1a1a1a;
+	--destructive: #ef4444;
+
+	/* Text/Misc */
+	--text-primary: #1a1a1a;
+	--text-secondary: #374151;
+	--muted-foreground: #7e8289;
+	--border: #374151;
+	--ring: #c084fc;
+	--footer: #000000b7;
+
+	/* Custom Color-20 variables used in Hero.tsx for opacities */
+	--primary-20: #04040333;
+	--secondary-20: #22c55e33;
+	--accent-20: #f8717133;
+	--destructive-20: #ef444433;
+}
+
 /* .pixel-font { */
-/* 	font-family: "Press Start 2P", monospace; */
+/* font-family: "Press Start 2P", monospace; */
 /* } */
 .pixel-font {
 	font-family: "Rowdies", sans-serif;
@@ -340,8 +386,8 @@ body {
 	display: none;
 }
 /* .wrap { */
-/*     z-index: 100; */
-/* 	position: relative; */
+/* z-index: 100; */
+/* position: relative; */
 /* } */
 .bee-container {
 	display: inline-block;

@@ -9,7 +9,7 @@ import { appRouter } from "./routers/index";
 
 const baseCorsConfig = {
 	origin: env.CORS_ORIGIN,
-	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
 	allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
 	credentials: true,
 	maxAge: 86400,
@@ -40,7 +40,7 @@ fastify.register(fastifyOauth2, {
 		auth: fastifyOauth2.GOOGLE_CONFIGURATION,
 	},
 	scope: ["openid", "profile", "email"],
-	startRedirectPath: "/auth/google",
+	startRedirectPath: "/api/auth/google",
 	callbackUri: env.GOOGLE_REDIRECT_URI,
 	cookie: {
 		secure: env.NODE_ENV === "production",

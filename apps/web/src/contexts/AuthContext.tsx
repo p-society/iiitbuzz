@@ -6,6 +6,7 @@ import {
 	useEffect,
 	useState,
 } from "react";
+import { toast } from "sonner";
 
 interface User {
 	id: string;
@@ -53,7 +54,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 	const checkAuth = useCallback(async () => {
 		try {
 			setIsLoading(true);
-			const response = await fetch(`${backendUrl}/user/me`, {
+			const response = await fetch(`${backendUrl}/api/user/me`, {
 				credentials: "include", // Include cookies
 			});
 
@@ -76,19 +77,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 	}, [checkAuth]);
 
 	const login = () => {
-		const fullUrl = `${backendUrl}/auth/google`;
+		const fullUrl = `${backendUrl}/api/auth/google`;
 		window.location.assign(fullUrl);
 	};
 
 	const logout = async () => {
 		try {
-			await fetch(`${backendUrl}/auth/logout`, {
+			await fetch(`${backendUrl}/api/auth/logout`, {
 				method: "POST",
 				credentials: "include",
 			});
 			setUser(null);
+			toast.success("You have been logged out. See you soon! 👋");
 		} catch (error) {
 			console.error("Logout failed:", error);
+			toast.error("Logout failed. Please try again.");
 		}
 	};
 

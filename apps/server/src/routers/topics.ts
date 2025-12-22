@@ -2,6 +2,7 @@ import { count, eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { topics as topicsTable } from "@/db/schema/topic.schema";
+
 import {
 	createTopicSchema,
 	topicIdParamsSchema,
@@ -57,6 +58,52 @@ export async function topicRoutes(fastify: FastifyInstance) {
       }
     }
   );
+    
+        
+    fastify.get(
+        "/topics/:id",
+        {
+            preHandler: [authenticateUser, attachUser],
+            schema: {
+                params: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string' }
+                    },
+                    required: ['id']
+                }
+            }
+        },
+       
+        async (request: FastifyRequest, reply) => { 
+            const params = topicIdParamsSchema.safeParse(request.params);
+            if (!params.success)
+                return reply
+                    .status(400)
+                    .send({ success: false, error: "Invalid topic id" });
+    
+            try {
+                const topic = await DrizzleClient.query.topics.findFirst({
+                    where: (t, { eq }) => eq(t.id, params.data.id),
+                });
+    
+                if (!topic)
+                    return reply
+                        .status(404)
+                        .send({ success: false, error: "Topic not found" });
+    
+                return reply.status(200).send({
+                    success: true,
+                    topic,
+                });
+            } catch (error) {
+                fastify.log.error({ err: error }, "Failed to fetch topic");
+                return reply
+                    .status(500)
+                    .send({ success: false, error: "Failed to fetch topic" });
+            }
+        }
+    );
 
 	fastify.post(
 		"/topics",
