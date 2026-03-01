@@ -1,212 +1,150 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router";
-import { Button } from "@/components/ui/button";
-import Footer from "@/components/ui/footer";
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router";
+import { MapPin, Calendar, Settings } from "lucide-react";
+import { api } from "@/lib/api";
+import { StatCard } from "@/components/profile/StatCard";
+import type { UserProfile } from "@/types/user";
+import { toast } from "sonner";
 import Header from "@/components/ui/header";
-import { useAuth } from "@/contexts/AuthContext";
+import Footer from "@/components/ui/footer";
+import Loader from "@/components/loader";
+import { RecentThreadRow } from "@/components/forum/RecentThreadRow";
+import type { RecentThread } from "@/types/forum";
+import { getTopicColor } from "@/lib/utils/topicColor";
+import { formatTimeAgo } from "@/lib/utils/date";
 
-interface UserProfile {
-	id: string;
-	email?: string; // Only present if own profile
-	username: string | null;
-	firstName: string | null;
-	lastName: string | null;
-	pronouns: string | null;
-	bio: string | null;
-	branch: string | null;
-	passingOutYear: number | null;
-	totalPosts: number;
-}
+export default function UserProfilePage() {
+    const { username } = useParams();
+    const [data, setData] = useState<{ user: UserProfile, isOwn: boolean } | null>(null);
+    const [userStats, setUserStats] = useState<{
+        totalTopics: number;
+        totalThreads: number;
+    } | null>(null);
+    const [recentThreads, setRecentThreads] = useState<RecentThread[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<"threads" | "activity">("threads");
 
-interface ProfileResponse {
-	success: boolean;
-	isOwnProfile: boolean;
-	user: UserProfile;
-}
+    useEffect(() => {
+        if (!username) return;
+        const fetchProfileAndStats = async () => {
+            try {
+                setLoading(true);
+                const profileRes = await api.getUserProfile(username);
+                setData({ user: profileRes.user, isOwn: profileRes.isOwnProfile });
 
-export default function ProfilePage() {
-	const { username } = useParams<{ username: string }>();
-	const { user: _currentUser } = useAuth();
-	const [profile, setProfile] = useState<UserProfile | null>(null);
-	const [isOwnProfile, setIsOwnProfile] = useState(false);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+                if (profileRes.user.id) {
+                    const [statsRes, threadsRes] = await Promise.all([
+                        api.getUserStats(profileRes.user.id),
+                        api.getUserThreads(profileRes.user.id, { page: 1, limit: 10, sort: 'latest' })
+                    ]);
 
-	const backendUrl =
-		import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3000";
+                    setUserStats(statsRes.stats);
+                    setRecentThreads(threadsRes.threads.map((t: any) => ({
+                        id: t.id,
+                        title: t.threadTitle || "Untitled", 
+                        author: t.authorName || profileRes.user.username || "Anonymous",
+                        topic: t.topicName || "General",
+                        topicColor: getTopicColor(t.topicId),
+                        replies: t.replies || 0,
+                        views: t.viewCount || 0, 
+                        lastActive: formatTimeAgo(t.createdAt),
+                    })));
+                }
+            } catch (err: any) {
+                toast.error(err.message || "Failed to load profile data");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProfileAndStats();
+    }, [username]);
 
-	useEffect(() => {
-		const fetchProfile = async () => {
-			if (!username) return;
+    if (loading) return <div className="min-h-screen flex flex-col"><Header /><Loader /><Footer /></div>;
+    if (!data) return <div className="p-20 text-center font-bold">User Not Found</div>;
 
-			try {
-				setLoading(true);
-				const response = await fetch(`${backendUrl}/user/details/${username}`, {
-					credentials: "include",
-				});
+    const { user, isOwn } = data;
 
-				if (!response.ok) {
-					if (response.status === 404) {
-						setError("User not found");
-					} else {
-						setError("Failed to load profile");
-					}
-					return;
-				}
+    return (
+        <div className="min-h-screen flex flex-col bg-background">
+            <Header />
+            <main className="mx-auto max-w-7xl px-4 py-8 flex-1 w-full">
+                <div className="grid gap-6 lg:grid-cols-3">
+                    <aside className="space-y-6">
+                        <div className="border-4 border-border bg-card p-6 shadow-[6px_6px_0px_0px_var(--shadow-color)]">
+                            <div className="mb-4 flex justify-between">
+                                <div className="h-20 w-20 flex items-center justify-center border-4 border-border bg-primary overflow-hidden">
+                                    {user.imageUrl ? (
+                                        <img src={user.imageUrl} alt={user.username} className="h-full w-full object-cover" />
+                                    ) : (
+                                        <span className="font-bold text-4xl text-primary-foreground">
+                                            {(user.username?.[0] || "U").toUpperCase()}
+                                        </span>
+                                    )}
+                                </div>
+                                {isOwn && (
+                                    <Link to="/my/profile">
+                                        <button type="button" className="flex h-10 w-10 items-center justify-center border-3 border-border bg-card shadow-[3px_3px_0px_0px_var(--shadow-color)] transition-all hover:translate-x-[1px] hover:translate-y-[1px]">
+                                            <Settings className="h-5 w-5" />
+                                        </button>
+                                    </Link>
+                                )}
+                            </div>
+                            <h1 className="text-2xl font-black uppercase">{user.username}</h1>
+                            <div className="my-2 bg-accent border-2 border-border px-3 py-1 inline-block font-bold text-xs uppercase">Member</div>
+                            <p className="text-muted-foreground font-bold text-sm mb-4">{user.bio || "No bio yet."}</p>
+                            <div className="space-y-2 font-bold text-sm">
+                                <div className="flex items-center gap-2"><MapPin size={16} /> {user.branch || "Unknown Dept"}</div>
+                                <div className="flex items-center gap-2"><Calendar size={16} /> Batch of {user.passingOutYear || "N/A"}</div>
+                            </div>
+                        </div>
 
-				const data: ProfileResponse = await response.json();
-				setProfile(data.user);
-				setIsOwnProfile(data.isOwnProfile);
-			} catch (err) {
-				setError("Failed to load profile");
-				console.error("Profile fetch error:", err);
-			} finally {
-				setLoading(false);
-			}
-		};
+                        <div className="border-4 border-border bg-card p-6 shadow-[6px_6px_0px_0px_var(--shadow-color)]">
+                            <h2 className="mb-4 font-black text-xl uppercase">Statistics</h2>
+                            <div className="grid grid-cols-2 gap-3">
+                                <StatCard label="Posts" value={user?.totalPosts ?? 0} color="primary" />
+                                <StatCard label="Threads" value={userStats?.totalThreads ?? 0} color="secondary" />
+                                <StatCard label="Likes" value={0} color="accent" />
+                                <StatCard label="Solved" value={0} color="muted" />
+                            </div>
+                        </div>
+                    </aside>
 
-		fetchProfile();
-	}, [username]);
+                    <section className="lg:col-span-2">
+                        <div className="flex gap-2 mb-6">
+                            {["threads", "activity"].map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab as any)}
+                                    className={`border-4 border-border px-6 py-2 font-black uppercase shadow-[4px_4px_0px_0px_var(--shadow-color)] transition-all ${activeTab === tab ? "bg-foreground text-background" : "bg-card"}`}
+                                >
+                                    {tab === "threads" ? "Recent Threads" : "Activity"}
+                                </button>
+                            ))}
+                        </div>
 
-	if (loading) {
-		return (
-			<div className="min-h-screen flex flex-col">
-				<Header />
-				<main className="flex-1 flex items-center justify-center">
-					<div className="text-center">
-						<div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-						<p className="mt-4 text-muted-foreground">Loading profile...</p>
-					</div>
-				</main>
-				<Footer />
-			</div>
-		);
-	}
-
-	if (error || !profile) {
-		return (
-			<div className="min-h-screen flex flex-col">
-				<Header />
-				<main className="flex-1 flex items-center justify-center">
-					<div className="text-center">
-						<h1 className="text-4xl font-bold text-foreground mb-4">
-							😕 Oops!
-						</h1>
-						<p className="text-xl text-muted-foreground mb-8">
-							{error || "Profile not found"}
-						</p>
-						<Link to="/home">
-							<Button>Go Back Home</Button>
-						</Link>
-					</div>
-				</main>
-				<Footer />
-			</div>
-		);
-	}
-
-	const displayName =
-		profile.firstName && profile.lastName
-			? `${profile.firstName} ${profile.lastName}`
-			: profile.firstName || profile.username || "Anonymous User";
-
-	return (
-		<div className="min-h-screen flex flex-col">
-			<Header />
-			<main className="flex-1 container mx-auto px-4 py-8">
-				<div className="max-w-4xl mx-auto">
-					{/* Profile Header */}
-					<div className="neo-brutal-card p-8 mb-8">
-						<div className="flex items-center justify-between mb-6">
-							<div className="flex items-center gap-4">
-								<div className="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center text-2xl font-bold">
-									{displayName.charAt(0).toUpperCase()}
-								</div>
-								<div>
-									<h1 className="text-3xl font-bold pixel-font text-foreground mb-1">
-										{displayName}
-									</h1>
-									{profile.username && (
-										<p className="text-muted-foreground text-lg">
-											@{profile.username}
-										</p>
-									)}
-									{profile.pronouns && (
-										<span className="inline-block bg-secondary text-secondary-foreground px-2 py-1 rounded text-sm mt-1">
-											{profile.pronouns}
-										</span>
-									)}
-								</div>
-							</div>
-
-							{isOwnProfile && (
-								<Link to="/my/profile">
-									<Button variant="outline" className="neo-brutal-button">
-										Edit Profile
-									</Button>
-								</Link>
-							)}
-						</div>
-
-						{profile.bio && (
-							<div className="mb-6">
-								<p className="text-lg public-sans-font text-foreground">
-									{profile.bio}
-								</p>
-							</div>
-						)}
-
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-							{profile.email && isOwnProfile && (
-								<div className="flex items-center gap-2">
-									<span className="text-muted-foreground">📧</span>
-									<span className="text-sm text-foreground">
-										{profile.email}
-									</span>
-								</div>
-							)}
-
-							{profile.branch && (
-								<div className="flex items-center gap-2">
-									<span className="text-muted-foreground">📍</span>
-									<span className="text-sm text-foreground">
-										{profile.branch}
-									</span>
-								</div>
-							)}
-
-							{profile.passingOutYear && (
-								<div className="flex items-center gap-2">
-									<span className="text-muted-foreground">📅</span>
-									<span className="text-sm text-foreground">
-										Class of {profile.passingOutYear}
-									</span>
-								</div>
-							)}
-
-							<div className="flex items-center gap-2">
-								<span className="text-muted-foreground">💬</span>
-								<span className="text-sm text-foreground">
-									{profile.totalPosts} posts
-								</span>
-							</div>
-						</div>
-					</div>
-
-					{/* Activity Section */}
-					<div className="neo-brutal-card p-8">
-						<h2 className="text-2xl font-bold pixel-font text-foreground mb-6">
-							Recent Activity
-						</h2>
-						<div className="text-center py-12 text-muted-foreground">
-							<div className="text-6xl mb-4">💬</div>
-							<p className="text-lg mb-2">No recent activity to show</p>
-							<p className="text-sm">Posts and comments will appear here</p>
-						</div>
-					</div>
-				</div>
-			</main>
-			<Footer />
-		</div>
-	);
+                        <div className="space-y-4">
+                            {activeTab === "threads" ? (
+                                <div className="space-y-4">
+                                    {recentThreads.length > 0 ? (
+                                        recentThreads.map((thread) => (
+                                            <RecentThreadRow key={thread.id} thread={thread} />
+                                        ))
+                                    ) : (
+                                        <p className="text-center py-10 font-bold border-4 border-dashed border-border text-muted-foreground">
+                                            No Recent Threads
+                                        </p>
+                                    )}
+                                </div>
+                            ) : (
+                                <p className="text-center py-10 font-bold border-4 border-dashed border-border text-muted-foreground">
+                                    No Activity Yet
+                                </p>
+                            )}
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <Footer />
+        </div>
+    );
 }

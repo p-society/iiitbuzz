@@ -82,7 +82,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 			}
 
 			const userInfo: GoogleTokenInfo = userInfoValidation.data;
-			const { email } = userInfo;
+			const { email, picture } = userInfo;
 
 			const createUserData = createUserSchema.parse({
 				email,
@@ -108,18 +108,22 @@ export async function authRoutes(fastify: FastifyInstance) {
 					email: createUserData.email,
 					firstName: createUserData.firstName,
 					lastName: createUserData.lastName,
+					imageUrl: picture,
 					pronouns: null,
 					bio: null,
 					branch: null,
 					passingOutYear: null,
 					totalPosts: 0,
 				})
-				.onConflictDoNothing({ target: users.email })
+				.onConflictDoUpdate({ 
+        			target: users.email, 
+        			set: { imageUrl: picture } 
+    			})
 				.returning({ id: users.id });
 
 			if (newUserResult.length > 0) {
 				userId = newUserResult[0].id;
-				redirectPath = `${env.FRONTEND_URL}/user-details`;
+				redirectPath = `${env.FRONTEND_URL}/my/profile`;
 				isNewUser = true;
 				fastify.log.info("New user created", { userId, email });
 			} else {
@@ -215,6 +219,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 						username: true,
 						firstName: true,
 						lastName: true,
+						imageUrl: true,
 						pronouns: true,
 						bio: true,
 						branch: true,

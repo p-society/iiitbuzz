@@ -1,7 +1,8 @@
-import { count, eq } from "drizzle-orm";
+import { count, eq , sql} from "drizzle-orm";
 import type { FastifyInstance , FastifyRequest} from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { posts as postsTable } from "@/db/schema/post.schema";
+import { users as usersTable } from "@/db/schema/user.schema";
 import {
 	createPostSchema,
 	postIdParamsSchema,
@@ -42,16 +43,37 @@ export async function postRoutes(fastify: FastifyInstance) {
           .send({ success: false, error: "Invalid thread ID" });
       const threadId = params.data.id;
       try {
-        const [threadPosts, countResult] = await Promise.all([
-          DrizzleClient.query.posts.findMany({
-            where: (p, { eq }) => eq(p.threadId, threadId),
-            orderBy: (p, { asc }) => [asc(p.createdAt)],
-            limit: limit,
-            offset: offset,
-          }),
-          DrizzleClient.select({ total: count() })
+        const postsQuery = DrizzleClient.select({
+            postId: postsTable.id,
+            content: postsTable.content,
+            createdAt: postsTable.createdAt,
+            likes: postsTable.vote, 
+            
+            authorId: usersTable.id,
+            authorName:sql<string>`
+                CASE 
+                    WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username} 
+                    ELSE ${usersTable.firstName} 
+                END
+            `.as('authorName'), 
+           
+            
+            
+        })
+        .from(postsTable)
+        .leftJoin(usersTable, eq(postsTable.createdBy, usersTable.id))
+        .where(eq(postsTable.threadId, threadId))
+        .orderBy(postsTable.createdAt)
+        .limit(limit)
+        .offset(offset);
+
+        const countQuery = DrizzleClient.select({ total: count() })
             .from(postsTable)
-            .where(eq(postsTable.threadId, threadId)),
+            .where(eq(postsTable.threadId, threadId));
+
+        const [threadPosts, countResult] = await Promise.all([
+          postsQuery,
+          countQuery,
         ]);
 
         return reply.status(200).send({
@@ -111,7 +133,6 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.status(400)
 					.send({ success: false, error: "Invalid request body" });
 
-			// Ensure thread exists
 			const thread = await DrizzleClient.query.threads.findFirst({
 				where: (t, { eq }) => eq(t.id, body.data.threadId),
 			});
@@ -125,9 +146,19 @@ export async function postRoutes(fastify: FastifyInstance) {
 				content: body.data.content,
 				createdBy: authUserId,
 			};
-			const [post] = await DrizzleClient.insert(postsTable)
-				.values(toInsert)
-				.returning();
+
+			const post = await DrizzleClient.transaction(async (tx) => {
+				const [newPost] = await tx.insert(postsTable)
+					.values(toInsert)
+					.returning();
+				await tx.update(usersTable)
+					.set({
+						totalPosts: sql`${usersTable.totalPosts} + 1`
+					})
+					.where(eq(usersTable.id, authUserId));
+				return newPost;
+			});
+
 			return reply.status(201).send({ success: true, post });
 		},
 	);

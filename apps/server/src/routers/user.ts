@@ -10,7 +10,6 @@ import {
 import { authenticateUser, optionalAuth } from "./auth";
 
 export async function userRoutes(fastify: FastifyInstance) {
-	// Get user details by username - works for both authenticated and unauthenticated users
 	fastify.get(
 		"/details/:username",
 		{ preHandler: optionalAuth },
@@ -19,7 +18,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 				const { username } = userDetailsParamsSchema.parse(request.params);
 				const authenticatedUserId = request.userId ?? null;
 
-				// Fetch user details by username
 				const user = await DrizzleClient.query.users.findFirst({
 					where: (u, { eq }) => eq(u.username, username),
 				});
@@ -31,16 +29,15 @@ export async function userRoutes(fastify: FastifyInstance) {
 					});
 				}
 
-				// Check if it's own profile after fetching the user
 				const isOwnProfile = authenticatedUserId === user.id;
 
-				// Return different levels of detail based on whether it's own profile
 				const formatUserForResponse = (user: User, isOwner: boolean) => {
 					const publicProfile = {
 						id: user.id,
 						username: user.username,
 						firstName: user.firstName,
 						lastName: user.lastName,
+						imageUrl : user.imageUrl,
 						pronouns: user.pronouns,
 						bio: user.bio,
 						branch: user.branch,
@@ -72,7 +69,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	// Get current authenticated user's profile
+	
 	fastify.get(
 		"/me",
 		{ preHandler: authenticateUser },
@@ -104,6 +101,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 						username: user.username,
 						firstName: user.firstName,
 						lastName: user.lastName,
+						imageUrl : user.imageUrl,
 						pronouns: user.pronouns,
 						bio: user.bio,
 						branch: user.branch,
@@ -122,7 +120,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	// Update current user's profile (protected route)
+	
 	fastify.patch(
 		"/me",
 		{ preHandler: authenticateUser },
@@ -136,7 +134,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 				}
 				const updateData = userUpdateSchema.parse(request.body);
 
-				// Remove any fields that shouldn't be updated via this endpoint
+				
 				const filteredData = Object.fromEntries(
 					Object.entries(updateData).filter(([, v]) => v !== undefined),
 				) as Partial<typeof users.$inferInsert>;

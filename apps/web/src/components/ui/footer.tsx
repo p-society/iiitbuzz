@@ -8,10 +8,10 @@ const Footer = () => {
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
 					<div className="col-span-1 md:col-span-2">
 						<div className="flex items-center space-x-2 mb-4">
-							<div className="w-8 h-8 bg-secondary border-2 border-primary pixel-pulse"></div>
+						    <img src="/images/logo.png" alt="IIITBuzz Logo" className="w-8 h-8" />
 							<h3 className="pixel-font text-xl text-primary">IIITBuzz</h3>
 						</div>
-						<p className="text-sm text-muted mb-4">
+						<p className="text-sm text-muted-foreground mb-4">
 							The ultimate community platform for IIIT students. Connect, learn,
 							and grow together in our vibrant digital campus ecosystem.
 						</p>
@@ -62,7 +62,7 @@ const Footer = () => {
 									<li key={link}>
 										<a
 											href={`#${link.toLowerCase().replace(/ & | /g, "-")}`}
-											className="text-muted hover:text-primary transition-colors"
+											className="text-muted-foreground hover:text-primary transition-colors"
 										>
 											{link}
 										</a>
@@ -84,7 +84,7 @@ const Footer = () => {
 								<li key={policy}>
 									<a
 										href={`#${policy.toLowerCase().replace(/ /g, "-")}`}
-										className="text-muted hover:text-primary transition-colors"
+										className="text-muted-foreground hover:text-primary transition-colors"
 									>
 										{policy}
 									</a>
@@ -95,8 +95,12 @@ const Footer = () => {
 				</div>
 
 				<div className="border-t-2 border-muted pt-8 text-center">
-					<p className="pixel-font text-xs text-muted m-4">© 2025 IIITBuzz</p>
-					<p className="text-xs text-muted mt-2">by- P-Soc IIIT-bh</p>
+					<p className="pixel-font text-xs text-muted-foreground m-4">
+						© 2025 IIITBuzz
+					</p>
+					<p className="text-xs text-muted-foreground mt-2">
+						by- P-Soc IIIT-bh
+					</p>
 				</div>
 			</div>
 		</footer>

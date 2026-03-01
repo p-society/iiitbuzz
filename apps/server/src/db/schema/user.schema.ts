@@ -6,6 +6,7 @@ export const users = pgTable("user", {
 	email: varchar("email", { length: 255 }).unique(),
 	firstName: varchar("first_name", { length: 255 }),
 	lastName: varchar("last_name", { length: 255 }),
+	imageUrl: varchar("image_url", { length: 500 }),
 	totalPosts: integer("total_posts"),
 	pronouns: varchar("pronouns", { length: 64 }),
 	bio: varchar("bio", { length: 255 }),

@@ -85,7 +85,7 @@ const Hero = () => {
 						<Link to="/home">
 							<Button
 								size="lg"
-								variant="outline"
+								variant="neutral"
 								className="neo-brutal-button bg-secondary border-primary text-primary hover:bg-secondary  hover:text-black text-lg px-8 py-6 ghibli-button pixel-font"
 							>
 								📖 EXPLORE FIRST

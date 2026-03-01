@@ -31,6 +31,7 @@ export const userUpdateSchema = z
 			.optional(),
 		firstName: z.string().max(50).nullable().optional(),
 		lastName: z.string().max(50).nullable().optional(),
+		imageUrl: z.string().url().or(z.string().startsWith("/images/")).optional(),
 		pronouns: z.string().max(50).nullable().optional(),
 		bio: z.string().max(280).nullable().optional(),
 		branch: z.string().max(100).nullable().optional(),

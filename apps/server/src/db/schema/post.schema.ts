@@ -21,7 +21,6 @@ export const posts = pgTable(
 
 		vote: integer("vote").default(0),
 		content: text("content").notNull(),
-
 		createdAt: timestamp("created_at", { mode: "string" })
 			.notNull()
 			.defaultNow(),

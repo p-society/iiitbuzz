@@ -10,6 +10,9 @@ import {
 import { topics } from "./topic.schema";
 import { users } from "./user.schema";
 
+
+
+
 export const threads = pgTable(
 	"thread",
 	{
