@@ -6,7 +6,7 @@
 		"build": "tsc && tsc-alias",
 		"check-types": "tsc --noEmit",
 		"compile": "tsc build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
-		"dev": "tsx watch src/index.ts",
+		"dev": "tsx watch src/index.ts --host",
 		"start": "node dist/src/index.js",
 		"db:push": "drizzle-kit push",
 		"db:studio": "drizzle-kit studio",
