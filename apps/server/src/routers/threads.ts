@@ -1,4 +1,4 @@
-import { count, desc, eq, ilike, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import {
 	createThreadSchema,
@@ -72,11 +72,14 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					createdAt: threadsTable.createdAt,
 					topicId: threadsTable.topicId,
 					views: threadsTable.viewCount,
+					isAnonymous: threadsTable.isAnonymous,
+					isApproved: threadsTable.isApproved,
 
 					authorName: sql<string>`
-                    CASE 
-                        WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username} 
-                        ELSE ${usersTable.firstName} 
+                    CASE
+                        WHEN ${threadsTable.isAnonymous} = true THEN 'Anonymous'
+                        WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username}
+                        ELSE ${usersTable.firstName}
                     END
                 `.as("authorName"),
 
@@ -98,12 +101,17 @@ export async function threadRoutes(fastify: FastifyInstance) {
 				const withSearch =
 					search && search.trim()
 						? selectQuery.where(
-								ilike(
-									threadsTable.threadTitle,
-									sql`${"%" + search.trim() + "%"}`,
+								and(
+									ilike(
+										threadsTable.threadTitle,
+										sql`${"%" + search.trim() + "%"}`,
+									),
+									sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
 								),
 							)
-						: selectQuery;
+						: selectQuery.where(
+								sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
+							);
 
 				const threadsQuery = withSearch
 					.groupBy(
@@ -112,6 +120,8 @@ export async function threadRoutes(fastify: FastifyInstance) {
 						threadsTable.createdAt,
 						threadsTable.topicId,
 						threadsTable.viewCount,
+						threadsTable.isAnonymous,
+						threadsTable.isApproved,
 						usersTable.username,
 						usersTable.firstName,
 						topicsTable.topicName,
@@ -120,17 +130,24 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.limit(limit)
 					.offset(offset);
 
-				const countBase = DrizzleClient.select({ total: count() }).from(
-					threadsTable,
-				);
+				const approvalFilter = sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`;
+
+				const countBase = DrizzleClient.select({ total: count() })
+					.from(threadsTable)
+					.where(approvalFilter);
 				const countQuery =
 					search && search.trim()
-						? countBase.where(
-								ilike(
-									threadsTable.threadTitle,
-									sql`${"%" + search.trim() + "%"}`,
-								),
-							)
+						? DrizzleClient.select({ total: count() })
+								.from(threadsTable)
+								.where(
+									and(
+										ilike(
+											threadsTable.threadTitle,
+											sql`${"%" + search.trim() + "%"}`,
+										),
+										approvalFilter,
+									),
+								)
 						: countBase;
 
 				const [threads, countResult] = await Promise.all([
@@ -228,11 +245,14 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					topicId: threadsTable.topicId,
 					viewCount: threadsTable.viewCount,
 					createdBy: threadsTable.createdBy,
+					isAnonymous: threadsTable.isAnonymous,
+					isApproved: threadsTable.isApproved,
 
 					authorName: sql<string>`
-            CASE 
-              WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username} 
-              ELSE ${usersTable.firstName} 
+            CASE
+              WHEN ${threadsTable.isAnonymous} = true THEN 'Anonymous'
+              WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username}
+              ELSE ${usersTable.firstName}
             END
           `.as("authorName"),
 
@@ -245,7 +265,12 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.from(threadsTable)
 					.leftJoin(usersTable, eq(threadsTable.createdBy, usersTable.id))
 					.leftJoin(postsTable, eq(postsTable.threadId, threadsTable.id))
-					.where(eq(threadsTable.topicId, topicId))
+					.where(
+						and(
+							eq(threadsTable.topicId, topicId),
+							sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
+						),
+					)
 					.groupBy(
 						threadsTable.id,
 						threadsTable.threadTitle,
@@ -253,6 +278,8 @@ export async function threadRoutes(fastify: FastifyInstance) {
 						threadsTable.topicId,
 						threadsTable.viewCount,
 						threadsTable.createdBy,
+						threadsTable.isAnonymous,
+						threadsTable.isApproved,
 						usersTable.username,
 						usersTable.firstName,
 					)
@@ -264,7 +291,12 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					threadsQuery,
 					DrizzleClient.select({ total: count() })
 						.from(threadsTable)
-						.where(eq(threadsTable.topicId, topicId)),
+						.where(
+							and(
+								eq(threadsTable.topicId, topicId),
+								sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
+							),
+						),
 				]);
 
 				const threadsWithStats = relatedThreads.map((thread) => ({
@@ -316,11 +348,14 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					createdAt: threadsTable.createdAt,
 					createdBy: threadsTable.createdBy,
 					viewCount: threadsTable.viewCount,
+					isAnonymous: threadsTable.isAnonymous,
+					isApproved: threadsTable.isApproved,
 					topicName: topicsTable.topicName,
 					authorName: sql<string>`
-          CASE 
-            WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username} 
-            ELSE ${usersTable.firstName} 
+          CASE
+            WHEN ${threadsTable.isAnonymous} = true THEN 'Anonymous'
+            WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username}
+            ELSE ${usersTable.firstName}
           END
         `.as("authorName"),
 				})
@@ -333,6 +368,12 @@ export async function threadRoutes(fastify: FastifyInstance) {
 				const thread = threadData[0];
 
 				if (!thread) {
+					return reply
+						.status(404)
+						.send({ success: false, error: "Thread not found" });
+				}
+
+				if (thread.isAnonymous && !thread.isApproved) {
 					return reply
 						.status(404)
 						.send({ success: false, error: "Thread not found" });
@@ -463,6 +504,8 @@ export async function threadRoutes(fastify: FastifyInstance) {
 				threadTitle: data.threadTitle,
 				createdBy: userid,
 				viewCount: 0,
+				isAnonymous: data.isAnonymous ?? false,
+				isApproved: !(data.isAnonymous ?? false),
 			};
 			try {
 				const [newThread] = await DrizzleClient.insert(threadsTable)

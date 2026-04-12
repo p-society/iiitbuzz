@@ -37,7 +37,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 						username: user.username,
 						firstName: user.firstName,
 						lastName: user.lastName,
-						imageUrl : user.imageUrl,
+						imageUrl: user.imageUrl,
 						pronouns: user.pronouns,
 						bio: user.bio,
 						branch: user.branch,
@@ -69,7 +69,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	
 	fastify.get(
 		"/me",
 		{ preHandler: authenticateUser },
@@ -101,12 +100,13 @@ export async function userRoutes(fastify: FastifyInstance) {
 						username: user.username,
 						firstName: user.firstName,
 						lastName: user.lastName,
-						imageUrl : user.imageUrl,
+						imageUrl: user.imageUrl,
 						pronouns: user.pronouns,
 						bio: user.bio,
 						branch: user.branch,
 						passingOutYear: user.passingOutYear,
 						totalPosts: user.totalPosts,
+						role: user.role,
 					},
 				});
 			} catch (err) {
@@ -120,7 +120,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 		},
 	);
 
-	
 	fastify.patch(
 		"/me",
 		{ preHandler: authenticateUser },
@@ -134,7 +133,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 				}
 				const updateData = userUpdateSchema.parse(request.body);
 
-				
 				const filteredData = Object.fromEntries(
 					Object.entries(updateData).filter(([, v]) => v !== undefined),
 				) as Partial<typeof users.$inferInsert>;

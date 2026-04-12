@@ -1,105 +1,70 @@
 import { Instagram, Linkedin, Mail, Twitter } from "lucide-react";
-import "@/styles/components/card.css";
 
 const Footer = () => {
 	return (
-		<footer className="bg-background border-t-4 border-primary py-12 transition-colors duration-500">
-			<div className="container mx-auto px-4">
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-					<div className="col-span-1 md:col-span-2">
-						<div className="flex items-center space-x-2 mb-4">
-						    <img src="/images/logo.png" alt="IIITBuzz Logo" className="w-8 h-8" />
-							<h3 className="pixel-font text-xl text-primary">IIITBuzz</h3>
+		<footer className="bg-background border-t-4 border-primary">
+			<div className="site-container py-4">
+				<div className="flex flex-wrap items-center justify-between gap-4">
+					<div className="flex items-center gap-4">
+						<div className="flex items-center gap-2">
+							<img
+								src="/images/logo.png"
+								alt="IIITBuzz Logo"
+								className="w-6 h-6"
+							/>
+							<span className="pixel-font text-sm text-primary">IIITBuzz</span>
 						</div>
-						<p className="text-sm text-muted-foreground mb-4">
-							The ultimate community platform for IIIT students. Connect, learn,
-							and grow together in our vibrant digital campus ecosystem.
-						</p>
-						<div className="flex space-x-4">
+						<div className="flex gap-3">
 							<a
 								href="https://www.linkedin.com/company/p-soc"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="w-8 h-8 neo-brutal-card bg-muted border-border flex items-center justify-center cursor-pointer hover:scale-110 hover:bg-primary hover:text-primary-foreground transition-all"
+								className="w-6 h-6 border-2 border-black flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
 							>
-								<Linkedin className="text-foreground w-4 h-4" />
+								<Linkedin className="w-3 h-3" />
 							</a>
-
 							<a
 								href="mailto:tech-society@eiiit-bh.ac.in"
-								className="w-8 h-8 neo-brutal-card bg-muted border-border flex items-center justify-center cursor-pointer hover:scale-110 hover:bg-primary hover:text-primary-foreground transition-all"
+								className="w-6 h-6 border-2 border-black flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
 							>
-								<Mail className="text-foreground w-4 h-4" />
+								<Mail className="w-3 h-3" />
 							</a>
-
 							<a
 								href="https://twitter.com/psociiit"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="w-8 h-8 neo-brutal-card bg-muted border-border flex items-center justify-center cursor-pointer hover:scale-110 hover:bg-secondary hover:text-secondary-foreground transition-all"
+								className="w-6 h-6 border-2 border-black flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
 							>
-								<Twitter className="text-foreground w-4 h-4" />
+								<Twitter className="w-3 h-3" />
 							</a>
-
 							<a
 								href="https://www.instagram.com/psoc_iiitbh"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="w-8 h-8 neo-brutal-card bg-muted border-border flex items-center justify-center cursor-pointer hover:scale-110 hover:bg-accent hover:text-accent-foreground transition-all"
+								className="w-6 h-6 border-2 border-black flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all"
 							>
-								<Instagram className="text-foreground w-4 h-4" />
+								<Instagram className="w-3 h-3" />
 							</a>
 						</div>
 					</div>
-
-					<div>
-						<h4 className="pixel-font text-sm text-primary mb-4">
-							QUICK LINKS
-						</h4>
-						<ul className="space-y-2 text-sm">
-							{["About Us", "Features", "Contact", "Help & Support"].map(
-								(link) => (
-									<li key={link}>
-										<a
-											href={`#${link.toLowerCase().replace(/ & | /g, "-")}`}
-											className="text-muted-foreground hover:text-primary transition-colors"
-										>
-											{link}
-										</a>
-									</li>
-								),
-							)}
-						</ul>
-					</div>
-
-					<div>
-						<h4 className="pixel-font text-sm text-primary mb-4">POLICIES</h4>
-						<ul className="space-y-2 text-sm">
-							{[
-								"Privacy Policy",
-								"Terms of Service",
-								"Community Guidelines",
-								"Cookie Policy",
-							].map((policy) => (
-								<li key={policy}>
-									<a
-										href={`#${policy.toLowerCase().replace(/ /g, "-")}`}
-										className="text-muted-foreground hover:text-primary transition-colors"
-									>
-										{policy}
-									</a>
-								</li>
-							))}
-						</ul>
+					<div className="flex flex-wrap gap-4 text-xs font-bold">
+						<a href="#about" className="hover:underline">
+							About
+						</a>
+						<a href="#privacy" className="hover:underline">
+							Privacy
+						</a>
+						<a href="#terms" className="hover:underline">
+							Terms
+						</a>
+						<a href="#help" className="hover:underline">
+							Help
+						</a>
 					</div>
 				</div>
-
-				<div className="border-t-2 border-muted pt-8 text-center">
-					<p className="pixel-font text-xs text-muted-foreground m-4">
-						© 2025 IIITBuzz
-					</p>
-					<p className="text-xs text-muted-foreground mt-2">
-						by- P-Soc IIIT-bh
+				<div className="border-t-2 border-black mt-3 py-2 text-center">
+					<p className="text-[10px] font-bold text-muted-foreground">
+						© 2025 IIITBuzz · by P-Soc IIIT-bh
 					</p>
 				</div>
 			</div>

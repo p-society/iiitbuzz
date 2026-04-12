@@ -1,62 +1,320 @@
-import React, { type ForwardedRef } from "react";
+import React, { type ForwardedRef, useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageIcon } from "lucide-react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import { MarkdownContent } from "@/components/ui/markdown";
 
 interface ReplyBoxProps {
-    content: string;
-    setContent: (val: string) => void;
-    onSubmit: (e: React.FormEvent) => void;
-    submitting: boolean;
-    onFormat: (syntax: string) => void;
-    textareaRef: ForwardedRef<HTMLTextAreaElement>;
-    error?: string | null; 
+	content: string;
+	setContent: (val: string) => void;
+	onSubmit: (e: React.FormEvent) => void;
+	submitting: boolean;
+	onFormat: (syntax: string) => void;
+	textareaRef: ForwardedRef<HTMLTextAreaElement>;
+	error?: string | null;
+	replyTo?: { author: string; content: string } | null;
+	onClearReplyTo?: () => void;
+	threadId: string;
+	useDraft?: boolean;
+	onReload?: () => Promise<void>;
 }
 
-export const ReplyBox = ({ 
-    content, setContent, onSubmit, submitting, onFormat, textareaRef, error 
-}: ReplyBoxProps) => (
-    <form onSubmit={onSubmit} className="mt-6 sm:mt-8 neo-brutal-card p-4 sm:p-6">
-        <h3 className="mb-3 sm:mb-4 font-bold text-lg sm:text-xl text-foreground">Post a Reply</h3>
-        
-        <Textarea
-            placeholder="Share your thoughts... (Use **text** for bold, *text* for italic)"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            ref={textareaRef}
-            disabled={submitting}
-            className="mb-3 sm:mb-4 h-32 resize-none text-sm font-medium border-2"
-        />
+export const ReplyBox = ({
+	content,
+	setContent,
+	onSubmit,
+	submitting,
+	onFormat,
+	textareaRef,
+	error,
+	replyTo,
+	onClearReplyTo,
+	threadId,
+	useDraft = true,
+	onReload,
+}: ReplyBoxProps) => {
+	const [showHelp, setShowHelp] = useState(false);
+	const [showPreview, setShowPreview] = useState(false);
+	const [uploading, setUploading] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [draftId, setDraftId] = useState<string | null>(null);
+	const [creatingDraft, setCreatingDraft] = useState(false);
 
-        {/* Error Message Display */}
-        {error && (
-            <p className="mb-4 font-bold text-destructive text-sm bg-destructive/10 p-2 border-2 border-destructive rounded">
-                {error}
-            </p>
-        )}
-        
-        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between">
-            <div className="flex flex-wrap gap-2">
-                {['**', '*', 'Link'].map((label) => (
-                    <Button
-                        key={label}
-                        type="button"
-                        size="sm"
-                        variant="neutral"
-                        onClick={() => onFormat(label)}
-                        disabled={label === 'Link'}
-                        className="neo-brutal-button bg-card px-3 py-2 font-bold text-xs"
-                    >
-                        {label === '**' ? 'Bold' : label === '*' ? 'Italic' : 'Link'}
-                    </Button>
-                ))}
-            </div>
-            <button
-                type="submit"
-                disabled={submitting || !content.trim()}
-                className="neo-brutal-button-strong bg-primary px-4 py-2 font-bold text-sm text-primary-foreground disabled:opacity-50"
-            >
-                {submitting ? "Posting..." : "Post Reply"}
-            </button>
-        </div>
-    </form>
-);
+	const ensureDraft = useCallback(async () => {
+		if (draftId || !useDraft) return draftId;
+		setCreatingDraft(true);
+		try {
+			const res = await api.createDraftPost(threadId);
+			setDraftId(res.post.id);
+			return res.post.id;
+		} catch {
+			return null;
+		} finally {
+			setCreatingDraft(false);
+		}
+	}, [draftId, threadId, useDraft]);
+
+	const handleInsertQuote = () => {
+		if (!replyTo) return;
+		const quotedContent = replyTo.content
+			.split("\n")
+			.map((line) => `> ${line}`)
+			.join("\n");
+		const newContent = content
+			? `${content}\n\n${quotedContent}\n`
+			: `${quotedContent}\n`;
+		setContent(newContent);
+		onClearReplyTo?.();
+	};
+
+	const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		if (fileInputRef.current) fileInputRef.current.value = "";
+		handleFileDrop(file);
+	};
+
+	const handleFileDrop = async (file: File) => {
+		const ALLOWED_TYPES = [
+			"image/jpeg",
+			"image/png",
+			"image/gif",
+			"image/webp",
+		];
+		if (!ALLOWED_TYPES.includes(file.type)) {
+			toast.error("Only JPEG, PNG, GIF, and WebP images are allowed");
+			return;
+		}
+		if (file.size > 5 * 1024 * 1024) {
+			toast.error("Image must be under 5MB");
+			return;
+		}
+
+		const imageId = crypto.randomUUID();
+		const blobUrl = URL.createObjectURL(file);
+		const placeholder = `![${file.name}](${blobUrl})`;
+		const beforeInsert = content;
+		const newContent = beforeInsert
+			? `${beforeInsert}\n${placeholder}`
+			: placeholder;
+		setContent(newContent);
+
+		setUploading(true);
+		try {
+			const postId = useDraft ? await ensureDraft() : null;
+			if (useDraft && !postId) {
+				toast.error("Failed to create draft post for image upload");
+				setContent(beforeInsert);
+				return;
+			}
+			const res = await api.presignUpload(postId || "temp", imageId, file.type);
+			await api.uploadToR2(res.uploadUrl, file);
+			const finalContent = newContent.replace(blobUrl, res.fileUrl);
+			setContent(finalContent);
+			toast.success("Image uploaded!");
+		} catch {
+			toast.error("Failed to upload image");
+			setContent(beforeInsert);
+		} finally {
+			setUploading(false);
+		}
+	};
+
+	const handlePaste = async (e: React.ClipboardEvent) => {
+		const items = e.clipboardData.items;
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].type.startsWith("image/")) {
+				e.preventDefault();
+				const file = items[i].getAsFile();
+				if (file) await handleFileDrop(file);
+				return;
+			}
+		}
+	};
+
+	const handleDrop = async (e: React.DragEvent) => {
+		e.preventDefault();
+		const file = e.dataTransfer.files[0];
+		if (file && file.type.startsWith("image/")) {
+			await handleFileDrop(file);
+		}
+	};
+
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!content.trim()) return;
+
+		if (useDraft && draftId) {
+			try {
+				await api.publishDraft(draftId, content);
+				toast.success("Reply posted!");
+				setDraftId(null);
+				setContent("");
+				if (onReload) await onReload();
+			} catch {
+				toast.error("Failed to post reply");
+				return;
+			}
+		} else {
+			onSubmit(e);
+		}
+	};
+
+	return (
+		<form
+			onSubmit={handleSubmit}
+			className="mt-4 border-4 border-black bg-card p-3"
+		>
+			<h3 className="mb-2 font-bold text-sm text-foreground">Post a Reply</h3>
+
+			{replyTo && (
+				<div className="mb-2 p-2 bg-muted/50 border-2 border-black">
+					<div className="flex justify-between items-start mb-1">
+						<span className="text-[10px] font-bold">
+							Replying to {replyTo.author}
+						</span>
+						<button
+							type="button"
+							onClick={onClearReplyTo}
+							className="text-[10px] font-bold hover:underline"
+						>
+							Cancel
+						</button>
+					</div>
+					<div className="text-[10px] text-muted-foreground line-clamp-2">
+						{replyTo.content.substring(0, 100)}
+						{replyTo.content.length > 100 ? "..." : ""}
+					</div>
+					<Button
+						type="button"
+						size="sm"
+						onClick={handleInsertQuote}
+						className="neo-brutal-button mt-2 py-0.5 px-2 text-[10px]"
+					>
+						Insert Quote
+					</Button>
+				</div>
+			)}
+
+			<div className="relative">
+				<Textarea
+					placeholder="Share your thoughts... Use **bold**, *italic*, >quote or paste/drop images"
+					value={content}
+					onChange={(e) => setContent(e.target.value)}
+					onPaste={handlePaste}
+					onDrop={handleDrop}
+					onDragOver={(e) => e.preventDefault()}
+					ref={textareaRef}
+					disabled={submitting || creatingDraft}
+					className="mb-2 h-24 resize-none text-xs font-medium border-2"
+				/>
+				<input
+					type="file"
+					ref={fileInputRef}
+					accept="image/jpeg,image/png,image/gif,image/webp"
+					onChange={handleImageUpload}
+					className="hidden"
+				/>
+			</div>
+
+			{showPreview && content.trim() && (
+				<div className="mb-2 p-2 border-2 border-black bg-muted/30 max-h-60 overflow-y-auto">
+					<div className="text-[10px] font-bold text-muted-foreground mb-1">
+						Preview
+					</div>
+					<MarkdownContent content={content} />
+				</div>
+			)}
+
+			{error && (
+				<p className="mb-2 font-bold text-destructive text-xs bg-destructive/10 p-2 border-2 border-destructive">
+					{error}
+				</p>
+			)}
+
+			<div className="flex flex-wrap items-center justify-between gap-2">
+				<div className="flex flex-wrap gap-1">
+					{[
+						{ label: "Bold", syntax: "**" },
+						{ label: "Italic", syntax: "*" },
+						{ label: "Quote", syntax: ">" },
+						{ label: "Code", syntax: "`" },
+						{ label: "Link", syntax: "[]" },
+					].map(({ label, syntax }) => (
+						<Button
+							key={label}
+							type="button"
+							size="sm"
+							variant="neutral"
+							onClick={() => onFormat(syntax)}
+							className="neo-brutal-button bg-card px-2 py-0.5 font-bold text-[10px]"
+						>
+							{label}
+						</Button>
+					))}
+					<Button
+						type="button"
+						size="sm"
+						variant="neutral"
+						onClick={() => fileInputRef.current?.click()}
+						disabled={uploading || creatingDraft}
+						className="neo-brutal-button bg-card px-2 py-0.5 font-bold text-[10px]"
+					>
+						<ImageIcon className="h-3 w-3" />
+						{uploading ? "..." : ""}
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="neutral"
+						onClick={() => setShowHelp(!showHelp)}
+						className="neo-brutal-button bg-card px-2 py-0.5 font-bold text-[10px]"
+					>
+						?
+					</Button>
+					<Button
+						type="button"
+						size="sm"
+						variant="neutral"
+						onClick={() => setShowPreview(!showPreview)}
+						className={`neo-brutal-button px-2 py-0.5 font-bold text-[10px] ${showPreview ? "bg-primary text-primary-foreground" : "bg-card"}`}
+					>
+						Preview
+					</Button>
+				</div>
+				<button
+					type="submit"
+					disabled={submitting || !content.trim() || creatingDraft}
+					className="neo-brutal-button-strong bg-primary px-3 py-1 font-bold text-xs text-primary-foreground disabled:opacity-50"
+				>
+					{submitting ? "..." : "Post"}
+				</button>
+			</div>
+
+			{showHelp && (
+				<div className="mt-2 p-2 bg-muted text-[10px]">
+					<p className="font-bold mb-1">Markdown Help:</p>
+					<ul className="space-y-0.5">
+						<li>
+							<code>**bold**</code> → bold
+						</li>
+						<li>
+							<code>*italic*</code> → italic
+						</li>
+						<li>
+							<code>&gt;quote</code> → blockquote
+						</li>
+						<li>
+							<code>`code`</code> → inline code
+						</li>
+						<li>
+							<code>[text](url)</code> → link
+						</li>
+					</ul>
+				</div>
+			)}
+		</form>
+	);
+};

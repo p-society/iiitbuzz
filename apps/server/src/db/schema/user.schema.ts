@@ -12,4 +12,5 @@ export const users = pgTable("user", {
 	bio: varchar("bio", { length: 255 }),
 	branch: varchar("branch", { length: 5 }),
 	passingOutYear: varchar("passing_out_year", { length: 4 }),
+	role: varchar("role", { length: 20 }).default("user"),
 });

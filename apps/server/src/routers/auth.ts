@@ -115,10 +115,10 @@ export async function authRoutes(fastify: FastifyInstance) {
 					passingOutYear: null,
 					totalPosts: 0,
 				})
-				.onConflictDoUpdate({ 
-        			target: users.email, 
-        			set: { imageUrl: picture } 
-    			})
+				.onConflictDoUpdate({
+					target: users.email,
+					set: { imageUrl: picture },
+				})
 				.returning({ id: users.id });
 
 			if (newUserResult.length > 0) {
@@ -224,6 +224,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 						bio: true,
 						branch: true,
 						passingOutYear: true,
+						role: true,
 					},
 				});
 
@@ -273,15 +274,18 @@ export const authenticateUser: AuthenticationMiddleware = async (
 };
 
 // user authentication - added by sambhu ( to remove the code redundancy)
-export const attachUser = async (request: FastifyRequest, reply: FastifyReply) => {
-  const authRequest = request as AuthenticatedRequest;
-  const user = await DrizzleClient.query.users.findFirst({
-	where: (u, { eq }) => eq(u.id, authRequest.userId),
-  });
-  if (!user) {
-	return reply.status(404).send({ success: false, error: "User not found" });
-  }
-  authRequest.user = user;
+export const attachUser = async (
+	request: FastifyRequest,
+	reply: FastifyReply,
+) => {
+	const authRequest = request as AuthenticatedRequest;
+	const user = await DrizzleClient.query.users.findFirst({
+		where: (u, { eq }) => eq(u.id, authRequest.userId),
+	});
+	if (!user) {
+		return reply.status(404).send({ success: false, error: "User not found" });
+	}
+	authRequest.user = user;
 };
 
 // Optional authentication middleware - doesn't block request if no auth
@@ -302,5 +306,25 @@ export const optionalAuth: AuthenticationMiddleware = async (
 	} catch (err) {
 		// Ignore auth errors for optional auth
 		request.log.debug("Optional authentication failed:", err);
+	}
+};
+
+export const authenticateAdmin: AuthenticationMiddleware = async (
+	request,
+	reply,
+) => {
+	await authenticateUser(request, reply);
+	if (reply.sent) return;
+
+	const authRequest = request as AuthenticatedRequest;
+	const user = await DrizzleClient.query.users.findFirst({
+		where: (u, { eq }) => eq(u.id, authRequest.userId),
+		columns: { id: true, role: true },
+	});
+
+	if (!user || user.role !== "admin") {
+		return reply
+			.status(403)
+			.send({ success: false, error: "Admin access required" });
 	}
 };

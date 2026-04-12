@@ -1,133 +1,188 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Share2, Bookmark } from "lucide-react";
+import { Share2, Bookmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Header from "@/components/ui/header";
+import Footer from "@/components/ui/footer";
 import { toast } from "sonner";
 import { PostItem } from "@/components/forum/PostItem";
 import { ReplyBox } from "@/components/forum/ReplyBox";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { api } from "@/lib/api";
 import { getTopicColor } from "@/lib/utils/topicColor";
 import type { ThreadDetail, PostDetail } from "@/types/forum";
 
 export default function ThreadPage() {
-    const { threadId } = useParams<{ threadId: string }>();
-    const [thread, setThread] = useState<ThreadDetail | null>(null);
-    const [posts, setPosts] = useState<PostDetail[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [replyContent, setReplyContent] = useState("");
-    const [submittingReply, setSubmittingReply] = useState(false);
-    const [postError, setPostError] = useState<string | null>(null);
-    const replyContentRef = useRef<HTMLTextAreaElement>(null);
+	const { threadId } = useParams<{ threadId: string }>();
+	const [thread, setThread] = useState<ThreadDetail | null>(null);
+	const [posts, setPosts] = useState<PostDetail[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [replyContent, setReplyContent] = useState("");
+	const [submittingReply, setSubmittingReply] = useState(false);
+	const [postError, setPostError] = useState<string | null>(null);
+	const [replyTo, setReplyTo] = useState<{
+		author: string;
+		content: string;
+	} | null>(null);
+	const replyContentRef = useRef<HTMLTextAreaElement>(null);
 
-    const loadThreadData = async () => {
-        if (!threadId) return;
-        try {
-            const [tRes, pRes] = await Promise.all([
-                api.getThreadById(threadId),
-                api.getPostsByThreadId(threadId)
-            ]);
-            
-            setThread({
-                ...tRes.thread,
-                title: tRes.thread.threadTitle,
-                authorId: tRes.thread.createdBy,
-                topicColor: getTopicColor(tRes.thread.topicId)
-            });
-            setPosts(pRes.posts.map((p: any) => ({
-                ...p,
-                authorAvatar: p.authorName.substring(0, 2).toUpperCase()
-            })));
-        } catch (err) {
-            toast.error("Thread not found");
-        } finally {
-            setLoading(false);
-        }
-    };
+	const loadThreadData = useCallback(async () => {
+		if (!threadId) return;
+		try {
+			const [tRes, pRes] = await Promise.all([
+				api.getThreadById(threadId),
+				api.getPostsByThreadId(threadId),
+			]);
 
-    useEffect(() => { loadThreadData(); }, [threadId]);
+			setThread({
+				...tRes.thread,
+				title: tRes.thread.threadTitle,
+				authorId: tRes.thread.createdBy,
+				topicColor: getTopicColor(tRes.thread.topicId),
+			});
+			setPosts(
+				pRes.posts.map((p) => ({
+					...p,
+					authorAvatar: p.authorName.substring(0, 2).toUpperCase(),
+				})),
+			);
+		} catch (err) {
+			toast.error("Thread not found");
+		} finally {
+			setLoading(false);
+		}
+	}, [threadId]);
 
-    const handlePostReply = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!replyContent.trim() || !threadId) return;
+	useEffect(() => {
+		loadThreadData();
+	}, [loadThreadData]);
 
-        setSubmittingReply(true);
-        setPostError(null); 
+	const handlePostReply = async (e: React.FormEvent) => {
+		e.preventDefault();
+		if (!replyContent.trim() || !threadId) return;
 
-        try {
-            await api.createPost({ threadId, content: replyContent });
-            setReplyContent("");
-            await loadThreadData(); 
-            toast.success("Reply posted!");
-        } catch (err) {
-            const message = err instanceof Error ? err.message : "Failed to post reply";
-            setPostError(message);
-            toast.error("Wait, something went wrong.");
-        } finally {
-            setSubmittingReply(false);
-        }
-    };
+		setSubmittingReply(true);
+		setPostError(null);
 
-    const handleContentChange = (val: string) => {
-        setReplyContent(val);
-        if (postError) setPostError(null);
-    };
+		try {
+			if (!e.defaultPrevented) {
+				await api.createPost({ threadId, content: replyContent });
+			}
+			setReplyContent("");
+			await loadThreadData();
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Failed to post reply";
+			setPostError(message);
+			toast.error("Wait, something went wrong.");
+		} finally {
+			setSubmittingReply(false);
+		}
+	};
 
-    const handleFormatting = (syntax: string) => {
-        const el = replyContentRef.current;
-        if (!el) return;
-        const start = el.selectionStart;
-        const end = el.selectionEnd;
-        const text = el.value;
-        const newText = text.substring(0, start) + syntax + text.substring(start, end) + syntax + text.substring(end);
-        setReplyContent(newText);
-    };
+	const handleContentChange = (val: string) => {
+		setReplyContent(val);
+		if (postError) setPostError(null);
+	};
 
-    if (loading || !thread) return <div className="p-20 text-center font-bold">Loading Thread...</div>;
+	const handleFormatting = (syntax: string) => {
+		const el = replyContentRef.current;
+		if (!el) return;
+		const start = el.selectionStart;
+		const end = el.selectionEnd;
+		const text = el.value;
+		const newText =
+			text.substring(0, start) +
+			syntax +
+			text.substring(start, end) +
+			syntax +
+			text.substring(end);
+		setReplyContent(newText);
+	};
 
-    return (
-        
-        <div className="min-h-screen bg-background pb-12">
-            <header className="neo-brutal-header p-6">
-                <div className="max-w-5xl mx-auto">
-                    <div className="flex items-center justify-between mb-2">
-                        <Link 
-                            to="/home" 
-                            className="inline-flex items-center gap-2 font-bold text-sm hover:underline"
-                        >
-                            <ArrowLeft size={16} /> Back to Forum
-                        </Link>
-                        
-                        
-                    </div>
-                    <div className="flex justify-between items-start">
-                        <div>
-                            <span className={`px-2 py-0.5 rounded border-2 border-black font-bold text-xs ${thread.topicColor}`}>{thread.topicName}</span>
-                            <h1 className="text-3xl font-bold mt-2">{thread.title}</h1>
-                        </div>
-                        <div className="flex gap-2">
-                             <Button variant="neutral" size="icon" className="neo-brutal-button"><Bookmark /></Button>
-                             <Button variant="neutral" size="icon" className="neo-brutal-button"><Share2 /></Button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+	if (loading || !thread)
+		return (
+			<div className="min-h-screen flex flex-col">
+				<Header />
+				<main className="flex-1 flex items-center justify-center">
+					<p className="font-bold">Loading...</p>
+				</main>
+				<Footer />
+			</div>
+		);
 
-            <main className="max-w-5xl mx-auto p-4 space-y-6">
-                {posts.map((post, i) => (
-                    <PostItem key={post.postId} post={post} index={i} isOP={post.authorId === thread.authorId} />
-                ))}
-                
-                <ReplyBox 
-                    content={replyContent} 
-                    setContent={handleContentChange} 
-                    onSubmit={handlePostReply} 
-                    submitting={submittingReply}
-                    onFormat={handleFormatting}
-                    textareaRef={replyContentRef}
-                    error={postError} 
-                />
-            </main>
-        </div>
-       
-    );
+	return (
+		<div className="min-h-screen flex flex-col bg-background">
+			<Header />
+			<div className="site-container">
+				<Breadcrumbs
+					items={[
+						{ label: "Home", href: "/home" },
+						{ label: thread.topicName, href: `/topic/${thread.topicId}` },
+						{ label: thread.title },
+					]}
+				/>
+			</div>
+
+			<main className="site-container flex-1 py-3">
+				<div className="flex justify-between items-start mb-3">
+					<div className="flex-1">
+						<h1 className="text-lg font-black">{thread.title}</h1>
+						<p className="text-[10px] text-muted-foreground">
+							by <span className="font-bold">{thread.authorName}</span> ·{" "}
+							{new Date(thread.createdAt).toLocaleDateString()}
+						</p>
+					</div>
+					<div className="flex gap-1">
+						<Button
+							variant="neutral"
+							size="icon"
+							className="neo-brutal-button h-7 w-7"
+						>
+							<Bookmark className="h-3 w-3" />
+						</Button>
+						<Button
+							variant="neutral"
+							size="icon"
+							className="neo-brutal-button h-7 w-7"
+						>
+							<Share2 className="h-3 w-3" />
+						</Button>
+					</div>
+				</div>
+
+				<div className="space-y-3">
+					{posts.map((post, i) => (
+						<PostItem
+							key={post.postId}
+							post={post}
+							index={i}
+							isOP={post.authorId === thread.authorId}
+							onQuote={() =>
+								setReplyTo({ author: post.authorName, content: post.content })
+							}
+						/>
+					))}
+				</div>
+
+				<div className="mt-4">
+					<ReplyBox
+						content={replyContent}
+						setContent={handleContentChange}
+						onSubmit={handlePostReply}
+						submitting={submittingReply}
+						onFormat={handleFormatting}
+						textareaRef={replyContentRef}
+						error={postError}
+						replyTo={replyTo}
+						onClearReplyTo={() => setReplyTo(null)}
+						threadId={threadId || ""}
+						useDraft
+						onReload={loadThreadData}
+					/>
+				</div>
+			</main>
+			<Footer />
+		</div>
+	);
 }

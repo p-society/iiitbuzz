@@ -50,6 +50,7 @@ fastify.register(fastifyOauth2, {
 });
 
 fastify.register(fastifyCors, baseCorsConfig);
+
 fastify.register(appRouter);
 
 fastify.get("/", async () => {

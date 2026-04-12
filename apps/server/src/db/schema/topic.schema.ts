@@ -15,6 +15,7 @@ export const topics = pgTable(
 
 		topicName: varchar("topic_name", { length: 255 }).notNull(),
 		topicDescription: text("topic_description").notNull(),
+		category: varchar("category", { length: 50 }).default("Official"),
 
 		createdAt: timestamp("created_at", { mode: "string" })
 			.notNull()

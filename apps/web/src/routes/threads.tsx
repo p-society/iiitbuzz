@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import {  Search } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 import { ThreadRow } from "@/components/forum/ThreadRow";
 import { PaginationControls } from "@/components/forum/PaginationControls";
@@ -10,92 +11,139 @@ import { getTopicColor } from "@/lib/utils/topicColor";
 import type { ThreadListItem, Pagination } from "@/types/forum";
 import { api } from "@/lib/api";
 import Header from "@/components/ui/header";
+import Footer from "@/components/ui/footer";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 const PAGE_LIMIT = 20;
 
 export default function AllThreadsPage() {
-    const [threads, setThreads] = useState<ThreadListItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sort, setSort] = useState<"latest" | "top" | "trending" | "views">("latest");
-    const [searchQuery, setSearchQuery] = useState("");
-    const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: PAGE_LIMIT, count: 0 });
+	const [threads, setThreads] = useState<ThreadListItem[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [currentPage, setCurrentPage] = useState(1);
+	const [sort, setSort] = useState<"latest" | "top" | "trending" | "views">(
+		"latest",
+	);
+	const [searchQuery, setSearchQuery] = useState("");
+	const [pagination, setPagination] = useState<Pagination>({
+		page: 1,
+		limit: PAGE_LIMIT,
+		count: 0,
+	});
 
-    const fetchThreads = async () => {
-        setLoading(true);
-        try {
-            const res = await api.getThreads({ page: currentPage, limit: 20, sort, search: searchQuery });
-            setThreads(res.threads.map(t => ({
-                ...t,
-                title: t.title || t.threadTitle,
-                topicColor: getTopicColor(t.topicId)
-            })));
-            setPagination(res.pagination);
-        } catch (err) {
-            toast.error("Error loading threads");
-        } finally {
-            setLoading(false);
-        }
-    };
+	const fetchThreads = useCallback(async () => {
+		setLoading(true);
+		try {
+			const res = await api.getThreads({
+				page: currentPage,
+				limit: 20,
+				sort,
+				search: searchQuery,
+			});
+			setThreads(
+				res.threads.map((t) => ({
+					...t,
+					title: (t.title || t.threadTitle || "Untitled") as string,
+					topicColor: getTopicColor(t.topicId || ""),
+				})),
+			);
+			setPagination(res.pagination);
+		} catch (err) {
+			toast.error("Error loading threads");
+		} finally {
+			setLoading(false);
+		}
+	}, [currentPage, sort, searchQuery]);
 
-    useEffect(() => {
-        const handler = setTimeout(fetchThreads, 300);
-        return () => clearTimeout(handler);
-    }, [currentPage, sort, searchQuery]);
+	useEffect(() => {
+		const handler = setTimeout(fetchThreads, 300);
+		return () => clearTimeout(handler);
+	}, [fetchThreads]);
 
-    const totalPages = Math.ceil(pagination.count / PAGE_LIMIT);
+	const totalPages = Math.ceil(pagination.count / PAGE_LIMIT);
 
-    return (
-        <div className="min-h-screen bg-background">
-            <Header/>
-            <header className="neo-brutal-header p-3 bg-background">
-                <div className="mx-auto max-w-7xl">
-                    
-                    <div className="flex justify-between items-end">
-                        <h1 className="font-bold text-3xl">All Threads</h1>
-                        
-                    </div>
-                </div>
-            </header>
+	return (
+		<div className="min-h-screen flex flex-col bg-background">
+			<Header />
+			<div className="site-container">
+				<Breadcrumbs
+					items={[{ label: "Home", href: "/home" }, { label: "All Threads" }]}
+				/>
+			</div>
 
-            <main className="mx-auto max-w-7xl px-4 py-8">
-                <div className="flex flex-col gap-4 mb-8">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={20} />
-                        <Input 
-                            className="neo-brutal-input pl-12" 
-                            placeholder="Search threads..." 
-                            value={searchQuery}
-                            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                        />
-                    </div>
-                    <div className="flex gap-2 items-center">
-                        <span className="font-bold text-sm">Sort:</span>
-                        {["latest", "top", "views", "trending"].map((s: any) => (
-                            <Button 
-                                key={s} 
-                                variant={sort === s ? "default" : "neutral"} 
-                                onClick={() => { setSort(s); setCurrentPage(1); }}
-                                className="neo-brutal-button capitalize font-bold text-xs"
-                            >
-                                {s}
-                            </Button>
-                        ))}
-                    </div>
-                </div>
+			<main className="site-container flex-1 py-3">
+				<div className="page-header mb-3">
+					<h1 className="font-black text-xl">All Threads</h1>
+				</div>
 
-                <div className="space-y-4">
-                    {loading ? <p className="text-center font-bold">Loading...</p> : 
-                     threads.map(t => <ThreadRow key={t.id} thread={t} />)}
-                </div>
+				<div className="flex flex-wrap items-center gap-2 mb-3">
+					<div className="relative flex-1 min-w-[200px]">
+						<Search
+							className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
+							size={14}
+						/>
+						<Input
+							className="neo-brutal-input pl-8 py-1 h-8 text-xs border-2"
+							placeholder="Search..."
+							value={searchQuery}
+							onChange={(e) => {
+								setSearchQuery(e.target.value);
+								setCurrentPage(1);
+							}}
+						/>
+					</div>
+					<div className="flex gap-1">
+						{(["latest", "top", "views", "trending"] as const).map((s) => (
+							<Button
+								key={s}
+								variant={sort === s ? "default" : "neutral"}
+								onClick={() => {
+									setSort(s);
+									setCurrentPage(1);
+								}}
+								className="neo-brutal-button capitalize font-bold text-[10px] py-1 px-2"
+							>
+								{s}
+							</Button>
+						))}
+					</div>
+				</div>
 
-                <PaginationControls 
-                    currentPage={currentPage} 
-                    totalPages={totalPages} 
-                    onPageChange={setCurrentPage} 
-                    loading={loading} 
-                />
-            </main>
-        </div>
-    );
+				<div className="neo-brutal-card space-y-0 border-4 border-black">
+					<div className="border-b-2 border-black px-3 py-2 bg-muted">
+						<span className="font-black text-xs uppercase">Thread</span>
+					</div>
+					{loading ? (
+						<p className="text-center py-4 font-bold text-sm">Loading...</p>
+					) : threads.length === 0 ? (
+						<p className="text-center py-4 font-bold text-sm">
+							No threads found
+						</p>
+					) : (
+						threads.map((t, idx) => (
+							<div
+								key={t.id}
+								className={
+									idx !== threads.length - 1 ? "border-b-2 border-black" : ""
+								}
+							>
+								<ThreadRow thread={t} />
+							</div>
+						))
+					)}
+				</div>
+
+				{totalPages > 1 && (
+					<div className="mt-4">
+						<PaginationControls
+							currentPage={currentPage}
+							totalPages={totalPages}
+							onPageChange={setCurrentPage}
+							loading={loading}
+						/>
+					</div>
+				)}
+			</main>
+			<Footer />
+		</div>
+	);
 }

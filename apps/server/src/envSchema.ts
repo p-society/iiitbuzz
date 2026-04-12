@@ -19,6 +19,12 @@ export const envSchema = z.object({
 	NODE_ENV: z
 		.enum(["development", "production", "test"])
 		.default("development"),
+	R2_ACCOUNT_ID: z.string().min(1, "R2_ACCOUNT_ID is required"),
+	R2_ACCESS_KEY_ID: z.string().min(1, "R2_ACCESS_KEY_ID is required"),
+	R2_SECRET_ACCESS_KEY: z.string().min(1, "R2_SECRET_ACCESS_KEY is required"),
+	R2_BUCKET_NAME: z.string().default("iiitbuzz-uploads"),
+	R2_PUBLIC_URL: z.string().default("http://localhost:3000/r2"),
+	GCS_BUCKET_NAME: z.string().default("iiitbuzz-uploads"),
 });
 
 export type Env = z.infer<typeof envSchema>;

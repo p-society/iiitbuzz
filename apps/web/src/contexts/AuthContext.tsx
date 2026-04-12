@@ -9,7 +9,7 @@ import {
 import { toast } from "sonner";
 
 interface User {
-    imageUrl: string;
+	imageUrl: string;
 	id: string;
 	email: string;
 	username: string | null;
@@ -20,12 +20,14 @@ interface User {
 	branch: string | null;
 	passingOutYear: number | null;
 	totalPosts: number;
+	role: string;
 }
 
 interface AuthContextType {
 	user: User | null;
 	isLoading: boolean;
 	isAuthenticated: boolean;
+	isAdmin: boolean;
 	login: () => void;
 	logout: () => Promise<void>;
 	refreshUser: () => Promise<void>;
@@ -100,6 +102,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		user,
 		isLoading,
 		isAuthenticated: !!user,
+		isAdmin: user?.role === "admin",
 		login,
 		logout,
 		refreshUser: checkAuth,

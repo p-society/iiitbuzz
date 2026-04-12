@@ -50,11 +50,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
 	return (
 		<AuthProvider>
-			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+			<ThemeProvider defaultTheme="blue" storageKey="vite-ui-theme">
 				<div className="flex flex-col min-h-screen">
 					<Outlet />
 				</div>
-				<Toaster richColors />
+				<div className="fixed bottom-4 right-4 z-50">
+					<Toaster richColors />
+				</div>
 			</ThemeProvider>
 		</AuthProvider>
 	);

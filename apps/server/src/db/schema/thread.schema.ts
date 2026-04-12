@@ -10,9 +10,6 @@ import {
 import { topics } from "./topic.schema";
 import { users } from "./user.schema";
 
-
-
-
 export const threads = pgTable(
 	"thread",
 	{
@@ -39,6 +36,8 @@ export const threads = pgTable(
 
 		pinnedAt: timestamp("pinned_at", { mode: "string" }),
 		isLocked: boolean("is_locked").default(false),
+		isAnonymous: boolean("is_anonymous").default(false),
+		isApproved: boolean("is_approved").default(true),
 	},
 	(table) => [
 		index("idx_view_count").on(table.viewCount),

@@ -20,7 +20,7 @@ export const posts = pgTable(
 			.notNull(),
 
 		vote: integer("vote").default(0),
-		content: text("content").notNull(),
+		content: text("content").notNull().default(""),
 		createdAt: timestamp("created_at", { mode: "string" })
 			.notNull()
 			.defaultNow(),
@@ -34,10 +34,12 @@ export const posts = pgTable(
 		deletedBy: uuid("deleted_by").references(() => users.id),
 
 		isApproved: boolean("is_approved").default(false),
+		isDraft: boolean("is_draft").default(false),
 	},
 	(table) => [
 		index("idx_post_created_by").on(table.createdBy),
 		index("idx_post_updated_by").on(table.updatedBy),
 		index("idx_post_created_at").on(table.createdAt),
+		index("idx_post_is_draft").on(table.isDraft),
 	],
 );

@@ -5,55 +5,51 @@ import type { ThreadListItem } from "@/types/forum";
 import { formatTimeAgo } from "@/lib/utils/date";
 
 export const ThreadRow = ({ thread }: { thread: ThreadListItem }) => {
-    const avatarInitials = thread.authorName.substring(0, 2).toUpperCase();
+	const avatarInitials = (thread.authorName || "??")
+		.substring(0, 2)
+		.toUpperCase();
 
-    return (
-        <Link to={`/thread/${thread.id}`} className="block">
-            <div className="neo-brutal-card p-4 sm:p-5 hover:translate-x-1 hover:-translate-y-1 transition-transform">
-                <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-                    {/* Author Avatar */}
-                    <div className="flex-shrink-0 self-start">
-                        <div className="neo-brutal-avatar h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base border-2">
-                            {avatarInitials}
-                        </div>
-                    </div>
+	return (
+		<Link to={`/thread/${thread.id}`} className="block">
+			<div className="thread-row py-2 px-3 flex items-center gap-3 hover:bg-muted/30 transition-colors">
+				<div className="col-avatar w-10 flex-shrink-0">
+					<div className="neo-brutal-avatar h-8 w-8 text-[10px] border-2 flex items-center justify-center">
+						{avatarInitials}
+					</div>
+				</div>
 
-                    {/* Thread Content */}
-                    <div className="flex-1 min-w-0">
-                        <div className="mb-2 flex flex-wrap items-center gap-2">
-                            {thread.isPinned && (
-                                <Badge className="bg-accent text-accent-foreground border-2 border-black font-bold">
-                                    PINNED
-                                </Badge>
-                            )}
-                            <span className={`rounded border-2 border-black ${thread.topicColor} px-2 py-0.5 font-bold text-[10px] sm:text-xs text-black uppercase`}>
-                                {thread.topicName}
-                            </span>
-                        </div>
-                        <h3 className="mb-2 font-bold text-base sm:text-xl leading-tight truncate">{thread.title}</h3>
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-                            <span className="font-bold">{thread.authorName}</span>
-                            <span className="text-muted-foreground">Last active {formatTimeAgo(thread.lastActive)}</span>
-                        </div>
-                    </div>
+				<div className="col-title flex-[60] min-w-0">
+					<div className="flex items-center gap-1 mb-0.5">
+						{thread.isPinned && (
+							<Badge className="bg-accent text-accent-foreground border-2 border-black font-black text-[10px] px-1 py-0">
+								PIN
+							</Badge>
+						)}
+						<span
+							className={`rounded border border-black ${thread.topicColor} px-1 py-0 font-bold text-[10px] text-black uppercase`}
+						>
+							{thread.topicName}
+						</span>
+					</div>
+					<h3 className="font-bold text-sm truncate">{thread.title}</h3>
+					<p className="text-[10px] text-muted-foreground">
+						{thread.authorName || "Anonymous"}
+					</p>
+				</div>
 
-                    {/* Stats */}
-                    <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm font-bold sm:flex-shrink-0">
-                        <span className="flex items-center gap-1">
-                            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
-                            {thread.replies}
-                        </span>
-                        <span className="flex items-center gap-1 text-muted-foreground">
-                            <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
-                            {thread.views}
-                        </span>
-                        <span className="flex items-center gap-1 text-primary">
-                            <ThumbsUp className="h-3 w-3 sm:h-4 sm:w-4" />
-                            {thread.likes}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </Link>
-    );
+				<div className="col-stats w-20 flex-shrink-0 flex flex-col justify-center text-center">
+					<div className="flex items-center justify-center gap-1">
+						<MessageSquare className="h-3 w-3 text-muted-foreground" />
+						<span className="font-black text-sm">{thread.replies}</span>
+					</div>
+				</div>
+
+				<div className="col-last w-24 flex-shrink-0 flex flex-col justify-center text-right">
+					<span className="text-[10px] font-bold truncate">
+						{formatTimeAgo(thread.lastActive || "")}
+					</span>
+				</div>
+			</div>
+		</Link>
+	);
 };
