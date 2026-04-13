@@ -1,127 +1,148 @@
 import { Link } from "react-router";
-import { Button } from "@/components/ui/button";
+import {
+	MessageSquare,
+	HelpCircle,
+	Calendar,
+	BookOpen,
+	ArrowRight,
+} from "lucide-react";
 
-const Bee = () => {
-	return (
-		<div className="bee-container">
-			<div className="bee-body">
-				<div className="body"></div>
-				<div className="wing1"></div>
-				<div className="wing2"></div>
-				<div className="stinger"></div>
-				<div className="eyes">
-					<div className="pupil"></div>
-				</div>
-			</div>
-		</div>
-	);
-};
+const quickLinks = [
+	{
+		label: "DISCUSSIONS",
+		icon: MessageSquare,
+		accent: "var(--accent-green)",
+		stamp: "01",
+	},
+	{ label: "Q&A", icon: HelpCircle, accent: "var(--accent-blue)", stamp: "02" },
+	{
+		label: "EVENTS",
+		icon: Calendar,
+		accent: "var(--accent-yellow)",
+		stamp: "03",
+	},
+	{
+		label: "RESOURCES",
+		icon: BookOpen,
+		accent: "var(--accent-red)",
+		stamp: "04",
+	},
+];
 
 const Hero = () => {
 	return (
-		<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-			<div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-background z-0" />
+		<section className="relative min-h-screen flex items-center justify-center overflow-hidden border-b-[1.5px] border-black">
+			<div className="absolute inset-0 bg-white z-0" />
+			<div
+				className="absolute inset-0 z-[1] opacity-[0.04]"
+				style={{
+					backgroundImage: "radial-gradient(#000000 1px, transparent 1px)",
+					backgroundSize: "16px 16px",
+				}}
+			/>
 
-			<div className="container mx-auto px-4 text-center relative z-20">
-				<div className="max-w-4xl mx-auto fade-in-up">
-					<div className="flex justify-center mb-8 space-x-4">
-						<div className="w-16 h-16 neo-brutal-card bg-green-200 border-green-500 flex items-center justify-center avatar-float">
-							<img src="/images/avatar1.png" alt="Avatar1" />
-						</div>
-						<div
-							className="w-16 h-16 neo-brutal-card bg-blue-200 border-blue-500 flex items-center justify-center avatar-float"
-							style={{ animationDelay: "0.5s" }}
-						>
-							<img src="/images/avatar2.png" alt="Avatar2" />
-						</div>
-						<div
-							className="w-16 h-16 neo-brutal-card bg-yellow-200 border-yellow-500 flex items-center justify-center avatar-float"
-							style={{ animationDelay: "1s" }}
-						>
-							<img src="/images/avatar3.png" alt="Avatar3" />
-						</div>
-						<div
-							className="w-16 h-16 neo-brutal-card bg-purple-200 border-purple-500 flex items-center justify-center avatar-float"
-							style={{ animationDelay: "1.5s" }}
-						>
-							<img src="/images/avatar4.png" alt="Avatar4" />
-						</div>
+			<div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
+				<div className="text-center">
+					<div className="fade-in-up mb-6">
+						<span className="tech-stamp">FORUM :: v1.0</span>
 					</div>
 
-					<div className="flex justify-center items-center gap-4 mb-6">
-						<h1
-							className="pixel-font text-4xl md:text-6xl lg:text-7xl glitch-text font-bold text-primary ghibli-title"
-							data-text="IIITBuzz"
+					<h1
+						className="heading-brutal text-5xl sm:text-7xl lg:text-8xl tracking-tighter mb-6 fade-in-up"
+						style={{ lineHeight: 0.9 }}
+					>
+						IIIT
+						<span
+							className="inline-block bg-black text-white px-3 py-1 transform rotate-1"
+							style={{ marginLeft: "4px" }}
 						>
-							IIITBuzz
-						</h1>
-						<Bee />
-					</div>
+							BUZZ
+						</span>
+					</h1>
 
-					<p className="text-2xl md:text-3xl  mb-8 text-primary font-bold ghibli-title pixel-font">
-						CONNECT • LEARN • WIN • REPEAT
-					</p>
-
-					<div className="neo-brutal-card p-8 mb-8 max-w-2xl mx-auto ghibli-card ">
-						<p className="text-lg md:text-xl mb-4 text-foreground pixel-font">
-							<b> 🎓 The ultimate community forum for IIIT students!</b>
-						</p>
-						<p className="text-muted-foreground public-sans-font">
-							Connect, collaborate, and conquer your academic journey with
-							fellow IIITians. Your digital campus hub for discussions,
-							resources, and everything in between.
+					<div className="fade-in-up-delay-1 mb-10">
+						<p
+							className="heading-brutal text-lg sm:text-xl tracking-tight mb-3"
+							style={{ fontWeight: 800 }}
+						>
+							CONNECT &middot; LEARN &middot; WIN &middot; REPEAT
 						</p>
 					</div>
 
-					<div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 fade-in-up">
+					<div className="fade-in-up-delay-2 flex justify-center mb-10">
+						<div className="max-w-xl w-full border-[1.5px] border-black">
+							<div className="border-b-[1.5px] border-black bg-[#fafafa] px-4 py-2 flex items-center justify-between">
+								<span className="mono-label">ABOUT</span>
+								<span className="mono-label" style={{ color: "#000000" }}>
+									INSTITUTE FORUM
+								</span>
+							</div>
+							<div className="p-6 bg-white">
+								<p className="body-brutal text-base sm:text-lg mb-3">
+									<strong>
+										The ultimate community forum for IIIT students.
+									</strong>
+								</p>
+								<p className="body-brutal text-sm">
+									Connect, collaborate, and conquer your academic journey with
+									fellow IIITians. Your digital campus hub for discussions,
+									resources, and everything in between.
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<div className="fade-in-up-delay-3 flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
 						<Link to="/login">
-							<Button
-								size="lg"
-								className="neo-brutal-button bg-foreground text-black hover:bg-primary/90 border-primary text-lg px-8 py-6 ghibli-button pixel-font"
+							<button
+								type="button"
+								className="landing-button landing-button-primary"
 							>
-								🚀 JOIN THE BUZZ
-							</Button>
+								JOIN THE BUZZ
+								<ArrowRight className="w-4 h-4" />
+							</button>
 						</Link>
 						<Link to="/home">
-							<Button
-								size="lg"
-								variant="neutral"
-								className="neo-brutal-button bg-secondary border-primary text-primary hover:bg-secondary  hover:text-black text-lg px-8 py-6 ghibli-button pixel-font"
+							<button
+								type="button"
+								className="landing-button landing-button-secondary"
 							>
-								📖 EXPLORE FIRST
-							</Button>
+								EXPLORE FIRST
+								<ArrowRight className="w-4 h-4" />
+							</button>
 						</Link>
 					</div>
 
-					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-2xl mx-auto fade-in-up">
-						<div className="neo-brutal-card p-4 bg-primary-20 border-foreground ghibli-feature-card">
-							<div className="text-2xl mb-2">💬</div>
-							<div className="pixel-font text-xs text-foreground">
-								DISCUSSIONS
-							</div>
+					<div className="fade-in-up-delay-4">
+						<div className="flex justify-center mb-6">
+							<span className="mono-label" style={{ color: "#9ca3af" }}>
+								&#x2500;&#x2500; CATEGORIES &#x2500;&#x2500;
+							</span>
 						</div>
-						<div
-							className="neo-brutal-card p-4 bg-secondary-20 border-secondary ghibli-feature-card"
-							style={{ animationDelay: "0.2s" }}
-						>
-							<div className="text-2xl mb-2">❓</div>
-							<div className="pixel-font text-xs text-secondary">Q&A</div>
-						</div>
-						<div
-							className="neo-brutal-card p-4 bg-accent-20 border-accent ghibli-feature-card"
-							style={{ animationDelay: "0.4s" }}
-						>
-							<div className="text-2xl mb-2">📅</div>
-							<div className="pixel-font text-xs text-accent">EVENTS</div>
-						</div>
-						<div
-							className="neo-brutal-card p-4 bg-destructive-20 border-destructive ghibli-feature-card"
-							style={{ animationDelay: "0.6s" }}
-						>
-							<div className="text-2xl mb-2">📚</div>
-							<div className="pixel-font text-xs text-destructive">
-								RESOURCES
-							</div>
+						<div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
+							{quickLinks.map((link) => (
+								<div
+									key={link.label}
+									className="landing-card p-4 flex flex-col items-center gap-2 cursor-pointer hover:bg-[#fafafa]"
+								>
+									<span className="mono-label" style={{ fontSize: "0.55rem" }}>
+										[ :: {link.stamp} ]
+									</span>
+									<div
+										className="feature-icon"
+										style={{ background: `${link.accent}15` }}
+									>
+										<link.icon
+											className="w-5 h-5"
+											strokeWidth={1.5}
+											style={{ color: link.accent }}
+										/>
+									</div>
+									<span className="mono-label" style={{ color: "#000000" }}>
+										{link.label}
+									</span>
+								</div>
+							))}
 						</div>
 					</div>
 				</div>

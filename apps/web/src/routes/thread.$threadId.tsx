@@ -125,26 +125,26 @@ export default function ThreadPage() {
 			<main className="site-container flex-1 py-3">
 				<div className="flex justify-between items-start mb-3">
 					<div className="flex-1">
-						<h1 className="text-lg font-black">{thread.title}</h1>
-						<p className="text-[10px] text-muted-foreground">
-							by <span className="font-bold">{thread.authorName}</span> ·{" "}
-							{new Date(thread.createdAt).toLocaleDateString()}
+						<span className="mono-label text-[9px] mb-1 block">
+							{"// THREAD"}
+						</span>
+						<h1 className="text-lg font-black uppercase tracking-tight">
+							{thread.title}
+						</h1>
+						<p className="mono-meta">
+							by{" "}
+							<span className="font-bold text-foreground">
+								{thread.authorName}
+							</span>{" "}
+							· {new Date(thread.createdAt).toLocaleDateString()}
 						</p>
 					</div>
 					<div className="flex gap-1">
-						<Button
-							variant="neutral"
-							size="icon"
-							className="neo-brutal-button h-7 w-7"
-						>
-							<Bookmark className="h-3 w-3" />
+						<Button variant="neutral" size="icon" className="h-7 w-7">
+							<Bookmark className="h-3 w-3" strokeWidth={1.5} />
 						</Button>
-						<Button
-							variant="neutral"
-							size="icon"
-							className="neo-brutal-button h-7 w-7"
-						>
-							<Share2 className="h-3 w-3" />
+						<Button variant="neutral" size="icon" className="h-7 w-7">
+							<Share2 className="h-3 w-3" strokeWidth={1.5} />
 						</Button>
 					</div>
 				</div>

@@ -14,20 +14,20 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 	const { user, isLoading, isAuthenticated, isAdmin, login } = useAuth();
 
 	return (
-		<header className="border-b-4 border-primary bg-background/95 backdrop-blur-sm sticky top-0 z-50">
+		<header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
 			<div className="site-container py-3 flex items-center justify-between">
 				<Link to="/" className="flex items-center gap-2">
 					<img src="/images/logo.png" alt="IIITBuzz Logo" className="w-7 h-7" />
-					<h1 className="pixel-font text-lg text-primary">IIITBuzz</h1>
+					<h1 className="font-black text-lg text-foreground tracking-tight">
+						IIITBuzz
+					</h1>
 				</Link>
 
 				<div className="flex items-center gap-2">
 					{!hideThemeToggle && <ModeToggle />}
 
 					{isLoading ? (
-						<div className="animate-pulse text-xs text-muted-foreground">
-							...
-						</div>
+						<div className="animate-pulse mono-meta">...</div>
 					) : isAuthenticated ? (
 						<>
 							{!hideThemeToggle && (
@@ -35,7 +35,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 									<Button
 										type="button"
 										variant="neutral"
-										className="border-2 flex items-center gap-1 border-border text-primary bg-card px-2 py-1 font-bold text-xs shadow-[2px_2px_0px_0px_var(--shadow-color)]"
+										className="flex items-center gap-1 px-2 py-1 text-xs font-bold"
 									>
 										<Home className="h-3 w-3" />
 									</Button>
@@ -46,7 +46,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 									<Button
 										type="button"
 										variant="neutral"
-										className="border-2 flex items-center gap-1 border-border text-primary bg-card px-2 py-1 font-bold text-xs shadow-[2px_2px_0px_0px_var(--shadow-color)]"
+										className="flex items-center gap-1 px-2 py-1 text-xs font-bold"
 									>
 										<Shield className="h-3 w-3" />
 										<span className="hidden sm:inline">Admin</span>
@@ -58,7 +58,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 							{!hideThemeToggle && (
 								<Link
 									to="/new-thread"
-									className="neo-brutal-button bg-primary px-2 py-1 flex items-center gap-1 font-bold text-primary-foreground text-xs shadow-[2px_2px_0px_0px_var(--shadow-color)]"
+									className="bg-primary px-2 py-1 flex items-center gap-1 font-bold text-primary-foreground text-xs border-[1.5px] border-border"
 								>
 									<Plus className="h-3 w-3" />
 									<span className="hidden sm:inline">New</span>
@@ -70,13 +70,13 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 							<Button
 								onClick={login}
 								variant="neutral"
-								className="neo-brutal-button border-primary text-primary bg-secondary text-xs px-2 py-1"
+								className="text-foreground text-xs px-2 py-1"
 							>
 								Log In
 							</Button>
 							<Button
 								onClick={login}
-								className="neo-brutal-button bg-foreground text-primary hover:bg-primary/90 border-foreground text-xs px-2 py-1"
+								className="bg-foreground text-primary-foreground text-xs px-2 py-1 hover:bg-foreground/90"
 							>
 								Sign Up
 							</Button>

@@ -82,11 +82,12 @@ export default function ThreadsPage() {
 			</div>
 
 			<main className="site-container flex-1 py-3">
-				<div className="topic-header mb-3 p-3 border-4 border-black bg-card">
-					<h1 className="font-black text-xl">{topic?.topicName}</h1>
-					<p className="text-xs text-muted-foreground">
-						{topic?.topicDescription}
-					</p>
+				<div className="topic-header mb-3 p-3 border border-black bg-card">
+					<span className="mono-label text-[9px] mb-1 block">{"// TOPIC"}</span>
+					<h1 className="font-black text-xl uppercase tracking-tight">
+						{topic?.topicName}
+					</h1>
+					<p className="mono-meta mt-1">{topic?.topicDescription}</p>
 				</div>
 
 				<div className="action-bar flex justify-between items-center mb-3">
@@ -95,21 +96,23 @@ export default function ThreadsPage() {
 							<Button
 								key={s}
 								variant={sortBy === s ? "default" : "neutral"}
-								className="neo-brutal-button text-[10px] uppercase py-1 px-2"
+								className="text-[10px] uppercase py-1 px-2"
 								onClick={() => setSortBy(s)}
 							>
 								{s}
 							</Button>
 						))}
 					</div>
-					<Button asChild className="neo-brutal-button-strong py-1 px-2">
+					<Button asChild className="py-1 px-2">
 						<Link to="/new-thread" state={{ initialTopicId: topicId }}>
-							<span className="text-xs">New Thread</span>
+							<span className="text-xs font-bold uppercase tracking-wider">
+								New Thread
+							</span>
 						</Link>
 					</Button>
 				</div>
 
-				<div className="neo-brutal-card space-y-0 border-4 border-black">
+				<div className="border border-black space-y-0">
 					{threads.length === 0 ? (
 						<p className="text-center py-4 font-bold text-sm">
 							No threads here yet...
@@ -119,7 +122,7 @@ export default function ThreadsPage() {
 							<div
 								key={t.id}
 								className={
-									idx !== threads.length - 1 ? "border-b-2 border-black" : ""
+									idx !== threads.length - 1 ? "border-b border-gray-200" : ""
 								}
 							>
 								<TopicThreadRow
@@ -140,11 +143,11 @@ export default function ThreadsPage() {
 							size="sm"
 							onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
 							disabled={currentPage === 1}
-							className="neo-brutal-button bg-card px-2 py-0.5 text-foreground disabled:opacity-50 text-[10px]"
+							className="bg-card px-2 py-0.5 text-foreground disabled:opacity-50 text-[10px]"
 						>
 							Prev
 						</Button>
-						<span className="flex items-center font-bold text-[10px] text-foreground">
+						<span className="flex items-center font-bold text-[10px] text-foreground mono-meta">
 							{currentPage}/{totalPages}
 						</span>
 						<Button
@@ -155,7 +158,7 @@ export default function ThreadsPage() {
 								setCurrentPage((prev) => Math.min(prev + 1, totalPages))
 							}
 							disabled={currentPage === totalPages}
-							className="neo-brutal-button bg-card px-2 py-0.5 text-foreground disabled:opacity-50 text-[10px]"
+							className="bg-card px-2 py-0.5 text-foreground disabled:opacity-50 text-[10px]"
 						>
 							Next
 						</Button>

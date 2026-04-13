@@ -165,20 +165,21 @@ export const ReplyBox = ({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="mt-4 border-4 border-black bg-card p-3"
+			className="mt-4 border border-black bg-card p-3"
 		>
-			<h3 className="mb-2 font-bold text-sm text-foreground">Post a Reply</h3>
+			<div className="flex items-center justify-between mb-2">
+				<h3 className="font-bold text-sm text-foreground">Post a Reply</h3>
+				<span className="mono-label">{"// SECTION: REPLY"}</span>
+			</div>
 
 			{replyTo && (
-				<div className="mb-2 p-2 bg-muted/50 border-2 border-black">
+				<div className="mb-2 p-2 bg-gray-50 border border-black">
 					<div className="flex justify-between items-start mb-1">
-						<span className="text-[10px] font-bold">
-							Replying to {replyTo.author}
-						</span>
+						<span className="mono-meta">Replying to {replyTo.author}</span>
 						<button
 							type="button"
 							onClick={onClearReplyTo}
-							className="text-[10px] font-bold hover:underline"
+							className="mono-meta hover:underline"
 						>
 							Cancel
 						</button>
@@ -191,7 +192,7 @@ export const ReplyBox = ({
 						type="button"
 						size="sm"
 						onClick={handleInsertQuote}
-						className="neo-brutal-button mt-2 py-0.5 px-2 text-[10px]"
+						className="mt-2 py-0.5 px-2 text-[10px] font-bold"
 					>
 						Insert Quote
 					</Button>
@@ -208,7 +209,7 @@ export const ReplyBox = ({
 					onDragOver={(e) => e.preventDefault()}
 					ref={textareaRef}
 					disabled={submitting || creatingDraft}
-					className="mb-2 h-24 resize-none text-xs font-medium border-2"
+					className="mb-2 h-24 resize-none text-xs font-medium border"
 				/>
 				<input
 					type="file"
@@ -220,16 +221,14 @@ export const ReplyBox = ({
 			</div>
 
 			{showPreview && content.trim() && (
-				<div className="mb-2 p-2 border-2 border-black bg-muted/30 max-h-60 overflow-y-auto">
-					<div className="text-[10px] font-bold text-muted-foreground mb-1">
-						Preview
-					</div>
+				<div className="mb-2 p-2 border border-black bg-gray-50 max-h-60 overflow-y-auto">
+					<div className="mono-label mb-1">PREVIEW</div>
 					<MarkdownContent content={content} />
 				</div>
 			)}
 
 			{error && (
-				<p className="mb-2 font-bold text-destructive text-xs bg-destructive/10 p-2 border-2 border-destructive">
+				<p className="mb-2 font-bold text-destructive text-xs bg-destructive/10 p-2 border border-destructive">
 					{error}
 				</p>
 			)}
@@ -249,7 +248,7 @@ export const ReplyBox = ({
 							size="sm"
 							variant="neutral"
 							onClick={() => onFormat(syntax)}
-							className="neo-brutal-button bg-card px-2 py-0.5 font-bold text-[10px]"
+							className="bg-card px-2 py-0.5 font-bold text-[10px]"
 						>
 							{label}
 						</Button>
@@ -260,7 +259,7 @@ export const ReplyBox = ({
 						variant="neutral"
 						onClick={() => fileInputRef.current?.click()}
 						disabled={uploading || creatingDraft}
-						className="neo-brutal-button bg-card px-2 py-0.5 font-bold text-[10px]"
+						className="bg-card px-2 py-0.5 font-bold text-[10px]"
 					>
 						<ImageIcon className="h-3 w-3" />
 						{uploading ? "..." : ""}
@@ -270,7 +269,7 @@ export const ReplyBox = ({
 						size="sm"
 						variant="neutral"
 						onClick={() => setShowHelp(!showHelp)}
-						className="neo-brutal-button bg-card px-2 py-0.5 font-bold text-[10px]"
+						className="bg-card px-2 py-0.5 font-bold text-[10px]"
 					>
 						?
 					</Button>
@@ -279,7 +278,7 @@ export const ReplyBox = ({
 						size="sm"
 						variant="neutral"
 						onClick={() => setShowPreview(!showPreview)}
-						className={`neo-brutal-button px-2 py-0.5 font-bold text-[10px] ${showPreview ? "bg-primary text-primary-foreground" : "bg-card"}`}
+						className={`px-2 py-0.5 font-bold text-[10px] ${showPreview ? "bg-primary text-primary-foreground" : "bg-card"}`}
 					>
 						Preview
 					</Button>
@@ -287,16 +286,16 @@ export const ReplyBox = ({
 				<button
 					type="submit"
 					disabled={submitting || !content.trim() || creatingDraft}
-					className="neo-brutal-button-strong bg-primary px-3 py-1 font-bold text-xs text-primary-foreground disabled:opacity-50"
+					className="bg-primary text-primary-foreground px-3 py-1 font-bold text-xs border-[1.5px] border-border disabled:opacity-50"
 				>
 					{submitting ? "..." : "Post"}
 				</button>
 			</div>
 
 			{showHelp && (
-				<div className="mt-2 p-2 bg-muted text-[10px]">
-					<p className="font-bold mb-1">Markdown Help:</p>
-					<ul className="space-y-0.5">
+				<div className="mt-2 p-2 bg-gray-50 border border-gray-200 text-[10px]">
+					<p className="font-bold mb-1 mono-label">Markdown Help:</p>
+					<ul className="space-y-0.5 mono-meta">
 						<li>
 							<code>**bold**</code> → bold
 						</li>

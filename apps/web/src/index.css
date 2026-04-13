@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@400;700;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&family=Rowdies:wght@300;400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -258,66 +259,66 @@
 }
 
 @layer utilities {
-	/* Neo-brutalism style building blocks */
+	/* Technical-brutalist style building blocks - thin precision lines */
 
 	.neo-brutal-card-lg {
-		@apply border-4 border-border bg-card text-card-foreground shadow-[8px_8px_0px_0px_var(--shadow-color)] transition-all hover:shadow-[4px_4px_0px_0px_var(--shadow-color)] hover:translate-x-[4px] hover:translate-y-[4px];
+		@apply border border-border bg-card text-card-foreground transition-all hover:bg-muted/30;
 	}
 
 	.neo-brutal-card {
-		@apply border-4 border-border bg-card text-card-foreground shadow-[6px_6px_0px_0px_var(--shadow-color)] transition-all hover:shadow-[3px_3px_0px_0px_var(--shadow-color)] hover:translate-x-[3px] hover:translate-y-[3px];
+		@apply border border-border bg-card text-card-foreground transition-all hover:bg-muted/30;
 	}
 
 	.neo-brutal-card-sm {
-		@apply border-4 border-border bg-card text-card-foreground shadow-[4px_4px_0px_0px_var(--shadow-color)] transition-all hover:shadow-[2px_2px_0px_0px_var(--shadow-color)] hover:translate-x-[2px] hover:translate-y-[2px];
+		@apply border border-border bg-card text-card-foreground transition-all hover:bg-muted/30;
 	}
 
 	.neo-brutal-header {
-		@apply border-b-4 border-border bg-card;
+		@apply border-b border-border bg-card;
 	}
 
 	.neo-brutal-button {
-		@apply border-3 border-border shadow-[3px_3px_0px_0px_var(--shadow-color)] transition-all hover:shadow-[2px_2px_0px_0px_var(--shadow-color)] hover:translate-x-[1px] hover:translate-y-[1px];
+		@apply border-[1.5px] border-border transition-all hover:bg-muted/30;
 	}
 
 	.neo-brutal-button-strong {
-		@apply border-3 border-border shadow-[4px_4px_0px_0px_var(--shadow-color)] transition-all hover:shadow-[2px_2px_0px_0px_var(--shadow-color)] hover:translate-x-[2px] hover:translate-y-[2px];
+		@apply border-[1.5px] border-border transition-all hover:bg-muted/30;
 	}
 
 	.neo-brutal-input {
-		@apply border-4 border-border bg-card text-foreground shadow-[4px_4px_0px_0px_var(--shadow-color)] focus:outline-none focus:shadow-[6px_6px_0px_0px_var(--shadow-color)];
+		@apply border border-border bg-card text-foreground focus:outline-none focus:border-foreground;
 	}
 
 	.neo-brutal-empty {
-		@apply border-4 border-border border-dashed p-8 text-center py-12 text-muted-foreground;
+		@apply border border-border border-dashed p-8 text-center py-12 text-muted-foreground;
 	}
 
 	.neo-brutal-avatar {
-		@apply flex items-center justify-center border-3 border-border bg-primary font-bold text-primary-foreground;
+		@apply flex items-center justify-center border border-border bg-primary font-bold text-primary-foreground text-xs;
 	}
 
 	.neo-brutal-breadcrumbs {
-		@apply border-b-2 border-border bg-card;
+		@apply border-b border-border bg-card;
 	}
 
 	.category-header {
-		@apply border-b-4 border-black pb-1 mb-3;
+		@apply border-b border-black pb-1 mb-3;
 	}
 
 	.action-bar {
-		@apply border-b-2 border-black pb-2 mb-3;
+		@apply border-b border-black pb-2 mb-3;
 	}
 
 	.topic-header {
-		@apply border-b-4 border-black;
+		@apply border-b border-black;
 	}
 
 	.page-header {
-		@apply border-b-4 border-black pb-1;
+		@apply border-b border-black pb-1;
 	}
 
 	.utility-bar {
-		@apply shadow-[4px_4px_0px_0px_var(--shadow-color)];
+		@apply border border-border;
 	}
 
 	.post-block {
@@ -325,7 +326,7 @@
 	}
 
 	.author-pane {
-		@apply border-b-2 sm:border-b-0 border-black;
+		@apply border-b sm:border-b-0 border-black;
 	}
 
 	@media (min-width: 640px) {
@@ -333,7 +334,7 @@
 			@apply flex-row;
 		}
 		.author-pane {
-			@apply border-b-0 border-r-2;
+			@apply border-b-0 border-r;
 		}
 	}
 
@@ -342,7 +343,7 @@
 	}
 
 	.main-wrapper {
-		@apply grid grid-cols-1 lg:grid-cols-4 gap-4;
+		@apply grid grid-cols-1 lg:grid-cols-4 gap-3;
 	}
 
 	.primary-column {
@@ -351,5 +352,67 @@
 
 	.sidebar {
 		@apply lg:col-span-1;
+	}
+
+	/* Technical typography */
+	.mono-label {
+		font-family: "JetBrains Mono", monospace;
+		font-weight: 600;
+		letter-spacing: 0.05em;
+		text-transform: uppercase;
+		font-size: 0.65rem;
+		color: #6b7280;
+	}
+
+	.mono-meta {
+		font-family: "JetBrains Mono", monospace;
+		font-weight: 400;
+		font-size: 0.7rem;
+		letter-spacing: 0.03em;
+		color: #6b7280;
+	}
+
+	.tech-stamp {
+		font-family: "JetBrains Mono", monospace;
+		font-size: 0.6rem;
+		font-weight: 700;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		padding: 1px 6px;
+		border: 1px solid #000000;
+		display: inline-block;
+		line-height: 1.4;
+	}
+
+	/* Accent left-border indicators */
+	.accent-border-green {
+		border-left: 3px solid #22c55e;
+	}
+	.accent-border-blue {
+		border-left: 3px solid #3b82f6;
+	}
+	.accent-border-red {
+		border-left: 3px solid #ef4444;
+	}
+	.accent-border-yellow {
+		border-left: 3px solid #eab308;
+	}
+	.accent-border-purple {
+		border-left: 3px solid #a855f7;
+	}
+	.accent-border-pink {
+		border-left: 3px solid #ec4899;
+	}
+	.accent-border-indigo {
+		border-left: 3px solid #6366f1;
+	}
+	.accent-border-orange {
+		border-left: 3px solid #f97316;
+	}
+	.accent-border-teal {
+		border-left: 3px solid #14b8a6;
+	}
+	.accent-border-cyan {
+		border-left: 3px solid #06b6d4;
 	}
 }

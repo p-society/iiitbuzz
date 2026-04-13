@@ -72,7 +72,10 @@ export default function AllThreadsPage() {
 
 			<main className="site-container flex-1 py-3">
 				<div className="page-header mb-3">
-					<h1 className="font-black text-xl">All Threads</h1>
+					<span className="mono-label text-[9px] mb-1 block">{"// VIEW"}</span>
+					<h1 className="font-black text-xl uppercase tracking-tight">
+						All Threads
+					</h1>
 				</div>
 
 				<div className="flex flex-wrap items-center gap-2 mb-3">
@@ -80,9 +83,10 @@ export default function AllThreadsPage() {
 						<Search
 							className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground"
 							size={14}
+							strokeWidth={1.5}
 						/>
 						<Input
-							className="neo-brutal-input pl-8 py-1 h-8 text-xs border-2"
+							className="pl-8 py-1 h-8 text-xs border"
 							placeholder="Search..."
 							value={searchQuery}
 							onChange={(e) => {
@@ -100,7 +104,7 @@ export default function AllThreadsPage() {
 									setSort(s);
 									setCurrentPage(1);
 								}}
-								className="neo-brutal-button capitalize font-bold text-[10px] py-1 px-2"
+								className="capitalize font-bold text-[10px] py-1 px-2"
 							>
 								{s}
 							</Button>
@@ -108,9 +112,11 @@ export default function AllThreadsPage() {
 					</div>
 				</div>
 
-				<div className="neo-brutal-card space-y-0 border-4 border-black">
-					<div className="border-b-2 border-black px-3 py-2 bg-muted">
-						<span className="font-black text-xs uppercase">Thread</span>
+				<div className="border border-black space-y-0">
+					<div className="border-b border-black px-3 py-2 bg-gray-50">
+						<span className="font-black text-xs uppercase tracking-wider">
+							Thread
+						</span>
 					</div>
 					{loading ? (
 						<p className="text-center py-4 font-bold text-sm">Loading...</p>
@@ -123,7 +129,7 @@ export default function AllThreadsPage() {
 							<div
 								key={t.id}
 								className={
-									idx !== threads.length - 1 ? "border-b-2 border-black" : ""
+									idx !== threads.length - 1 ? "border-b border-gray-200" : ""
 								}
 							>
 								<ThreadRow thread={t} />

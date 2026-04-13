@@ -1,22 +1,42 @@
 import { Link } from "react-router";
 import { MessageSquare } from "lucide-react";
 import type { Topic } from "@/types/forum";
+import { getTopicColor, getTopicColorHex } from "@/lib/utils/topicColor";
 
 export const TopicCard = ({ topic }: { topic: Topic }) => (
-    <Link to={`/topic/${topic.id}`} className="group block">
-        <div className="neo-brutal-card-lg p-4 sm:p-6 h-full flex flex-col">
-            <h3 className="font-bold text-lg sm:text-xl truncate mb-3">
-                {topic.topicName}
-            </h3>
-            <p className="mb-4 text-sm text-muted-foreground line-clamp-2">
-                {topic.topicDescription}
-            </p>
-            <div className="flex gap-4 text-xs sm:text-sm font-bold mt-auto">
-                <span className="flex items-center gap-1">
-                    <MessageSquare className="h-4 w-4" />
-                    {topic.threadCount ?? 0} Threads
-                </span>
-            </div>
-        </div>
-    </Link>
+	<Link to={`/topic/${topic.id}`} className="group block">
+		<div
+			className={`border border-black p-4 sm:p-6 h-full flex flex-col transition-colors hover:bg-gray-50 ${getTopicColor(topic.id)}`}
+		>
+			<div className="flex items-center justify-between mb-3">
+				<span
+					className="mono-label text-[9px]"
+					style={{ color: getTopicColorHex(topic.id) }}
+				>
+					[ {String(topic.threadCount ?? 0).padStart(3, "0")} ]
+				</span>
+				<MessageSquare
+					className="w-4 h-4 text-muted-foreground"
+					strokeWidth={1.5}
+				/>
+			</div>
+			<h3 className="font-black text-lg sm:text-xl uppercase tracking-tight truncate mb-2">
+				{topic.topicName}
+			</h3>
+			<p
+				className="text-sm text-muted-foreground line-clamp-2 flex-1"
+				style={{ lineHeight: 1.6 }}
+			>
+				{topic.topicDescription}
+			</p>
+			<div className="mt-4 pt-3 border-t border-gray-200">
+				<span
+					className="mono-label text-[9px]"
+					style={{ color: getTopicColorHex(topic.id) }}
+				>
+					{topic.threadCount ?? 0} THREADS
+				</span>
+			</div>
+		</div>
+	</Link>
 );

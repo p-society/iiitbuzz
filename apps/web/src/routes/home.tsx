@@ -121,15 +121,20 @@ export default function HomePage() {
 						{officialTopics.length > 0 && (
 							<section>
 								<div className="category-header mb-2">
-									<h2 className="font-black text-lg">Official</h2>
+									<span className="mono-label text-[9px] mb-1 block">
+										CATEGORY
+									</span>
+									<h2 className="font-black text-lg uppercase tracking-tight">
+										Official
+									</h2>
 								</div>
-								<div className="neo-brutal-card space-y-0">
+								<div className="border border-black space-y-0">
 									{officialTopics.map((t, idx) => (
 										<div
 											key={t.id}
 											className={
 												idx !== officialTopics.length - 1
-													? "border-b-2 border-black"
+													? "border-b border-gray-200"
 													: ""
 											}
 										>
@@ -147,15 +152,20 @@ export default function HomePage() {
 						{hubTopics.length > 0 && (
 							<section>
 								<div className="category-header mb-2">
-									<h2 className="font-black text-lg">The Hub</h2>
+									<span className="mono-label text-[9px] mb-1 block">
+										CATEGORY
+									</span>
+									<h2 className="font-black text-lg uppercase tracking-tight">
+										The Hub
+									</h2>
 								</div>
-								<div className="neo-brutal-card space-y-0">
+								<div className="border border-black space-y-0">
 									{hubTopics.map((t, idx) => (
 										<div
 											key={t.id}
 											className={
 												idx !== hubTopics.length - 1
-													? "border-b-2 border-black"
+													? "border-b border-gray-200"
 													: ""
 											}
 										>
@@ -172,75 +182,72 @@ export default function HomePage() {
 					</div>
 
 					<aside className="sidebar">
-						<div className="neo-brutal-card p-3">
-							<h3 className="font-bold text-xs mb-2 uppercase tracking-wide border-b-2 border-black pb-1">
-								Recent
-							</h3>
-							<div className="space-y-1.5 mb-3">
-								{recentThreads.slice(0, 5).map((thread) => (
-									<Link
-										key={thread.id}
-										to={`/thread/${thread.id}`}
-										className="block hover:underline"
-									>
-										<div className="font-bold text-xs truncate">
-											{thread.title}
-										</div>
-										<div className="text-[10px] text-muted-foreground">
-											{thread.author} · {thread.lastActive}
-										</div>
-									</Link>
-								))}
+						<div className="border border-black">
+							<div className="p-3 border-b border-gray-200">
+								<span className="mono-label">{"// SECTION: ACTIVITY"}</span>
 							</div>
+							<div className="p-3">
+								<h3 className="font-bold text-xs mb-2 uppercase tracking-wider border-b border-gray-200 pb-1">
+									Recent
+								</h3>
+								<div className="space-y-1.5 mb-4">
+									{recentThreads.slice(0, 5).map((thread) => (
+										<Link
+											key={thread.id}
+											to={`/thread/${thread.id}`}
+											className="block hover:bg-gray-50 -mx-1 px-1 transition-colors"
+										>
+											<div className="font-bold text-xs truncate">
+												{thread.title}
+											</div>
+											<div className="mono-meta">
+												{thread.author} · {thread.lastActive}
+											</div>
+										</Link>
+									))}
+								</div>
 
-							{stats && (
-								<>
-									<h3 className="font-bold text-xs mb-2 uppercase tracking-wide border-b-2 border-black pb-1">
-										Stats
-									</h3>
-									<div className="grid grid-cols-2 gap-2">
-										<div className="text-center">
-											<div className="font-black text-base">
-												{stats.totalThreads}
+								{stats && (
+									<>
+										<h3 className="font-bold text-xs mb-2 uppercase tracking-wider border-b border-gray-200 pb-1">
+											Stats
+										</h3>
+										<div className="grid grid-cols-2 gap-2">
+											<div className="text-center">
+												<div className="font-black text-base">
+													{stats.totalThreads}
+												</div>
+												<div className="mono-label">Threads</div>
 											</div>
-											<div className="text-[10px] font-bold text-muted-foreground uppercase">
-												Threads
+											<div className="text-center">
+												<div className="font-black text-base">
+													{stats.totalPosts}
+												</div>
+												<div className="mono-label">Posts</div>
 											</div>
-										</div>
-										<div className="text-center">
-											<div className="font-black text-base">
-												{stats.totalPosts}
+											<div className="text-center">
+												<div className="font-black text-base">
+													{stats.totalMembers}
+												</div>
+												<div className="mono-label">Members</div>
 											</div>
-											<div className="text-[10px] font-bold text-muted-foreground uppercase">
-												Posts
-											</div>
-										</div>
-										<div className="text-center">
-											<div className="font-black text-base">
-												{stats.totalMembers}
-											</div>
-											<div className="text-[10px] font-bold text-muted-foreground uppercase">
-												Members
-											</div>
-										</div>
-										<div className="text-center">
-											<div className="font-black text-base">
-												{stats.onlineMembers}
-											</div>
-											<div className="text-[10px] font-bold text-muted-foreground uppercase">
-												Online
+											<div className="text-center">
+												<div className="font-black text-base">
+													{stats.onlineMembers}
+												</div>
+												<div className="mono-label">Online</div>
 											</div>
 										</div>
-									</div>
-								</>
-							)}
+									</>
+								)}
+							</div>
 						</div>
 
-						<Button
-							asChild
-							className="neo-brutal-button-strong w-full py-1.5 mt-3"
-						>
-							<Link to="/threads" className="block text-center text-xs">
+						<Button asChild className="w-full py-1.5 mt-3 font-bold">
+							<Link
+								to="/threads"
+								className="block text-center text-xs uppercase tracking-wider"
+							>
 								All Threads
 							</Link>
 						</Button>

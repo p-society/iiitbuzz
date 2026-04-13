@@ -1,58 +1,24 @@
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap");
+
 body {
-	font-family: "Public Sans", monospace;
-	background-color: var(--background);
-	background-image:
-		repeating-linear-gradient(
-			0deg,
-			transparent,
-			transparent 19px,
-			rgba(75, 85, 99, 0.08) 19px,
-			rgba(75, 85, 99, 0.08) 20px,
-			transparent 20px,
-			transparent 39px,
-			rgba(75, 85, 99, 0.08) 39px,
-			rgba(75, 85, 99, 0.08) 40px
-		),
-		repeating-linear-gradient(
-			90deg,
-			transparent,
-			transparent 19px,
-			rgba(75, 85, 99, 0.08) 19px,
-			rgba(75, 85, 99, 0.08) 20px,
-			transparent 20px,
-			transparent 39px,
-			rgba(75, 85, 99, 0.08) 39px,
-			rgba(75, 85, 99, 0.08) 40px
-		),
-		radial-gradient(
-			circle at 20px 20px,
-			rgba(55, 65, 81, 0.12) 2px,
-			transparent 2px
-		),
-		radial-gradient(
-			circle at 40px 40px,
-			rgba(55, 65, 81, 0.12) 2px,
-			transparent 2px
-		);
-	background-size:
-		40px 40px,
-		40px 40px,
-		40px 40px,
-		40px 40px;
-	background-repeat: repeat;
+	font-family: "Inter", system-ui, -apple-system, sans-serif;
+	background-color: #ffffff;
+	background-image: radial-gradient(circle, #d1d1d1 1px, transparent 1px);
+	background-size: 20px 20px;
 	background-attachment: fixed;
-	color: var(--foreground);
+	color: #000000;
 	line-height: 1.6;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 :root .landing-theme {
-	/* Backgrounds/Surfaces */
 	--background: #ffffff;
 	--foreground: #e7b52a;
 	--bg: #ffffff;
-	--surface: #f5f5f5;
-	--card: #000;
-	--card-foreground: #030302;
+	--surface: #fafafa;
+	--card: #ffffff;
+	--card-foreground: #000000;
 	--popover: #262626;
 	--popover-foreground: #f5f5f5;
 	--muted: #374151;
@@ -65,10 +31,9 @@ body {
 	--sidebar-accent-foreground: #f5f5f5;
 	--sidebar-border: #c084fc;
 	--sidebar-ring: #c084fc;
-	--background-image: url("/backgrounds/bg-light.png");
+	--background-image: none;
 
-	/* Primary/Accent Colors */
-	--primary: #040403;
+	--primary: #000000;
 	--primary-foreground: #ffffff;
 	--secondary: #22c55e;
 	--secondary-foreground: #1a1a1a;
@@ -76,24 +41,69 @@ body {
 	--accent-foreground: #1a1a1a;
 	--destructive: #ef4444;
 
-	/* Text/Misc */
-	--text-primary: #1a1a1a;
+	--text-primary: #000000;
 	--text-secondary: #374151;
-	--muted-foreground: #7e8289;
-	--border: #374151;
-	--ring: #c084fc;
-	--footer: #000000b7;
+	--muted-foreground: #6b7280;
+	--border: #000000;
+	--ring: #000000;
+	--footer: #000000;
 
-	/* Custom Color-20 variables used in Hero.tsx for opacities */
-	--primary-20: #04040333;
-	--secondary-20: #22c55e33;
-	--accent-20: #f8717133;
-	--destructive-20: #ef444433;
+	--primary-20: #0000001a;
+	--secondary-20: #22c55e1a;
+	--accent-20: #f871711a;
+	--destructive-20: #ef44441a;
+
+	--accent-green: #22c55e;
+	--accent-yellow: #eab308;
+	--accent-red: #ef4444;
+	--accent-blue: #3b82f6;
 }
 
-/* .pixel-font { */
-/* font-family: "Press Start 2P", monospace; */
-/* } */
+/* Typography classes */
+.mono-label {
+	font-family: "JetBrains Mono", monospace;
+	font-weight: 600;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	font-size: 0.65rem;
+	color: #6b7280;
+}
+
+.mono-meta {
+	font-family: "JetBrains Mono", monospace;
+	font-weight: 400;
+	font-size: 0.75rem;
+	color: #6b7280;
+	letter-spacing: 0.02em;
+}
+
+.heading-brutal {
+	font-family: "Inter", system-ui, sans-serif;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: -0.03em;
+	line-height: 1;
+	color: #000000;
+}
+
+.subheading-brutal {
+	font-family: "Inter", system-ui, sans-serif;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	color: #000000;
+}
+
+.body-brutal {
+	font-family: "Inter", system-ui, sans-serif;
+	font-weight: 400;
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #374151;
+}
+
+/* Preserve pixel-font and public-sans-font for non-landing pages */
 .pixel-font {
 	font-family: "Rowdies", sans-serif;
 	font-weight: 700;
@@ -112,6 +122,25 @@ body {
 	font-style: normal;
 }
 
+/* Technical stamp / badge */
+.tech-stamp {
+	font-family: "JetBrains Mono", monospace;
+	font-size: 0.6rem;
+	font-weight: 700;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	padding: 2px 6px;
+	border: 1px solid #000000;
+	display: inline-block;
+	line-height: 1.4;
+}
+
+.tech-stamp-accent {
+	border-color: var(--accent-yellow);
+	color: var(--accent-yellow);
+}
+
+/* Color utility classes (preserved for compatibility) */
 .text-primary {
 	color: var(--primary);
 }
@@ -139,7 +168,6 @@ body {
 .bg-foreground {
 	background-color: var(--foreground);
 }
-
 .bg-card {
 	background-color: var(--card);
 }
@@ -161,7 +189,6 @@ body {
 .bg-ring {
 	background-color: var(--ring);
 }
-
 .border-primary {
 	border-color: var(--primary);
 }
@@ -181,10 +208,11 @@ body {
 	border-color: var(--foreground);
 }
 
+/* Animations */
 @keyframes fadeInUp {
 	from {
 		opacity: 0;
-		transform: translateY(20vw);
+		transform: translateY(24px);
 	}
 	to {
 		opacity: 1;
@@ -192,329 +220,212 @@ body {
 	}
 }
 
-@keyframes pixel-pulse {
-	0%,
-	100% {
-		opacity: 1;
-	}
-	50% {
-		opacity: 0.7;
-	}
-}
-
-@keyframes bounce {
-	0%,
-	20%,
-	53%,
-	80%,
-	100% {
-		transform: translate3d(0, 0, 0);
-	}
-	40%,
-	43% {
-		transform: translate3d(0, -30px, 0);
-	}
-	70% {
-		transform: translate3d(0, -15px, 0);
-	}
-	90% {
-		transform: translate3d(0, -4px, 0);
-	}
-}
-
-@keyframes glitch-1 {
-	0%,
-	100% {
-		transform: translate(0);
-	}
-	20% {
-		transform: translate(-2px, 2px);
-	}
-	40% {
-		transform: translate(-2px, -2px);
-	}
-	60% {
-		transform: translate(2px, 2px);
-	}
-	80% {
-		transform: translate(2px, -2px);
-	}
-}
-
-@keyframes glitch-2 {
-	0%,
-	100% {
-		transform: translate(0);
-	}
-	20% {
-		transform: translate(2px, 2px);
-	}
-	40% {
-		transform: translate(2px, -2px);
-	}
-	60% {
-		transform: translate(-2px, 2px);
-	}
-	80% {
-		transform: translate(-2px, -2px);
-	}
-}
-
-@keyframes gentle-sway {
-	0%,
-	100% {
-		transform: translateX(0) rotate(0deg);
-	}
-	25% {
-		transform: translateX(-2px) rotate(-0.5deg);
-	}
-	75% {
-		transform: translateX(2px) rotate(0.5deg);
-	}
-}
-
-@keyframes gentle-float {
-	0%,
-	100% {
-		transform: translateY(0);
-	}
-	50% {
-		transform: translateY(-10px);
-	}
-}
-
-@keyframes avatar-float {
-	0%,
-	100% {
-		transform: translateY(0) rotate(0deg);
-	}
-	33% {
-		transform: translateY(-8px) rotate(2deg);
-	}
-	66% {
-		transform: translateY(-4px) rotate(-1deg);
-	}
-}
-
 .fade-in-up {
-	animation: fadeInUp 1s ease-out forwards;
-}
-.pixel-pulse {
-	animation: pixel-pulse 2s infinite;
-}
-.animate-bounce {
-	animation: bounce 1s infinite;
+	animation: fadeInUp 0.6s ease-out forwards;
 }
 
-.glitch-text {
+.fade-in-up-delay-1 {
+	animation: fadeInUp 0.6s ease-out 0.1s forwards;
+	opacity: 0;
+}
+
+.fade-in-up-delay-2 {
+	animation: fadeInUp 0.6s ease-out 0.2s forwards;
+	opacity: 0;
+}
+
+.fade-in-up-delay-3 {
+	animation: fadeInUp 0.6s ease-out 0.3s forwards;
+	opacity: 0;
+}
+
+.fade-in-up-delay-4 {
+	animation: fadeInUp 0.6s ease-out 0.4s forwards;
+	opacity: 0;
+}
+
+/* Landing-specific neo-brutal components */
+.landing-card {
 	position: relative;
-	display: inline-block;
-}
-.glitch-text::before,
-.glitch-text::after {
-	content: attr(data-text);
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-}
-.glitch-text::before {
-	animation: glitch-1 0.5s infinite;
-	color: #ff00ff;
-	z-index: -1;
-}
-.glitch-text::after {
-	animation: glitch-2 0.5s infinite;
-	color: #00ffff;
-	z-index: -2;
+	border: 1.5px solid #000000;
+	background: #ffffff;
+	transition: transform 0.2s ease;
+	box-sizing: border-box;
 }
 
-.ghibli-title {
-	animation:
-		gentle-sway 4s ease-in-out infinite,
-		fadeInUp 0.6s ease-out forwards;
-	background: linear-gradient(to right, #000000, #060606, #090909);
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
-	color: transparent;
-
-	text-shadow:
-		2px 2px 0 var(--primary),
-		-2px -2px 0 var(--secondary, #333333),
-		2px -2px 0 #ffffff,
-		-2px 2px 0 #42f545;
-
-	letter-spacing: 2px;
+.landing-card:hover {
+	transform: translateY(-2px);
 }
 
-.ghibli-card {
-	animation:
-		gentle-float 6s ease-in-out infinite,
-		fadeInUp 0.8s ease-out forwards;
+.landing-card-accent {
+	position: relative;
+	border: 1.5px solid #000000;
+	background: #ffffff;
+	transition: transform 0.2s ease;
+	box-sizing: border-box;
 }
 
-.ghibli-feature-card {
-	animation: gentle-float 2s ease-in-out infinite;
+.landing-card-accent:hover {
+	transform: translateY(-2px);
 }
 
-.avatar-float {
-	animation: avatar-float 3s ease-in-out infinite;
+/* Feature grid: uses parent border + inner borders only to avoid double borders */
+.feature-grid {
+	display: flex;
+	flex-wrap: wrap;
+	border: 1px solid #000000;
 }
 
-.pixel-pattern {
-	background-image:
-		linear-gradient(
-			45deg,
-			transparent 49%,
-			var(--primary) 49%,
-			var(--primary) 51%,
-			transparent 51%
-		),
-		linear-gradient(
-			-45deg,
-			transparent 49%,
-			var(--secondary) 49%,
-			var(--secondary) 51%,
-			transparent 51%
-		);
-	background-size: 20px 20px;
+.feature-grid-item {
+	flex: 1 1 250px;
+	box-sizing: border-box;
+	padding: 2rem;
+	position: relative;
+	min-width: 0;
 }
 
+.feature-grid-item:not(:last-child) {
+	border-right: 1px solid #000000;
+}
+
+/* On wrapped rows, add a top border to items that start a new row */
+@media (max-width: 1023px) {
+	.feature-grid-item:not(:first-child) {
+		border-right: none;
+		border-bottom: 1px solid #000000;
+	}
+	.feature-grid-item:nth-child(2) {
+		border-right: 1px solid #000000;
+	}
+}
+
+/* Feature card heading text must break within container */
+.feature-grid-item h3 {
+	hyphens: auto;
+	overflow-wrap: break-word;
+	word-wrap: break-word;
+	word-break: break-word;
+}
+
+.landing-button {
+	font-family: "Inter", system-ui, sans-serif;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	border: 1.5px solid #000000;
+	padding: 12px 32px;
+	font-size: 0.875rem;
+	transition: all 0.2s ease;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	position: relative;
+}
+
+.landing-button-primary {
+	background: #000000;
+	color: #ffffff;
+	box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.landing-button-primary:hover {
+	transform: translate(2px, 2px);
+	box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+}
+
+.landing-button-primary:active {
+	transform: translate(4px, 4px);
+	box-shadow: none;
+}
+
+.landing-button-secondary {
+	background: #ffffff;
+	color: #000000;
+	box-shadow: 4px 4px 0px 0px rgba(100, 100, 100, 1);
+}
+
+.landing-button-secondary:hover {
+	transform: translate(2px, 2px);
+	box-shadow: 2px 2px 0px 0px rgba(100, 100, 100, 1);
+}
+
+.landing-button-secondary:active {
+	transform: translate(4px, 4px);
+	box-shadow: none;
+}
+
+/* Section divider */
+.section-divider {
+	border-bottom: 1.5px solid #000000;
+}
+
+/* Context line - thin horizontal rule with label */
+.context-line {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.context-line::before {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: #000000;
+}
+
+.context-line::after {
+	content: "";
+	flex: 1;
+	height: 1px;
+	background: #000000;
+}
+
+/* Feature icon square */
+.feature-icon {
+	width: 48px;
+	height: 48px;
+	border: 1.5px solid #000000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+}
+
+/* Accent border-left indicator */
+.accent-bar-green {
+	border-left: 3px solid var(--accent-green);
+}
+
+.accent-bar-yellow {
+	border-left: 3px solid var(--accent-yellow);
+}
+
+.accent-bar-red {
+	border-left: 3px solid var(--accent-red);
+}
+
+.accent-bar-blue {
+	border-left: 3px solid var(--accent-blue);
+}
+
+/* Hidden utility */
 .hidden {
 	display: none;
 }
-/* .wrap { */
-/* z-index: 100; */
-/* position: relative; */
-/* } */
-.bee-container {
-	display: inline-block;
-	margin-left: 1rem;
-	position: relative;
-	animation: gentle-float 4s ease-in-out infinite;
+
+/* Remove legacy animations we no longer need */
+.pixel-pulse,
+.ghibli-title,
+.ghibli-card,
+.ghibli-feature-card,
+.avatar-float,
+.glitch-text {
+	all: unset;
 }
 
-.bee-body {
-	position: relative;
-	width: 150px;
-	height: 100px;
+.glitch-text::before,
+.glitch-text::after {
+	all: unset;
 }
-
-/* THE BEE   THE BEE   THE BEE   THE BEE    */
-@keyframes dodging1 {
-	0% {
-		top: 0;
-	}
-	50% {
-		top: 75px;
-	}
-	100% {
-		top: 0;
-	}
-}
-.body {
-	position: absolute;
-	/* top:250px; */
-	/* left:250px; */
-	top: 15px;
-	height: 85px;
-	width: 75px;
-	border-radius: 100%;
-	background-color: #ffb733;
-	box-shadow:
-		20px 0 0 #000,
-		40px -3px 0 #ffb733,
-		60px -7px 0 #000,
-		80px -11px 0 #ffb733;
-}
-/* BODY BODY BODY BODY  */
-/* WINGS WINGS WINGS WINGS */
-@keyframes flutter2 {
-	0% {
-		transform: rotate(80deg);
-	}
-	50% {
-		transform: rotate(100deg);
-	}
-}
-@keyframes flutter1 {
-	0% {
-		transform: rotate(20deg);
-	}
-	50% {
-		transform: rotate(40deg);
-	}
-}
-.wing1 {
-	position: absolute;
-	height: 55px;
-	width: 55px;
-	top: -40px;
-	left: 10px;
-	transform: rotate(20deg);
-	transform-origin: bottom right;
-	border-top-right-radius: 100%;
-	border-bottom-left-radius: 100%;
-	border-top-left-radius: 10px;
-	background-color: #ddd;
-	z-index: -1;
-	filter: blur(1px);
-	animation: flutter1 0.01s linear reverse infinite;
-}
-.wing2 {
-	position: absolute;
-	height: 55px;
-	width: 55px;
-	top: -35px;
-	left: 40px;
-	transform: rotate(80deg);
-	transform-origin: bottom right;
-	border-top-right-radius: 100%;
-	border-bottom-left-radius: 100%;
-	border-top-left-radius: 10px;
-	background-color: #ddd;
-	z-index: 1;
-	filter: blur(1px);
-	animation: flutter2 0.01s linear infinite;
-}
-/* WINGS WINGS WINGS WINGS */
-/* STINGER STINGER STINGER STINGER  */
-
-.stinger {
-	position: absolute;
-	height: 55px;
-	width: 55px;
-	top: 25px;
-	left: 105px;
-	transform: rotate(320deg);
-	border-top-right-radius: 50%;
-	border-bottom-left-radius: 100%;
-	border-top-left-radius: 10px;
-	background-color: #000;
-	z-index: -1;
-}
-
-/* STINGER STINGER STINGER STINGER  */
-/* EYES EYES EYES EYES  */
-.eyes {
-	position: absolute;
-	height: 25px;
-	width: 25px;
-	top: 25px;
-	background-color: #eee;
-	box-shadow: 20px 0 0 #eee;
-	border-radius: 100%;
-	.pupil {
-		position: absolute;
-		height: 4px;
-		width: 4px;
-		top: 13px;
-		left: 2px;
-		background-color: #000;
-		border-radius: 100%;
-		box-shadow: 20px 0 0 #000;
-	}
-}
-/* EYES EYES EYES EYES  */

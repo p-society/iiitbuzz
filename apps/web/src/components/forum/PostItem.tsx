@@ -68,10 +68,10 @@ export const PostItem = ({ post, index, isOP, onQuote }: PostItemProps) => {
 	);
 
 	return (
-		<div className="border-4 border-black bg-card">
+		<div className="border border-black bg-card">
 			<div className="post-block flex flex-col sm:flex-row">
-				<div className="author-pane w-full sm:w-[140px] p-2 sm:p-3 border-b-2 sm:border-b-0 sm:border-r-2 border-black flex-shrink-0">
-					<div className="neo-brutal-avatar h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center border-3">
+				<div className="author-pane w-full sm:w-[140px] p-2 sm:p-3 flex-shrink-0">
+					<div className="h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px]">
 						{!imgError && avatarUrl ? (
 							<img
 								src={avatarUrl}
@@ -81,30 +81,21 @@ export const PostItem = ({ post, index, isOP, onQuote }: PostItemProps) => {
 								onError={() => setImgError(true)}
 							/>
 						) : (
-							<span className="text-white">{post.authorAvatar}</span>
+							<span>{post.authorAvatar}</span>
 						)}
 					</div>
 					<div className="font-bold text-xs truncate">{post.authorName}</div>
-					{isOP && (
-						<Badge className="mt-1 bg-accent text-accent-foreground border-2 border-black font-black text-[10px]">
-							OP
-						</Badge>
-					)}
-					<div className="mt-2 text-[10px] text-muted-foreground">
-						<div className="font-bold">Member</div>
-						<div>{post.postCount || 1} posts</div>
-					</div>
+					{isOP && <span className="tech-stamp mt-1 text-[8px]">OP</span>}
+					<div className="mt-2 mono-meta">{post.postCount || 1} posts</div>
 				</div>
 				<div className="content-pane flex-1 min-w-0 p-2 sm:p-3">
-					<div className="post-meta flex items-center justify-between border-b border-border pb-1 mb-2">
-						<span className="font-bold text-[10px] text-muted-foreground">
-							#{index + 1}
-						</span>
-						<span className="text-[10px] text-muted-foreground">
-							{formatTimeAgo(post.createdAt)}
+					<div className="post-meta flex items-center justify-between border-b border-gray-200 pb-1 mb-2">
+						<span className="mono-meta">#{index + 1}</span>
+						<span className="mono-meta">
+							[ {formatTimeAgo(post.createdAt).toUpperCase()} ]
 						</span>
 					</div>
-					<div className="post-body mb-3">
+					<div className="post-body mb-3" style={{ lineHeight: 1.6 }}>
 						<MarkdownContent content={post.content} />
 					</div>
 					<div className="post-actions flex items-center gap-1.5">
@@ -112,7 +103,7 @@ export const PostItem = ({ post, index, isOP, onQuote }: PostItemProps) => {
 							size="sm"
 							onClick={() => handleVote(1)}
 							disabled={voting}
-							className={`neo-brutal-button border-2 px-1.5 py-0.5 font-bold text-[10px] ${voteValue === 1 ? "bg-primary text-primary-foreground" : "bg-accent text-accent-foreground"}`}
+							className={`px-1.5 py-0.5 font-bold text-[10px] ${voteValue === 1 ? "bg-primary text-primary-foreground" : ""}`}
 						>
 							<ThumbsUp className="h-3 w-3 mr-1" />
 							{voteCount}
@@ -122,14 +113,14 @@ export const PostItem = ({ post, index, isOP, onQuote }: PostItemProps) => {
 							variant="neutral"
 							onClick={() => handleVote(-1)}
 							disabled={voting}
-							className={`neo-brutal-button border-2 bg-card px-1.5 py-0.5 font-bold text-[10px] ${voteValue === -1 ? "text-red-500" : ""}`}
+							className={`bg-card px-1.5 py-0.5 font-bold text-[10px] ${voteValue === -1 ? "text-red-500" : ""}`}
 						>
 							<ThumbsDown className="h-3 w-3" />
 						</Button>
 						<Button
 							size="sm"
 							variant="neutral"
-							className="neo-brutal-button border-2 bg-card px-1.5 py-0.5 font-bold text-[10px]"
+							className="bg-card px-1.5 py-0.5 font-bold text-[10px]"
 							onClick={onQuote}
 						>
 							<MessageSquare className="h-3 w-3 mr-1" />
@@ -138,7 +129,7 @@ export const PostItem = ({ post, index, isOP, onQuote }: PostItemProps) => {
 						<Button
 							size="sm"
 							variant="neutral"
-							className="neo-brutal-button border-2 bg-card px-1.5 py-0.5 font-bold text-[10px] ml-auto"
+							className="bg-card px-1.5 py-0.5 font-bold text-[10px] ml-auto"
 						>
 							<Flag className="h-3 w-3" />
 						</Button>
