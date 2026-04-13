@@ -27,6 +27,7 @@ interface AuthContextType {
 	user: User | null;
 	isLoading: boolean;
 	isAuthenticated: boolean;
+	isProfileComplete: boolean;
 	isAdmin: boolean;
 	login: () => void;
 	logout: () => Promise<void>;
@@ -102,6 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 		user,
 		isLoading,
 		isAuthenticated: !!user,
+		isProfileComplete: !!user?.username,
 		isAdmin: user?.role === "admin",
 		login,
 		logout,

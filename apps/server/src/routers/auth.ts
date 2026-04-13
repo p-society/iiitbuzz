@@ -84,6 +84,15 @@ export async function authRoutes(fastify: FastifyInstance) {
 			const userInfo: GoogleTokenInfo = userInfoValidation.data;
 			const { email, picture } = userInfo;
 
+			if (!email.endsWith("@iiit-bh.ac.in")) {
+				fastify.log.error("Unauthorized email domain:", { email });
+				return reply.status(403).send({
+					error: "Access restricted",
+					details:
+						"Only @iiit-bh.ac.in email addresses are allowed to sign up.",
+				});
+			}
+
 			const createUserData = createUserSchema.parse({
 				email,
 				firstName: userInfo.given_name || null,
@@ -92,53 +101,38 @@ export async function authRoutes(fastify: FastifyInstance) {
 
 			let userId: string;
 			let redirectPath: string;
-			let isNewUser = false;
 
-			// Atomic upsert operation to handle race conditions
-			// This approach prevents race conditions where two concurrent requests
-			// for the same new user could both try to insert, causing the second to fail
-			// Strategy:
-			// 1. Always attempt to INSERT a new user
-			// 2. If email already exists (unique constraint), do nothing
-			// 3. Check the result to determine if user was created or already existed
-			const newUserResult = await DrizzleClient.insert(users)
-				.values({
-					id: crypto.randomUUID(),
-					username: null,
-					email: createUserData.email,
-					firstName: createUserData.firstName,
-					lastName: createUserData.lastName,
-					imageUrl: picture,
-					pronouns: null,
-					bio: null,
-					branch: null,
-					passingOutYear: null,
-					totalPosts: 0,
-				})
-				.onConflictDoUpdate({
-					target: users.email,
-					set: { imageUrl: picture },
-				})
-				.returning({ id: users.id });
+			const existingUser = await DrizzleClient.query.users.findFirst({
+				where: (u, { eq }) => eq(u.email, email),
+			});
 
-			if (newUserResult.length > 0) {
-				userId = newUserResult[0].id;
-				redirectPath = `${env.FRONTEND_URL}/my/profile`;
-				isNewUser = true;
-				fastify.log.info("New user created", { userId, email });
-			} else {
-				const existingUser = await DrizzleClient.query.users.findFirst({
-					where: (u, { eq }) => eq(u.email, email),
-				});
-
-				if (!existingUser) {
-					fastify.log.error("Failed to create or find user");
-					return reply.status(500).send({ error: "Failed to process user" });
-				}
-
+			if (existingUser) {
 				userId = existingUser.id;
-				redirectPath = `${env.FRONTEND_URL}/home`;
+				const profileComplete = !!existingUser.username;
+				redirectPath = profileComplete
+					? `${env.FRONTEND_URL}/home`
+					: `${env.FRONTEND_URL}/my/profile`;
 				fastify.log.info("Existing user found", { userId, email });
+			} else {
+				const [newUser] = await DrizzleClient.insert(users)
+					.values({
+						id: crypto.randomUUID(),
+						username: null,
+						email: createUserData.email,
+						firstName: createUserData.firstName,
+						lastName: createUserData.lastName,
+						imageUrl: picture,
+						pronouns: null,
+						bio: null,
+						branch: null,
+						passingOutYear: null,
+						totalPosts: 0,
+					})
+					.returning({ id: users.id });
+
+				userId = newUser.id;
+				redirectPath = `${env.FRONTEND_URL}/my/profile`;
+				fastify.log.info("New user created", { userId, email });
 			}
 
 			const jwtPayload: JwtPayload = { userId };
@@ -165,7 +159,6 @@ export async function authRoutes(fastify: FastifyInstance) {
 
 			fastify.log.info(`JWT cookie set. Redirecting to ${redirectPath}`, {
 				userId,
-				isNewUser,
 			});
 
 			return reply.redirect(redirectPath);

@@ -71,10 +71,15 @@ export interface ThreadListItem {
 	authorName?: string;
 	author?: { username: string };
 	lastActive?: string;
+	createdAt?: string;
 	replies?: number;
+	replyCount?: number;
 	views?: number;
+	viewCount?: number;
 	likes?: number;
 	isPinned?: boolean;
+	isAnonymous?: boolean;
+	isApproved?: boolean;
 }
 
 export interface Pagination {

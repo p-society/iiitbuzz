@@ -83,19 +83,28 @@ export async function threadRoutes(fastify: FastifyInstance) {
                     END
                 `.as("authorName"),
 
-					replies: sql<number>`GREATEST(COUNT(${postsTable.id}) - 0, 0)`.as(
+					replies: sql<number>`GREATEST(COUNT(${postsTable.id}) - 1, 0)`.as(
 						"replies",
 					),
-					lastActive: sql<string>`MAX(${postsTable.createdAt})`.as(
-						"lastActive",
-					),
+					lastActive:
+						sql<string>`COALESCE(MAX(${postsTable.createdAt}), ${threadsTable.createdAt})`.as(
+							"lastActive",
+						),
 					likes: sql<number>`COALESCE(SUM(${postsTable.vote}), 0)`.as("likes"),
 					topicName: topicsTable.topicName,
-					isPinned: sql<boolean>`FALSE`.as("isPinned"),
+					isPinned: sql<boolean>`(${threadsTable.pinnedAt} IS NOT NULL)`.as(
+						"isPinned",
+					),
 				})
 					.from(threadsTable)
 					.leftJoin(usersTable, eq(threadsTable.createdBy, usersTable.id))
-					.leftJoin(postsTable, eq(postsTable.threadId, threadsTable.id))
+					.leftJoin(
+						postsTable,
+						and(
+							eq(postsTable.threadId, threadsTable.id),
+							eq(postsTable.isDraft, false),
+						),
+					)
 					.leftJoin(topicsTable, eq(threadsTable.topicId, topicsTable.id));
 
 				const withSearch =
@@ -256,15 +265,27 @@ export async function threadRoutes(fastify: FastifyInstance) {
             END
           `.as("authorName"),
 
-					replies: sql<number>`COUNT(${postsTable.id}) - 0`.as("replies"),
-					lastActive: sql<string>`MAX(${postsTable.createdAt})`.as(
-						"lastActive",
+					replies: sql<number>`GREATEST(COUNT(${postsTable.id}) - 1, 0)`.as(
+						"replies",
 					),
+					lastActive:
+						sql<string>`COALESCE(MAX(${postsTable.createdAt}), ${threadsTable.createdAt})`.as(
+							"lastActive",
+						),
 					likes: sql<number>`COALESCE(SUM(${postsTable.vote}), 0)`.as("likes"),
+					isPinned: sql<boolean>`(${threadsTable.pinnedAt} IS NOT NULL)`.as(
+						"isPinned",
+					),
 				})
 					.from(threadsTable)
 					.leftJoin(usersTable, eq(threadsTable.createdBy, usersTable.id))
-					.leftJoin(postsTable, eq(postsTable.threadId, threadsTable.id))
+					.leftJoin(
+						postsTable,
+						and(
+							eq(postsTable.threadId, threadsTable.id),
+							eq(postsTable.isDraft, false),
+						),
+					)
 					.where(
 						and(
 							eq(threadsTable.topicId, topicId),
@@ -302,13 +323,19 @@ export async function threadRoutes(fastify: FastifyInstance) {
 				const threadsWithStats = relatedThreads.map((thread) => ({
 					id: thread.id,
 					threadTitle: thread.threadTitle,
+					title: thread.threadTitle,
 					createdAt: thread.createdAt,
 					topicId: thread.topicId,
 					viewCount: thread.viewCount ?? 0,
-					author: { username: thread.authorName || "Anonymous" },
+					authorName: thread.authorName || "Anonymous",
+					replies: Math.max(0, thread.replies ?? 0),
 					replyCount: Math.max(0, thread.replies ?? 0),
+					views: thread.viewCount ?? 0,
+					lastActive: thread.lastActive || thread.createdAt,
 					likes: thread.likes ?? 0,
-					isPinned: false,
+					isPinned: thread.isPinned ?? false,
+					isAnonymous: thread.isAnonymous,
+					isApproved: thread.isApproved,
 				}));
 
 				return reply.status(200).send({
@@ -426,14 +453,21 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					viewCount: threadsTable.viewCount,
 					topicName: topicsTable.topicName,
 					topicId: topicsTable.id,
-					replies: sql<number>`CAST(COUNT(${postsTable.id}) - 0 AS INTEGER)`.as(
-						"replies",
-					),
+					replies:
+						sql<number>`GREATEST(CAST(COUNT(${postsTable.id}) - 1 AS INTEGER), 0)`.as(
+							"replies",
+						),
 					likes: sql<number>`COALESCE(SUM(${postsTable.vote}), 0)`.as("likes"),
 				})
 					.from(threadsTable)
 					.leftJoin(topicsTable, eq(threadsTable.topicId, topicsTable.id))
-					.leftJoin(postsTable, eq(postsTable.threadId, threadsTable.id))
+					.leftJoin(
+						postsTable,
+						and(
+							eq(postsTable.threadId, threadsTable.id),
+							eq(postsTable.isDraft, false),
+						),
+					)
 					.where(eq(threadsTable.createdBy, userId))
 					.groupBy(
 						threadsTable.id,

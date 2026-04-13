@@ -57,7 +57,9 @@ export default function HomePage() {
 											)
 												.substring(0, 2)
 												.toUpperCase(),
-											timeAgo: formatTimeAgo(latestThread.lastActive || ""),
+											timeAgo: formatTimeAgo(
+												latestThread.lastActive || latestThread.createdAt || "",
+											),
 										}
 									: undefined,
 							};
@@ -77,7 +79,7 @@ export default function HomePage() {
 						topicColor: getTopicColor(t.topicId || ""),
 						replies: t.replies ?? 0,
 						views: t.views ?? 0,
-						lastActive: formatTimeAgo(t.lastActive || ""),
+						lastActive: formatTimeAgo(t.lastActive || t.createdAt || ""),
 					})),
 				);
 			} catch (err) {

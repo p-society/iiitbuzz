@@ -10,7 +10,7 @@ export const users = pgTable("user", {
 	totalPosts: integer("total_posts"),
 	pronouns: varchar("pronouns", { length: 64 }),
 	bio: varchar("bio", { length: 255 }),
-	branch: varchar("branch", { length: 5 }),
+	branch: varchar("branch", { length: 50 }),
 	passingOutYear: varchar("passing_out_year", { length: 4 }),
 	role: varchar("role", { length: 20 }).default("user"),
 });

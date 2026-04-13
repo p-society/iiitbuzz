@@ -5,241 +5,314 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
-import { api } from "@/lib/api"; 
-import type{ ProfileFormData } from "@/types/user"; 
+import { api } from "@/lib/api";
+import type { ProfileFormData } from "@/types/user";
 
 export default function ProfileSettingsPage() {
-    const { user, refreshUser, isAuthenticated, isLoading } = useAuth();
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState<ProfileFormData>({
-        username: "", firstName: "", lastName: "", pronouns: "", bio: "", branch: "", passingOutYear: "",
-    });
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+	const { user, refreshUser, isAuthenticated, isLoading, logout } = useAuth();
+	const navigate = useNavigate();
+	const [formData, setFormData] = useState<ProfileFormData>({
+		username: "",
+		firstName: "",
+		lastName: "",
+		pronouns: "",
+		bio: "",
+		branch: "",
+		passingOutYear: "",
+	});
+	const [saving, setSaving] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const isProfileComplete = !!user?.username;
 
-    useEffect(() => {
-        if (!isLoading && !isAuthenticated) navigate("/login");
-    }, [isAuthenticated, isLoading, navigate]);
+	useEffect(() => {
+		if (!isLoading && !isAuthenticated) navigate("/login");
+	}, [isAuthenticated, isLoading, navigate]);
 
-    useEffect(() => {
-        if (user) {
-            setFormData({
-                username: user.username || "",
-                firstName: user.firstName || "",
-                lastName: user.lastName || "",
-                pronouns: user.pronouns || "",
-                bio: user.bio || "",
-                branch: user.branch || "",
-                passingOutYear: user.passingOutYear?.toString() || "",
-            });
-        }
-    }, [user]);
+	const handleCancel = async () => {
+		await logout();
+		navigate("/login");
+	};
 
-    const handleInputChange = (field: keyof ProfileFormData, value: string) => {
-        setFormData((prev) => ({ ...prev, [field]: value }));
-    };
+	useEffect(() => {
+		if (user) {
+			setFormData({
+				username: user.username || "",
+				firstName: user.firstName || "",
+				lastName: user.lastName || "",
+				pronouns: user.pronouns || "",
+				bio: user.bio || "",
+				branch: user.branch || "",
+				passingOutYear: user.passingOutYear?.toString() || "",
+			});
+		}
+	}, [user]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSaving(true);
-        setError(null);
+	const handleInputChange = (field: keyof ProfileFormData, value: string) => {
+		setFormData((prev) => ({ ...prev, [field]: value }));
+	};
 
-        try {
-            const res = await api.updateProfile(formData);
-            
-            await refreshUser();
-            toast.success("Profile updated successfully!", {
-                description: "Your changes have been saved.",
-                duration: 3000,
-            });
-            navigate(`/profile/${res.username || formData.username}`);
-        } catch (error: any) {
-            setError(error.message || "Failed to update profile");
-        } finally {
-            setSaving(false);
-        }
-    };
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setSaving(true);
+		setError(null);
 
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex flex-col">
-                <Header />
-                <main className="flex-1 flex items-center justify-center">
-                    <div className="text-center">
-                        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
-                        <p className="mt-4 text-muted-foreground">Loading...</p>
-                    </div>
-                </main>
-            </div>
-        );
-    }
+		try {
+			const res = await api.updateProfile(formData);
 
-    if (!isAuthenticated) return null;
+			await refreshUser();
+			toast.success("Profile updated successfully!", {
+				description: "Your changes have been saved.",
+				duration: 3000,
+			});
+			if (!isProfileComplete) {
+				navigate("/home");
+			} else {
+				navigate(`/profile/${res.username || formData.username}`);
+			}
+		} catch (error: unknown) {
+			const msg =
+				error instanceof Error ? error.message : "Failed to update profile";
+			setError(msg);
+		} finally {
+			setSaving(false);
+		}
+	};
 
-    return (
-        <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1 container mx-auto px-4 py-8">
-                <div className="max-w-2xl mx-auto">
-                    <div className="neo-brutal-card p-8">
-                        <div className="flex items-center justify-between mb-8">
-                            <h1 className="text-3xl font-bold pixel-font text-foreground">
-                                Edit My Profile
-                            </h1>
-                            <Button
-                                variant="neutral"
-                                onClick={() => navigate(`/profile/${user?.username}`)}
-                                className="neo-brutal-button"
-                            >
-                                Cancel
-                            </Button>
-                        </div>
+	if (isLoading) {
+		return (
+			<div className="min-h-screen flex flex-col">
+				<Header />
+				<main className="flex-1 flex items-center justify-center">
+					<div className="text-center">
+						<div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
+						<p className="mt-4 text-muted-foreground">Loading...</p>
+					</div>
+				</main>
+			</div>
+		);
+	}
 
-                        {error && (
-                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
-                                <strong>Error:</strong> {error}
-                            </div>
-                        )}
+	if (!isAuthenticated) return null;
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
-                            <div className="space-y-2">
-                                <label htmlFor="username" className="block text-sm font-medium text-foreground">
-                                    Username
-                                </label>
-                                <Input
-                                    id="username"
-                                    value={formData.username}
-                                    onChange={(e) => handleInputChange("username", e.target.value)}
-                                    placeholder="Enter a unique username"
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                    This will be your public profile URL: /profile/{formData.username || "username"}
-                                </p>
-                            </div>
+	return (
+		<div className="min-h-screen flex flex-col">
+			<Header />
+			<main className="flex-1 container mx-auto px-4 py-8">
+				<div className="max-w-2xl mx-auto">
+					<div className="neo-brutal-card p-8">
+						{!isProfileComplete && (
+							<div className="mb-6 p-3 bg-yellow-50 border-2 border-yellow-400 text-yellow-800 text-sm">
+								<p className="font-bold">
+									Welcome! Please complete your profile to continue.
+								</p>
+								<p className="text-yellow-700">
+									You won&apos;t be able to access the forum until you set a
+									username.
+								</p>
+							</div>
+						)}
+						<div className="flex items-center justify-between mb-8">
+							<h1 className="text-3xl font-bold pixel-font text-foreground">
+								{isProfileComplete
+									? "Edit My Profile"
+									: "Complete Your Profile"}
+							</h1>
+							<Button
+								variant="neutral"
+								onClick={handleCancel}
+								className="neo-brutal-button"
+							>
+								Cancel
+							</Button>
+						</div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="firstName" className="block text-sm font-medium text-foreground">
-                                        First Name
-                                    </label>
-                                    <Input
-                                        id="firstName"
-                                        value={formData.firstName}
-                                        onChange={(e) => handleInputChange("firstName", e.target.value)}
-                                        placeholder="Enter your first name"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="lastName" className="block text-sm font-medium text-foreground">
-                                        Last Name
-                                    </label>
-                                    <Input
-                                        id="lastName"
-                                        value={formData.lastName}
-                                        onChange={(e) => handleInputChange("lastName", e.target.value)}
-                                        placeholder="Enter your last name"
-                                    />
-                                </div>
-                            </div>
+						{error && (
+							<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+								<strong>Error:</strong> {error}
+							</div>
+						)}
 
-                            <div className="space-y-2">
-                                <label htmlFor="pronouns" className="block text-sm font-medium text-foreground">
-                                    Pronouns
-                                </label>
-                                <select
-                                    id="pronouns"
-                                    value={formData.pronouns}
-                                    onChange={(e) => handleInputChange("pronouns", e.target.value)}
-                                    className="w-full bg-background text-foreground p-2 rounded-md border-2 border-border"
-                                >
-                                    <option value="">Select your pronouns</option>
-                                    <option value="he/him">he/him</option>
-                                    <option value="she/her">she/her</option>
-                                    <option value="they/them">they/them</option>
-                                    <option value="he/they">he/they</option>
-                                    <option value="she/they">she/they</option>
-                                    <option value="other">Other</option>
-                                </select>
-                            </div>
+						<form onSubmit={handleSubmit} className="space-y-6">
+							<div className="space-y-2">
+								<label
+									htmlFor="username"
+									className="block text-sm font-medium text-foreground"
+								>
+									Username{" "}
+									{!isProfileComplete && (
+										<span className="text-red-500">*</span>
+									)}
+								</label>
+								<Input
+									id="username"
+									value={formData.username}
+									onChange={(e) =>
+										handleInputChange("username", e.target.value)
+									}
+									placeholder="Enter a unique username"
+								/>
+								<p className="text-sm text-muted-foreground">
+									This will be your public profile URL: /profile/
+									{formData.username || "username"}
+								</p>
+							</div>
 
-                            <div className="space-y-2">
-                                <label htmlFor="bio" className="block text-sm font-medium text-foreground">
-                                    Bio
-                                </label>
-                                <textarea
-                                    id="bio"
-                                    value={formData.bio}
-                                    onChange={(e) => handleInputChange("bio", e.target.value)}
-                                    placeholder="Tell others about yourself..."
-                                    className="min-h-[100px] w-full resize-vertical bg-background text-foreground p-2 rounded-md border-2 border-border"
-                                    maxLength={255}
-                                />
-                                <p className="text-sm text-muted-foreground">
-                                    {formData.bio.length}/255 characters
-                                </p>
-                            </div>
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<label
+										htmlFor="firstName"
+										className="block text-sm font-medium text-foreground"
+									>
+										First Name
+									</label>
+									<Input
+										id="firstName"
+										value={formData.firstName}
+										onChange={(e) =>
+											handleInputChange("firstName", e.target.value)
+										}
+										placeholder="Enter your first name"
+									/>
+								</div>
+								<div className="space-y-2">
+									<label
+										htmlFor="lastName"
+										className="block text-sm font-medium text-foreground"
+									>
+										Last Name
+									</label>
+									<Input
+										id="lastName"
+										value={formData.lastName}
+										onChange={(e) =>
+											handleInputChange("lastName", e.target.value)
+										}
+										placeholder="Enter your last name"
+									/>
+								</div>
+							</div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label htmlFor="branch" className="block text-sm font-medium text-foreground">
-                                        Branch
-                                    </label>
-                                    <select
-                                        id="branch"
-                                        value={formData.branch}
-                                        onChange={(e) => handleInputChange("branch", e.target.value)}
-                                        className="w-full bg-background text-foreground p-2 rounded-md border-2 border-border"
-                                    >
-                                        <option value="">Select your branch</option>
-                                        <option value="CSE">Computer Science & Engineering</option>
-                                        <option value="ECE">Electronics & Communication</option>
-                                        <option value="EEE">Electrical & Electronics</option>
-                                        <option value="ME">Mechanical Engineering</option>
-                                        <option value="CE">Civil Engineering</option>
-                                        <option value="IT">Information Technology</option>
-                                        <option value="AIDS">AI & Data Science</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label htmlFor="passingOutYear" className="block text-sm font-medium text-foreground">
-                                        Passing Out Year
-                                    </label>
-                                    <select
-                                        id="passingOutYear"
-                                        value={formData.passingOutYear}
-                                        onChange={(e) => handleInputChange("passingOutYear", e.target.value)}
-                                        className="w-full bg-background text-foreground p-2 rounded-md border-2 border-border"
-                                    >
-                                        <option value="">Select year</option>
-                                        {Array.from({ length: 8 }, (_, i) => {
-                                            const year = new Date().getFullYear() + i;
-                                            return <option key={year} value={year.toString()}>{year}</option>;
-                                        })}
-                                    </select>
-                                </div>
-                            </div>
+							<div className="space-y-2">
+								<label
+									htmlFor="pronouns"
+									className="block text-sm font-medium text-foreground"
+								>
+									Pronouns
+								</label>
+								<select
+									id="pronouns"
+									value={formData.pronouns}
+									onChange={(e) =>
+										handleInputChange("pronouns", e.target.value)
+									}
+									className="w-full bg-background text-foreground p-2 rounded-md border-2 border-border"
+								>
+									<option value="">Select your pronouns</option>
+									<option value="he/him">he/him</option>
+									<option value="she/her">she/her</option>
+									<option value="they/them">they/them</option>
+									<option value="he/they">he/they</option>
+									<option value="she/they">she/they</option>
+									<option value="other">Other</option>
+								</select>
+							</div>
 
-                            <div className="flex gap-4 pt-4">
-                                <Button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="neo-brutal-button bg-foreground text-background flex-1"
-                                >
-                                    {saving ? (
-                                        <>
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-background mr-2"></div>
-                                            Saving...
-                                        </>
-                                    ) : (
-                                        "Save Profile"
-                                    )}
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </main>
-        </div>
-    );
+							<div className="space-y-2">
+								<label
+									htmlFor="bio"
+									className="block text-sm font-medium text-foreground"
+								>
+									Bio
+								</label>
+								<textarea
+									id="bio"
+									value={formData.bio}
+									onChange={(e) => handleInputChange("bio", e.target.value)}
+									placeholder="Tell others about yourself..."
+									className="min-h-[100px] w-full resize-vertical bg-background text-foreground p-2 rounded-md border-2 border-border"
+									maxLength={255}
+								/>
+								<p className="text-sm text-muted-foreground">
+									{formData.bio.length}/255 characters
+								</p>
+							</div>
+
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div className="space-y-2">
+									<label
+										htmlFor="branch"
+										className="block text-sm font-medium text-foreground"
+									>
+										Branch
+									</label>
+									<select
+										id="branch"
+										value={formData.branch}
+										onChange={(e) =>
+											handleInputChange("branch", e.target.value)
+										}
+										className="w-full bg-background text-foreground p-2 rounded-md border-2 border-border"
+									>
+										<option value="">Select your branch</option>
+										<option value="CSE">Computer Science</option>
+										<option value="CE">Computer Engineering</option>
+										<option value="IT">Information Technology</option>
+										<option value="ECE">
+											Electronics and Telecommunications
+										</option>
+										<option value="EEE">
+											Electronics and Electrical Engineering
+										</option>
+									</select>
+								</div>
+								<div className="space-y-2">
+									<label
+										htmlFor="passingOutYear"
+										className="block text-sm font-medium text-foreground"
+									>
+										Passing Out Year
+									</label>
+									<select
+										id="passingOutYear"
+										value={formData.passingOutYear}
+										onChange={(e) =>
+											handleInputChange("passingOutYear", e.target.value)
+										}
+										className="w-full bg-background text-foreground p-2 rounded-md border-2 border-border"
+									>
+										<option value="">Select year</option>
+										{Array.from({ length: 8 }, (_, i) => {
+											const year = new Date().getFullYear() + i;
+											return (
+												<option key={year} value={year.toString()}>
+													{year}
+												</option>
+											);
+										})}
+									</select>
+								</div>
+							</div>
+
+							<div className="flex gap-4 pt-4">
+								<Button
+									type="submit"
+									disabled={saving}
+									className="neo-brutal-button bg-foreground text-background flex-1"
+								>
+									{saving ? (
+										<>
+											<div className="animate-spin rounded-full h-4 w-4 border-b-2 border-background mr-2"></div>
+											Saving...
+										</>
+									) : (
+										"Save Profile"
+									)}
+								</Button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</main>
+		</div>
+	);
 }
