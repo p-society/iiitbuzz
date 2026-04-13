@@ -65,9 +65,7 @@ export default function ThreadPage() {
 		setPostError(null);
 
 		try {
-			if (!e.defaultPrevented) {
-				await api.createPost({ threadId, content: replyContent });
-			}
+			await api.createPost({ threadId, content: replyContent });
 			setReplyContent("");
 			await loadThreadData();
 		} catch (err) {
