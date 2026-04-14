@@ -66,7 +66,7 @@ const Footer = () => {
 				</div>
 				<div className="border-t border-gray-300 mt-3 py-2 text-center">
 					<p className="mono-meta text-[10px]" style={{ color: "#9ca3af" }}>
-						© 2025 IIITBuzz · by P-Soc IIIT-bh
+						© 2026 IIITBuzz · by P-Soc IIIT-bh
 					</p>
 				</div>
 			</div>

@@ -53,9 +53,9 @@ const features = [
 ];
 
 const stats = [
-	{ label: "ACTIVE USERS", value: "1.2K+", icon: Users },
-	{ label: "DISCUSSIONS", value: "340+", icon: MessageSquare },
-	{ label: "TRENDING", value: "24/7", icon: Flame },
+	{ label: "INACTIVE USERS", value: "1.2K+", icon: Users },
+	{ label: "BAD DISCUSSIONS", value: "340+", icon: MessageSquare },
+	{ label: "NOT TRENDING", value: "24/7", icon: Flame },
 ];
 
 const FeaturesPage = () => {
