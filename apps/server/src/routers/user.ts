@@ -250,7 +250,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 			try {
 				const { userId } = request.params as { userId: string };
 
-				// Fetch recent threads
 				const userThreads = await DrizzleClient.select({
 					id: threads.id,
 					type: sql<string>`'thread'`,
@@ -262,7 +261,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 					.orderBy(desc(threads.createdAt))
 					.limit(5);
 
-				// Fetch recent posts
 				const userPosts = await DrizzleClient.select({
 					id: posts.id,
 					type: sql<string>`'post'`,
@@ -277,7 +275,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 					.orderBy(desc(posts.createdAt))
 					.limit(5);
 
-				// Fetch recent likes (votes)
 				const userLikes = await DrizzleClient.select({
 					id: votes.id,
 					type: sql<string>`'like'`,
@@ -292,7 +289,6 @@ export async function userRoutes(fastify: FastifyInstance) {
 					.orderBy(desc(votes.createdAt))
 					.limit(5);
 
-				// Combine and sort
 				const activity = [...userThreads, ...userPosts, ...userLikes].sort(
 					(a, b) =>
 						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
