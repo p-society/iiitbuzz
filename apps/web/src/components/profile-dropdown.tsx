@@ -82,7 +82,7 @@ export default function ProfileDropdown() {
 
         <DropdownMenuItem asChild>
           <Link 
-            to="/my-threads"
+            to={user.username ? `/profile/${user.username}` : "/my/profile"}
             className="flex cursor-pointer items-center gap-2 p-3 font-bold transition-all hover:translate-x-1 hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
           >
             <MessageSquare size={18} />

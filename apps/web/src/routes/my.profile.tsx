@@ -28,9 +28,12 @@ export default function ProfileSettingsPage() {
 		if (!isLoading && !isAuthenticated) navigate("/login");
 	}, [isAuthenticated, isLoading, navigate]);
 
-	const handleCancel = async () => {
-		await logout();
-		navigate("/login");
+	const handleCancel = () => {
+		if (user?.username) {
+			navigate(`/profile/${user.username}`);
+		} else {
+			navigate("/");
+		}
 	};
 
 	useEffect(() => {
