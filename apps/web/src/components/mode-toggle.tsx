@@ -30,8 +30,8 @@ export function ModeToggle() {
 
 	if (!mounted) {
 		return (
-			<div className="border-3 border-border bg-card px-4 py-2 font-bold shadow-[4px_4px_0px_0px_var(--shadow-color)]">
-				<Droplet className="h-5 w-5" />
+			<div className="border-2 border-border bg-card h-9 w-9 flex items-center justify-center font-bold shadow-none">
+				<Droplet className="h-4 w-4" />
 			</div>
 		);
 	}
@@ -44,10 +44,9 @@ export function ModeToggle() {
 			<button
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
-				className="border-3 flex items-center gap-2 border-border bg-card px-4 py-2 font-bold text-card-foreground shadow-[4px_4px_0px_0px_var(--shadow-color)] transition-all hover:shadow-[2px_2px_0px_0px_var(--shadow-color)] hover:translate-x-[2px] hover:translate-y-[2px]"
+				className="border-2 flex h-9 w-9 items-center justify-center border-border bg-card font-bold text-card-foreground shadow-none transition-all hover:bg-secondary hover:text-black group"
 			>
-				<Icon className="h-5 w-5" style={{ color: currentTheme.color }} />
-				<span className="hidden sm:inline">{currentTheme.label}</span>
+				<Icon className="h-4 w-4 transition-transform group-hover:scale-110" style={{ color: currentTheme.color }} />
 			</button>
 
 			{isOpen && (

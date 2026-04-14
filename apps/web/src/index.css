@@ -354,6 +354,26 @@
 		@apply lg:col-span-1;
 	}
 
+	.nav-desktop {
+		display: none;
+	}
+
+	@media (min-width: 768px) {
+		.nav-desktop {
+			display: flex !important;
+		}
+	}
+
+	.nav-mobile {
+		display: flex;
+	}
+
+	@media (min-width: 768px) {
+		.nav-mobile {
+			display: none !important;
+		}
+	}
+
 	/* Technical typography */
 	.mono-label {
 		font-family: "JetBrains Mono", monospace;
