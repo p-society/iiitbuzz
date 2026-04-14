@@ -1,6 +1,10 @@
-import { eq } from "drizzle-orm";
+import { desc, eq, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { users } from "@/db/schema/user.schema";
+import { threads } from "@/db/schema/thread.schema";
+import { posts } from "@/db/schema/post.schema";
+import { votes } from "@/db/schema/vote.schema";
+import { topics } from "@/db/schema/topic.schema";
 import { DrizzleClient } from "../db/index";
 import {
 	type User,
@@ -234,6 +238,71 @@ export async function userRoutes(fastify: FastifyInstance) {
 					error: "Failed to delete user",
 					success: false,
 					details: err instanceof Error ? err.message : "Unknown error",
+				});
+			}
+		},
+	);
+
+	fastify.get(
+		"/:userId/activity",
+		{ preHandler: optionalAuth },
+		async (request, reply) => {
+			try {
+				const { userId } = request.params as { userId: string };
+
+				const userThreads = await DrizzleClient.select({
+					id: threads.id,
+					type: sql<string>`'thread'`,
+					title: threads.threadTitle,
+					createdAt: threads.createdAt,
+				})
+					.from(threads)
+					.where(eq(threads.createdBy, userId))
+					.orderBy(desc(threads.createdAt))
+					.limit(5);
+
+				const userPosts = await DrizzleClient.select({
+					id: posts.id,
+					type: sql<string>`'post'`,
+					title: threads.threadTitle,
+					content: posts.content,
+					threadId: posts.threadId,
+					createdAt: posts.createdAt,
+				})
+					.from(posts)
+					.innerJoin(threads, eq(posts.threadId, threads.id))
+					.where(eq(posts.createdBy, userId))
+					.orderBy(desc(posts.createdAt))
+					.limit(5);
+
+				const userLikes = await DrizzleClient.select({
+					id: votes.id,
+					type: sql<string>`'like'`,
+					title: threads.threadTitle,
+					threadId: threads.id,
+					createdAt: votes.createdAt,
+				})
+					.from(votes)
+					.innerJoin(posts, eq(votes.postId, posts.id))
+					.innerJoin(threads, eq(posts.threadId, threads.id))
+					.where(eq(votes.userId, userId))
+					.orderBy(desc(votes.createdAt))
+					.limit(5);
+
+				const activity = [...userThreads, ...userPosts, ...userLikes].sort(
+					(a, b) =>
+						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+				);
+
+				return reply.send({
+					success: true,
+					activity: activity.slice(0, 15),
+				});
+			} catch (err) {
+				fastify.log.error("Error fetching user activity:", err);
+				return reply.status(500).send({
+					error: "Failed to fetch user activity",
+					success: false,
 				});
 			}
 		},

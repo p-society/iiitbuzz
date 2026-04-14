@@ -73,9 +73,9 @@ export function NotificationBell() {
 			<button
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
-				className="relative p-1 border-2 border-black bg-card neo-brutal-button"
+				className="relative h-9 w-9 flex items-center justify-center border-2 border-black bg-card hover:bg-secondary hover:text-black transition-all shadow-none group"
 			>
-				<Bell className="h-4 w-4" />
+				<Bell className="h-4 w-4 transition-transform group-hover:scale-110" />
 				{unreadCount > 0 && (
 					<span className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground text-[8px] font-bold rounded-full h-3.5 w-3.5 flex items-center justify-center border border-black">
 						{unreadCount > 9 ? "9+" : unreadCount}
@@ -84,7 +84,7 @@ export function NotificationBell() {
 			</button>
 
 			{isOpen && (
-				<div className="absolute right-0 top-8 w-72 border-4 border-black bg-card shadow-[4px_4px_0px_0px_var(--shadow-color)] z-50">
+				<div className="absolute right-2 top-10 max-w-[calc(100vw-2rem)] sm:w-80 border-4 border-black bg-card shadow-[4px_4px_0px_0px_var(--shadow-color)] z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
 					<div className="flex justify-between items-center border-b-2 border-black p-2">
 						<span className="font-black text-xs uppercase">Notifications</span>
 						{unreadCount > 0 && (

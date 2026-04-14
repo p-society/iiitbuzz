@@ -98,6 +98,15 @@ export default function ThreadPage() {
 		setReplyContent(newText);
 	};
 
+	const handleShare = () => {
+		const url = window.location.href;
+		navigator.clipboard.writeText(url).then(() => {
+			toast.success("Link copied to clipboard!");
+		}).catch(() => {
+			toast.error("Failed to copy link.");
+		});
+	};
+
 	if (loading || !thread)
 		return (
 			<div className="min-h-screen flex flex-col">
@@ -143,7 +152,12 @@ export default function ThreadPage() {
 						<Button variant="neutral" size="icon" className="h-7 w-7">
 							<Bookmark className="h-3 w-3" strokeWidth={1.5} />
 						</Button>
-						<Button variant="neutral" size="icon" className="h-7 w-7">
+						<Button 
+							variant="neutral" 
+							size="icon" 
+							className="h-7 w-7"
+							onClick={handleShare}
+						>
 							<Share2 className="h-3 w-3" strokeWidth={1.5} />
 						</Button>
 					</div>

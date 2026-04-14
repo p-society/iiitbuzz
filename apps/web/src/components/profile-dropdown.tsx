@@ -42,13 +42,14 @@ export default function ProfileDropdown() {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="neutral" 
-          className="border-3 flex items-center gap-2 neo-brutal-button border-primary text-primary bg-secondary hover:bg-secondary hover:text-black"
+          size="sm"
+          className="h-9 border-2 border-border flex items-center gap-2 px-3 text-sm font-bold shadow-none hover:bg-secondary hover:text-black transition-all group"
         >
           
-          <span className="text-sm  tracking-tight">
+          <span className="tracking-tight">
             {user.firstName || user.username}
           </span>
-          <ChevronDown size={16} className="text-primary opacity-70" />
+          <ChevronDown size={14} className="opacity-70 transition-transform group-hover:translate-y-0.5" />
         </Button>
       </DropdownMenuTrigger>
 
@@ -82,7 +83,7 @@ export default function ProfileDropdown() {
 
         <DropdownMenuItem asChild>
           <Link 
-            to="/my-threads"
+            to={user.username ? `/profile/${user.username}` : "/my/profile"}
             className="flex cursor-pointer items-center gap-2 p-3 font-bold transition-all hover:translate-x-1 hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground"
           >
             <MessageSquare size={18} />

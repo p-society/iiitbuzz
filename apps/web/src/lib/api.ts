@@ -238,6 +238,21 @@ export const api = {
 		apiFetch<{ success: boolean }>(`/admin/threads/${id}/reject`, {
 			method: "DELETE",
 		}),
+
+	getUserActivity: (userId: string) =>
+		apiFetch<{
+			success: boolean;
+			activity: ActivityItem[];
+		}>(`/user/${userId}/activity`),
+};
+
+export type ActivityItem = {
+	id: string;
+	type: "thread" | "post" | "like";
+	title: string;
+	content?: string;
+	threadId?: string;
+	createdAt: string;
 };
 
 type PostDetail = {

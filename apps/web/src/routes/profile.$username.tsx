@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
-import { MapPin, Calendar, Settings } from "lucide-react";
-import { api } from "@/lib/api";
+import { MapPin, Calendar, Settings, MessageSquare, Heart, FileText } from "lucide-react";
+import { api, type ActivityItem } from "@/lib/api";
 import { StatCard } from "@/components/profile/StatCard";
 import type { UserProfile } from "@/types/user";
 import { toast } from "sonner";
@@ -21,6 +21,7 @@ export default function UserProfilePage() {
         totalThreads: number;
     } | null>(null);
     const [recentThreads, setRecentThreads] = useState<RecentThread[]>([]);
+    const [activity, setActivity] = useState<ActivityItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<"threads" | "activity">("threads");
 
@@ -33,9 +34,10 @@ export default function UserProfilePage() {
                 setData({ user: profileRes.user, isOwn: profileRes.isOwnProfile });
 
                 if (profileRes.user.id) {
-                    const [statsRes, threadsRes] = await Promise.all([
+                    const [statsRes, threadsRes, activityRes] = await Promise.all([
                         api.getUserStats(profileRes.user.id),
-                        api.getUserThreads(profileRes.user.id, { page: 1, limit: 10, sort: 'latest' })
+                        api.getUserThreads(profileRes.user.id, { page: 1, limit: 10, sort: 'latest' }),
+                        api.getUserActivity(profileRes.user.id)
                     ]);
 
                     setUserStats(statsRes.stats);
@@ -49,6 +51,7 @@ export default function UserProfilePage() {
                         views: t.viewCount || 0, 
                         lastActive: formatTimeAgo(t.createdAt),
                     })));
+                    setActivity(activityRes.activity);
                 }
             } catch (err: any) {
                 toast.error(err.message || "Failed to load profile data");
@@ -136,9 +139,48 @@ export default function UserProfilePage() {
                                     )}
                                 </div>
                             ) : (
-                                <p className="text-center py-10 font-bold border-4 border-dashed border-border text-muted-foreground">
-                                    No Activity Yet
-                                </p>
+                                <div className="space-y-4">
+                                    {activity.length > 0 ? (
+                                        activity.map((item) => (
+                                            <div key={`${item.type}-${item.id}`} className="flex items-start gap-4 border-4 border-border bg-card p-4 shadow-[4px_4px_0px_0px_var(--shadow-color)]">
+                                                <div className={`p-2 border-2 border-border ${
+                                                    item.type === 'thread' ? 'bg-blue-100' : 
+                                                    item.type === 'post' ? 'bg-green-100' : 'bg-red-100'
+                                                }`}>
+                                                    {item.type === 'thread' && <FileText className="h-4 w-4 text-blue-600" />}
+                                                    {item.type === 'post' && <MessageSquare className="h-4 w-4 text-green-600" />}
+                                                    {item.type === 'like' && <Heart className="h-4 w-4 text-red-600" fill="currentColor" />}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                                                            {item.type === 'thread' ? 'New Thread' : 
+                                                             item.type === 'post' ? 'Replied to' : 'Liked'}
+                                                        </span>
+                                                        <span className="text-[10px] font-bold text-muted-foreground">
+                                                            {formatTimeAgo(item.createdAt)}
+                                                        </span>
+                                                    </div>
+                                                    <Link 
+                                                        to={item.threadId ? `/thread/${item.threadId}` : `/thread/${item.id}`}
+                                                        className="block font-black text-sm hover:underline truncate"
+                                                    >
+                                                        {item.title}
+                                                    </Link>
+                                                    {item.content && (
+                                                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2 italic">
+                                                            "{item.content}"
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-center py-10 font-bold border-4 border-dashed border-border text-muted-foreground">
+                                            No Activity Yet
+                                        </p>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </section>
