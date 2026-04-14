@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
 import { api } from "@/lib/api";
 import { Link } from "react-router";
+import { formatTimeAgo } from "@/lib/utils/date";
 
 type NotificationItem = {
 	id: string;
@@ -51,21 +52,22 @@ export function NotificationBell() {
 			await api.markNotificationsRead();
 			setUnreadCount(0);
 			setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-		} catch {
-			// silently fail
-		}
+		} catch {}
 	};
 
-	const formatTime = (dateStr: string) => {
-		const now = new Date();
-		const date = new Date(dateStr);
-		const diffMs = now.getTime() - date.getTime();
-		const diffMins = Math.floor(diffMs / 60000);
-		if (diffMins < 1) return "just now";
-		if (diffMins < 60) return `${diffMins}m ago`;
-		const diffHours = Math.floor(diffMins / 60);
-		if (diffHours < 24) return `${diffHours}h ago`;
-		return `${Math.floor(diffHours / 24)}d ago`;
+	const handleNotificationClick = async (notification: NotificationItem) => {
+		setIsOpen(false);
+		if (!notification.read && notification.id) {
+			try {
+				await api.markNotificationRead(notification.id);
+				setNotifications((prev) =>
+					prev.map((n) =>
+						n.id === notification.id ? { ...n, read: true } : n,
+					),
+				);
+				setUnreadCount((prev) => Math.max(0, prev - 1));
+			} catch {}
+		}
 	};
 
 	return (
@@ -107,7 +109,7 @@ export function NotificationBell() {
 								<Link
 									key={n.id}
 									to={n.threadId ? `/thread/${n.threadId}` : "#"}
-									onClick={() => setIsOpen(false)}
+									onClick={() => handleNotificationClick(n)}
 									className={`block p-2 border-b border-black/10 hover:bg-muted/30 ${!n.read ? "bg-muted/50" : ""}`}
 								>
 									<div className="text-xs font-bold">
@@ -120,7 +122,7 @@ export function NotificationBell() {
 										</div>
 									)}
 									<div className="text-[10px] text-muted-foreground">
-										{formatTime(n.createdAt)}
+										{formatTimeAgo(n.createdAt)}
 									</div>
 								</Link>
 							))
