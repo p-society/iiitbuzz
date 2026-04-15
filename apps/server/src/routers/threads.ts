@@ -656,6 +656,7 @@ export async function threadRoutes(fastify: FastifyInstance) {
 			}
 
 			const data = parsed.data;
+			const isAnonymous = data.isAnonymous ?? false;
 
 			type NewThread = typeof threadsTable.$inferInsert;
 			const toInsert: NewThread = {
@@ -663,13 +664,42 @@ export async function threadRoutes(fastify: FastifyInstance) {
 				threadTitle: data.threadTitle,
 				createdBy: userid,
 				viewCount: 0,
-				isAnonymous: data.isAnonymous ?? false,
-				isApproved: !(data.isAnonymous ?? false),
+				isAnonymous,
+				isApproved: !isAnonymous,
+			};
+
+			type NewPost = typeof postsTable.$inferInsert;
+			const firstPost: NewPost = {
+				threadId: "",
+				content: data.content,
+				createdBy: userid,
+				isAnonymous,
+				isApproved: !isAnonymous,
+				isDraft: false,
 			};
 			try {
-				const [newThread] = await DrizzleClient.insert(threadsTable)
-					.values(toInsert)
-					.returning();
+				const [newThread] = await DrizzleClient.transaction(async (tx) => {
+					const [createdThread] = await tx
+						.insert(threadsTable)
+						.values(toInsert)
+						.returning();
+
+					await tx.insert(postsTable).values({
+						...firstPost,
+						threadId: createdThread.id,
+					});
+
+					if (!isAnonymous) {
+						await tx
+							.update(usersTable)
+							.set({
+								totalPosts: sql`${usersTable.totalPosts} + 1`,
+							})
+							.where(eq(usersTable.id, userid));
+					}
+
+					return [createdThread] as const;
+				});
 				return reply.status(201).send({ success: true, thread: newThread });
 			} catch (error) {
 				fastify.log.error({ err: error, toInsert }, "Error creating thread");

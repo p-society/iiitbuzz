@@ -8,6 +8,7 @@ export type Thread = typeof threads.$inferSelect;
 export const createThreadSchema = z.object({
 	threadTitle: z.string().min(1).max(255),
 	topicId: z.string().uuid(),
+	content: z.string().min(1, "Content is required").max(10_000),
 	isAnonymous: z.boolean().optional().default(false),
 });
 

@@ -122,6 +122,7 @@ export const api = {
 	createThread: (payload: {
 		topicId: string;
 		threadTitle: string;
+		content: string;
 		isAnonymous?: boolean;
 	}) =>
 		apiFetch<{ success: boolean; thread: { id: string } }>("/threads/new", {
