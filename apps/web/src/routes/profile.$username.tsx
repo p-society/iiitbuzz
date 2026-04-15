@@ -71,8 +71,8 @@ export default function UserProfilePage() {
         <div className="min-h-screen flex flex-col bg-background">
             <Header />
             <main className="mx-auto max-w-7xl px-4 py-8 flex-1 w-full">
-                <div className="grid gap-6 lg:grid-cols-3">
-                    <aside className="space-y-6">
+                <div className="grid gap-6 grid-cols-1 lg:grid-cols-3 w-full">
+                    <aside className="space-y-6 w-full">
                         <div className="border-4 border-border bg-card p-6 shadow-[6px_6px_0px_0px_var(--shadow-color)]">
                             <div className="mb-4 flex justify-between">
                                 <div className="h-20 w-20 flex items-center justify-center border-4 border-border bg-primary overflow-hidden">
@@ -112,7 +112,7 @@ export default function UserProfilePage() {
                         </div>
                     </aside>
 
-                    <section className="lg:col-span-2">
+                    <section className="lg:col-span-2 w-full">
                         <div className="flex gap-2 mb-6">
                             {["threads", "activity"].map((tab) => (
                                 <button
@@ -142,8 +142,8 @@ export default function UserProfilePage() {
                                 <div className="space-y-4">
                                     {activity.length > 0 ? (
                                         activity.map((item) => (
-                                            <div key={`${item.type}-${item.id}`} className="flex items-start gap-4 border-4 border-border bg-card p-4 shadow-[4px_4px_0px_0px_var(--shadow-color)]">
-                                                <div className={`p-2 border-2 border-border ${
+                                            <div key={`${item.type}-${item.id}`} className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4 border-4 border-border bg-card p-3 sm:p-4 shadow-[4px_4px_0px_0px_var(--shadow-color)]">
+                                                <div className={`flex items-center justify-center w-10 h-10 border-2 border-border flex-shrink-0 ${
                                                     item.type === 'thread' ? 'bg-blue-100' : 
                                                     item.type === 'post' ? 'bg-green-100' : 'bg-red-100'
                                                 }`}>
