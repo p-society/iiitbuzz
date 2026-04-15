@@ -6,6 +6,8 @@ import { MarkdownContent } from "@/components/ui/markdown";
 import { api } from "@/lib/api";
 import type { PostDetail } from "@/types/forum";
 import { formatTimeAgo } from "@/lib/utils/date";
+import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface PostItemProps {
 	post: PostDetail;
@@ -29,6 +31,9 @@ export const PostItem = ({
 	const [voteValue, setVoteValue] = useState(0);
 	const [voteCount, setVoteCount] = useState(post.likes);
 	const [voting, setVoting] = useState(false);
+	const [reporting, setReporting] = useState(false);
+	const [hasReported, setHasReported] = useState(false);
+	const profileUsername = !post.isAnonymous ? post.authorName : null;
 
 	useEffect(() => {
 		if (!post.authorName) return;
@@ -47,6 +52,17 @@ export const PostItem = ({
 			.getPostVote(post.postId)
 			.then((res) => {
 				if (res.success) setVoteValue(res.vote);
+			})
+			.catch(() => {});
+	}, [post.postId]);
+
+	useEffect(() => {
+		api
+			.getPostReportStatus(post.postId)
+			.then((res) => {
+				if (res.success) {
+					setHasReported(res.alreadyReported);
+				}
 			})
 			.catch(() => {});
 	}, [post.postId]);
@@ -80,21 +96,51 @@ export const PostItem = ({
 		<div className="border border-black bg-card">
 			<div className="post-block flex flex-col sm:flex-row">
 				<div className="author-pane w-full sm:w-[140px] p-2 sm:p-3 flex-shrink-0">
-					<div className="h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px]">
-						{!imgError && avatarUrl ? (
-							<img
-								src={avatarUrl}
-								alt={post.authorName}
-								className="h-full w-full object-cover"
-								referrerPolicy="no-referrer"
-								onError={() => setImgError(true)}
-							/>
-						) : (
-							<span>{post.authorAvatar}</span>
-						)}
-					</div>
+					{profileUsername ? (
+						<Link
+							to={`/profile/${encodeURIComponent(profileUsername)}`}
+							className="block h-10 w-10 sm:h-12 sm:w-12 mb-2"
+						>
+							<div className="h-full w-full text-sm sm:text-base overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px] hover:opacity-85 transition-opacity">
+								{!imgError && avatarUrl ? (
+									<img
+										src={avatarUrl}
+										alt={post.authorName}
+										className="h-full w-full object-cover"
+										referrerPolicy="no-referrer"
+										onError={() => setImgError(true)}
+									/>
+								) : (
+									<span>{post.authorAvatar}</span>
+								)}
+							</div>
+						</Link>
+					) : (
+						<div className="h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px]">
+							{!imgError && avatarUrl ? (
+								<img
+									src={avatarUrl}
+									alt={post.authorName}
+									className="h-full w-full object-cover"
+									referrerPolicy="no-referrer"
+									onError={() => setImgError(true)}
+								/>
+							) : (
+								<span>{post.authorAvatar}</span>
+							)}
+						</div>
+					)}
 					<div className="font-bold text-xs truncate">
-						{post.isAnonymous ? "Anonymous" : post.authorName}
+						{profileUsername ? (
+							<Link
+								to={`/profile/${encodeURIComponent(profileUsername)}`}
+								className="hover:underline"
+							>
+								{post.authorName}
+							</Link>
+						) : (
+							"Anonymous"
+						)}
 					</div>
 					{isOP && <span className="tech-stamp mt-1 text-[8px]">OP</span>}
 					<div className="mt-2 mono-meta">{post.postCount || 1} posts</div>
@@ -109,7 +155,7 @@ export const PostItem = ({
 					<div className="post-body mb-3" style={{ lineHeight: 1.6 }}>
 						<MarkdownContent content={post.content} />
 					</div>
-					<div className="post-actions flex items-center gap-1.5">
+					<div className="post-actions flex flex-wrap items-center gap-1.5">
 						<Button
 							size="sm"
 							onClick={() => handleVote(1)}
@@ -153,9 +199,34 @@ export const PostItem = ({
 						<Button
 							size="sm"
 							variant="neutral"
-							className="bg-card px-1.5 py-0.5 font-bold text-[10px] ml-auto"
+							className={`px-1.5 py-0.5 font-bold text-[10px] ml-auto transition-colors ${hasReported ? "text-red-600 border-red-600" : "bg-card"}`}
+							disabled={reporting}
+							onClick={async () => {
+								if (reporting) return;
+								if (hasReported) {
+									toast.success("Post already reported");
+									return;
+								}
+								setReporting(true);
+								try {
+									const res = await api.reportPost(post.postId);
+									if (res.alreadyReported) {
+										setHasReported(true);
+										toast.success("Post already reported");
+										return;
+									}
+									setHasReported(true);
+									toast.success("Post reported to admins");
+								} catch (err) {
+									const message =
+										err instanceof Error ? err.message : "Failed to report post";
+									toast.error(message);
+								} finally {
+									setReporting(false);
+								}
+							}}
 						>
-							<Flag className="h-3 w-3" />
+							<Flag className={`h-3 w-3 ${hasReported ? "fill-current text-red-600" : ""}`} />
 						</Button>
 					</div>
 				</div>

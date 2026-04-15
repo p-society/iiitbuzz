@@ -44,9 +44,12 @@ export function ModeToggle() {
 			<button
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
-				className="border-2 flex h-9 w-9 items-center justify-center border-border bg-card font-bold text-card-foreground shadow-none transition-all hover:bg-secondary hover:text-black group"
+				className="border-2 flex h-9 w-9 items-center justify-center border-border font-bold text-white shadow-none transition-all hover:opacity-90 group"
+				style={{ backgroundColor: currentTheme.color }}
+				aria-label="Change theme"
+				title="Change theme"
 			>
-				<Icon className="h-4 w-4 transition-transform group-hover:scale-110" style={{ color: currentTheme.color }} />
+				<Icon className="h-4 w-4 transition-transform group-hover:scale-110" style={{ color: "currentColor" }} />
 			</button>
 
 			{isOpen && (
@@ -78,6 +81,8 @@ export function ModeToggle() {
 												? "bg-primary text-primary-foreground"
 												: "bg-card text-card-foreground hover:bg-muted"
 										}`}
+										aria-label={`Switch to ${themeOption.label} theme`}
+										title={`Switch to ${themeOption.label} theme`}
 									>
 										<ThemeIcon
 											className="h-4 w-4"

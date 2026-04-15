@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, Navigate } from "react-router-dom";
-import { Check, X, MessageSquare, Eye, Ban } from "lucide-react";
+import { Check, X, MessageSquare, Eye, Ban, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDateIST } from "@/lib/utils/date";
 import Header from "@/components/ui/header";
@@ -9,10 +9,10 @@ import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import type { AdminThread, AdminPost } from "@/lib/api";
+import type { AdminThread, AdminPost, AdminReport } from "@/lib/api";
 
-type Tab = "pending" | "approved" | "rejected";
-type SectionType = "threads" | "posts";
+type Tab = "pending" | "approved" | "rejected" | "resolved";
+type SectionType = "threads" | "posts" | "reports";
 
 export default function AdminPage() {
 	const { isAdmin, isAuthenticated, isLoading } = useAuth();
@@ -20,6 +20,7 @@ export default function AdminPage() {
 	const [activeTab, setActiveTab] = useState<Tab>("pending");
 	const [threads, setThreads] = useState<AdminThread[]>([]);
 	const [posts, setPosts] = useState<AdminPost[]>([]);
+	const [reports, setReports] = useState<AdminReport[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	const fetchThreads = useCallback(async () => {
@@ -53,9 +54,28 @@ export default function AdminPage() {
 	}, [activeTab]);
 
 	const fetchData = useCallback(async () => {
-		if (sectionType === "threads") await fetchThreads();
-		else await fetchPosts();
-	}, [sectionType, fetchThreads, fetchPosts]);
+		if (sectionType === "threads") {
+			await fetchThreads();
+			return;
+		}
+		if (sectionType === "posts") {
+			await fetchPosts();
+			return;
+		}
+
+		setLoading(true);
+		try {
+			const res =
+				activeTab === "resolved"
+					? await api.getResolvedReports()
+					: await api.getPendingReports();
+			setReports(res.reports);
+		} catch (_err) {
+			toast.error("Failed to load reports");
+		} finally {
+			setLoading(false);
+		}
+	}, [sectionType, fetchThreads, fetchPosts, activeTab]);
 
 	useEffect(() => {
 		if (isAuthenticated && isAdmin) fetchData();
@@ -139,7 +159,27 @@ export default function AdminPage() {
 		}
 	};
 
-	const tabConfig: {
+	const handleResolveReport = async (id: string) => {
+		try {
+			await api.resolveReport(id);
+			toast.success("Report resolved");
+			fetchData();
+		} catch (_err) {
+			toast.error("Failed to resolve report");
+		}
+	};
+
+	const handleDeleteReportedPost = async (report: AdminReport) => {
+		try {
+			await api.deleteReportedPost(report.id);
+			toast.success("Post deleted and report resolved");
+			fetchData();
+		} catch (_err) {
+			toast.error("Failed to delete reported post");
+		}
+	};
+
+	const moderationTabs: {
 		key: Tab;
 		label: string;
 		icon: React.ReactNode;
@@ -165,6 +205,10 @@ export default function AdminPage() {
 		},
 	];
 
+	const reportTabs = moderationTabs.filter(
+		(tab) => tab.key === "pending" || tab.key === "resolved",
+	);
+
 	return (
 		<div className="min-h-screen flex flex-col bg-background">
 			<Header />
@@ -178,14 +222,14 @@ export default function AdminPage() {
 				<div className="page-header mb-3">
 					<h1 className="font-black text-xl">Admin Panel</h1>
 					<p className="text-xs text-muted-foreground">
-						Manage{" "}
-						{sectionType === "threads" ? "anonymous thread" : "anonymous post"}{" "}
-						approvals
+						{sectionType === "reports"
+							? "Review reported posts from the community"
+							: `Manage ${sectionType === "threads" ? "anonymous thread" : "anonymous post"} approvals`}
 					</p>
 				</div>
 
-				<div className="flex gap-1 mb-3">
-					<div className="flex gap-1 mr-3 pr-3 border-r border-gray-300">
+				<div className="flex flex-col gap-2 mb-3 md:flex-row md:items-start">
+					<div className="flex flex-wrap gap-1 md:mr-3 md:pr-3 md:border-r md:border-gray-300">
 						<Button
 							variant={sectionType === "threads" ? "default" : "neutral"}
 							onClick={() => {
@@ -206,18 +250,30 @@ export default function AdminPage() {
 						>
 							Posts
 						</Button>
-					</div>
-					{tabConfig.map((tab) => (
 						<Button
-							key={tab.key}
-							variant={activeTab === tab.key ? "default" : "neutral"}
-							onClick={() => setActiveTab(tab.key)}
-							className="neo-brutal-button text-xs py-1 px-3 flex items-center gap-1"
+							variant={sectionType === "reports" ? "default" : "neutral"}
+							onClick={() => {
+								setSectionType("reports");
+								setActiveTab("pending");
+							}}
+							className="neo-brutal-button text-xs py-1 px-3"
 						>
-							{tab.icon}
-							{tab.label}
+							Reports
 						</Button>
-					))}
+					</div>
+						<div className="flex flex-wrap gap-1">
+							{(sectionType === "reports" ? reportTabs : moderationTabs).map((tab) => (
+								<Button
+									key={tab.key}
+									variant={activeTab === tab.key ? "default" : "neutral"}
+									onClick={() => setActiveTab(tab.key)}
+									className="neo-brutal-button text-xs py-1 px-3 flex items-center gap-1"
+								>
+									{tab.icon}
+									{tab.label}
+								</Button>
+							))}
+						</div>
 				</div>
 
 				<div className="neo-brutal-card space-y-0 border-4 border-black">
@@ -306,11 +362,12 @@ export default function AdminPage() {
 								</div>
 							))
 						)
-					) : posts.length === 0 ? (
+					) : sectionType === "posts" ? (
+						posts.length === 0 ? (
 						<p className="text-center py-4 font-bold text-sm">
 							No {activeTab} posts
 						</p>
-					) : (
+						) : (
 						posts.map((post, idx) => (
 							<div
 								key={post.postId}
@@ -382,6 +439,77 @@ export default function AdminPage() {
 											>
 												<Check className="h-3 w-3 mr-1" />
 												Re-approve
+											</Button>
+										)}
+									</div>
+								</div>
+							</div>
+						))
+						)
+					) : reports.length === 0 ? (
+						<p className="text-center py-4 font-bold text-sm">
+							No {activeTab} reports
+						</p>
+					) : (
+						reports.map((report, idx) => (
+							<div
+								key={report.id}
+								className={
+									idx !== reports.length - 1 ? "border-b-2 border-black" : ""
+								}
+							>
+								<div className="flex flex-col gap-3 py-3 px-3 md:flex-row md:items-start">
+									<div className="flex-1 min-w-0">
+										<div className="flex items-center gap-1 mb-0.5">
+											<span className="rounded border border-black bg-red-400 px-1 py-0 font-bold text-[10px] text-black uppercase">
+												REPORTED
+											</span>
+											<span className="text-[10px] text-muted-foreground">
+												by {report.reportedBy || "Unknown"} ·{" "}
+												{formatDateIST(report.reportedAt)}
+											</span>
+										</div>
+										<Link
+											to={`/thread/${report.threadId}`}
+											className="font-bold text-sm truncate hover:underline block"
+										>
+											{report.threadTitle}
+										</Link>
+										<p className="text-xs text-muted-foreground mt-1 line-clamp-3">
+											{report.postContent}
+										</p>
+									</div>
+									<div className="flex flex-wrap items-center gap-1 md:flex-nowrap md:justify-end flex-shrink-0">
+										<Link to={`/thread/${report.threadId}`}>
+											<Button
+												variant="neutral"
+												size="sm"
+												className="neo-brutal-button bg-card font-bold text-[10px] h-7 px-2"
+											>
+												<Eye className="h-3 w-3 mr-1" />
+												View
+											</Button>
+										</Link>
+										{activeTab === "pending" && (
+											<Button
+												variant="neutral"
+												size="sm"
+												className="neo-brutal-button bg-green-400 text-black font-bold text-[10px] h-7 px-2"
+												onClick={() => handleResolveReport(report.id)}
+											>
+												<Check className="h-3 w-3 mr-1" />
+												Resolve
+											</Button>
+										)}
+										{activeTab === "pending" && (
+											<Button
+												variant="neutral"
+												size="sm"
+												className="neo-brutal-button bg-red-400 text-black font-bold text-[10px] h-7 px-2"
+												onClick={() => handleDeleteReportedPost(report)}
+											>
+												<Trash2 className="h-3 w-3 mr-1" />
+												Delete
 											</Button>
 										)}
 									</div>

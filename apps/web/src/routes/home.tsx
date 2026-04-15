@@ -6,7 +6,9 @@ import Loader from "@/components/loader";
 import { TopicThreadRow } from "@/components/forum/TopicThreadRow";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router";
+import { Navigate } from "react-router";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { useAuth } from "@/contexts/AuthContext";
 
 import { api } from "@/lib/api";
 import { getTopicColor } from "@/lib/utils/topicColor";
@@ -19,12 +21,19 @@ import type {
 } from "@/types/forum";
 
 export default function HomePage() {
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 	const [topics, setTopics] = useState<Topic[]>([]);
 	const [recentThreads, setRecentThreads] = useState<RecentThread[]>([]);
 	const [stats, setStats] = useState<ForumStats | null>(null);
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
+		if (isAuthLoading) return;
+		if (!isAuthenticated) {
+			setLoading(false);
+			return;
+		}
+
 		const loadPageData = async () => {
 			try {
 				const [topRes, thrRes, statRes] = await Promise.all([
@@ -89,7 +98,11 @@ export default function HomePage() {
 			}
 		};
 		loadPageData();
-	}, []);
+	}, [isAuthenticated, isAuthLoading]);
+
+	if (!isAuthLoading && !isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
 	if (loading)
 		return (
@@ -182,6 +195,18 @@ export default function HomePage() {
 					</div>
 
 					<aside className="sidebar">
+						<Button
+							asChild
+							className="nav-desktop w-full py-1.5 mb-3 font-bold border-2 border-border bg-primary text-primary-foreground shadow-none hover:bg-primary/90"
+						>
+							<Link
+								to="/new-thread"
+								className="block text-center text-xs uppercase tracking-wider"
+							>
+								New +
+							</Link>
+						</Button>
+
 						<div className="border border-black">
 							<div className="p-3 border-b border-gray-200">
 								<span className="mono-label">{"// SECTION: ACTIVITY"}</span>

@@ -75,7 +75,9 @@ export function NotificationBell() {
 			<button
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
-				className="relative h-9 w-9 flex items-center justify-center border-2 border-black bg-card hover:bg-secondary hover:text-black transition-all shadow-none group"
+				className="relative h-9 w-9 flex items-center justify-center border-2 border-black bg-foreground text-background hover:opacity-90 transition-all shadow-none group"
+				aria-label="Open notifications"
+				title="Open notifications"
 			>
 				<Bell className="h-4 w-4 transition-transform group-hover:scale-110" />
 				{unreadCount > 0 && (
@@ -93,7 +95,9 @@ export function NotificationBell() {
 							<button
 								type="button"
 								onClick={markAllRead}
-								className="text-[10px] font-bold hover:underline"
+								className="text-[10px] font-bold text-black hover:underline"
+								aria-label="Mark all notifications as read"
+								title="Mark all notifications as read"
 							>
 								Mark all read
 							</button>

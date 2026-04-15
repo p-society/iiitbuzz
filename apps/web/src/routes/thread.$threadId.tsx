@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link, Navigate } from "react-router-dom";
 import { Share2, Bookmark, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function ThreadPage() {
 	const { threadId } = useParams<{ threadId: string }>();
 	const navigate = useNavigate();
-	const { user, isAdmin } = useAuth();
+	const { user, isAdmin, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 	const [thread, setThread] = useState<ThreadDetail | null>(null);
 	const [posts, setPosts] = useState<PostDetail[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -29,7 +29,13 @@ export default function ThreadPage() {
 		author: string;
 		content: string;
 	} | null>(null);
+	const [isBookmarked, setIsBookmarked] = useState(false);
+	const [bookmarkLoading, setBookmarkLoading] = useState(false);
 	const replyContentRef = useRef<HTMLTextAreaElement>(null);
+
+	if (!isAuthLoading && !isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
 	const loadThreadData = useCallback(async () => {
 		if (!threadId) return;
@@ -57,6 +63,14 @@ export default function ThreadPage() {
 			setLoading(false);
 		}
 	}, [threadId]);
+
+	useEffect(() => {
+		if (!threadId || !user) return;
+		api
+			.getThreadBookmarkStatus(threadId)
+			.then((res) => setIsBookmarked(res.isBookmarked))
+			.catch(() => {});
+	}, [threadId, user]);
 
 	useEffect(() => {
 		loadThreadData();
@@ -129,6 +143,36 @@ export default function ThreadPage() {
 			.catch(() => {
 				toast.error("Failed to copy link.");
 			});
+	};
+
+	const handleBookmarkToggle = async () => {
+		if (!threadId) return;
+		if (!user) {
+			toast.error("Please log in to bookmark threads");
+			return;
+		}
+		if (bookmarkLoading) return;
+
+		const previousBookmarked = isBookmarked;
+		const nextBookmarked = !previousBookmarked;
+		setIsBookmarked(nextBookmarked);
+		setBookmarkLoading(true);
+		try {
+			if (previousBookmarked) {
+				await api.removeThreadBookmark(threadId);
+				toast.success("Bookmark removed");
+			} else {
+				await api.addThreadBookmark(threadId);
+				toast.success("Thread bookmarked");
+			}
+		} catch (err) {
+			setIsBookmarked(previousBookmarked);
+			const message =
+				err instanceof Error ? err.message : "Failed to update bookmark";
+			toast.error(message);
+		} finally {
+			setBookmarkLoading(false);
+		}
 	};
 
 	const handleDeleteThread = async () => {
@@ -205,21 +249,42 @@ export default function ThreadPage() {
 						</h1>
 						<p className="mono-meta">
 							by{" "}
-							<span className="font-bold text-foreground">
-								{thread.authorName}
-							</span>{" "}
+							{thread.isAnonymous ? (
+								<span className="font-bold text-foreground">{thread.authorName}</span>
+							) : (
+								<Link
+									to={`/profile/${encodeURIComponent(thread.authorName)}`}
+									className="font-bold text-foreground hover:underline"
+								>
+									{thread.authorName}
+								</Link>
+							)}{" "}
 							· {formatDateIST(thread.createdAt)}
 						</p>
 					</div>
 					<div className="flex gap-1">
-						<Button variant="neutral" size="icon" className="h-7 w-7">
-							<Bookmark className="h-3 w-3" strokeWidth={1.5} />
+						<Button
+							variant="neutral"
+							size="icon"
+							className={`h-7 w-7 ${isBookmarked ? "bg-primary text-primary-foreground" : ""}`}
+							onClick={handleBookmarkToggle}
+							disabled={bookmarkLoading}
+							aria-label={isBookmarked ? "Remove bookmark" : "Bookmark thread"}
+							title={isBookmarked ? "Remove bookmark" : "Bookmark thread"}
+						>
+							<Bookmark
+								className="h-3 w-3"
+								strokeWidth={1.5}
+								fill={isBookmarked ? "currentColor" : "none"}
+							/>
 						</Button>
 						<Button
 							variant="neutral"
 							size="icon"
 							className="h-7 w-7"
 							onClick={handleShare}
+							aria-label="Share thread"
+							title="Share thread"
 						>
 							<Share2 className="h-3 w-3" strokeWidth={1.5} />
 						</Button>

@@ -85,12 +85,19 @@ export const MentionTextarea = React.forwardRef<
 					return;
 				}
 
+				const shouldResetActiveIndex =
+					match.query !== mentionQuery ||
+					match.start !== mentionRange?.start ||
+					match.end !== mentionRange?.end;
+
 				setMentionRange({ start: match.start, end: match.end });
 				setMentionQuery(match.query);
 				setShowMentionSuggestions(true);
-				setActiveMentionIndex(0);
+				if (shouldResetActiveIndex) {
+					setActiveMentionIndex(0);
+				}
 			},
-			[],
+			[mentionQuery, mentionRange?.end, mentionRange?.start],
 		);
 
 		React.useEffect(() => {
@@ -106,7 +113,10 @@ export const MentionTextarea = React.forwardRef<
 					if (cancelled) return;
 					setMentionSuggestions(res.users);
 					setShowMentionSuggestions(res.users.length > 0);
-					setActiveMentionIndex(0);
+					setActiveMentionIndex((prev) => {
+						if (!res.users.length) return 0;
+						return Math.min(prev, res.users.length - 1);
+					});
 				} catch {
 					if (cancelled) return;
 					setMentionSuggestions([]);
@@ -124,7 +134,8 @@ export const MentionTextarea = React.forwardRef<
 			};
 		}, [
 			mentionQuery,
-			mentionRange,
+			mentionRange?.start,
+			mentionRange?.end,
 			props.disabled,
 			showMentionSuggestions,
 			suggestionLimit,

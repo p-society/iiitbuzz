@@ -57,26 +57,24 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 					) : isAuthenticated ? (
 						<>
 							<div className="nav-desktop items-center gap-3">
-								{!hideThemeToggle && (
-									<Link to="/home">
-										<Button
-											type="button"
-											variant="neutral"
-											size="sm"
-											className="flex h-9 items-center gap-1 px-3 text-xs font-bold border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
-										>
-											<Home className="h-4 w-4 transition-transform group-hover:scale-110" />
-											<span>Home</span>
-										</Button>
-									</Link>
-								)}
+								<Link to="/home">
+									<Button
+										type="button"
+										variant="neutral"
+										size="sm"
+										className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-black border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
+									>
+										<Home className="h-4 w-4 transition-transform group-hover:scale-110" />
+										<span>Home</span>
+									</Button>
+								</Link>
 								{isAdmin && (
 									<Link to="/admin">
 										<Button
 											type="button"
 											variant="neutral"
 											size="sm"
-											className="flex h-9 items-center gap-1 px-3 text-xs font-bold border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
+											className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-black border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
 										>
 											<Shield className="h-4 w-4 transition-transform group-hover:scale-110" />
 											<span>Admin</span>
@@ -85,15 +83,6 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 								)}
 								<NotificationBell />
 								<ProfileDropdown />
-								{!hideThemeToggle && (
-									<Link
-										to="/new-thread"
-										className="bg-primary h-9 px-4 flex items-center gap-2 font-bold text-primary-foreground text-xs border-2 border-border hover:bg-primary/90 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-none group"
-									>
-										<Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-										<span>New</span>
-									</Link>
-								)}
 							</div>
 
 							<div className="nav-mobile items-center gap-2">
@@ -118,14 +107,16 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 												<Menu className="h-5 w-5" />
 											</Button>
 										</DrawerTrigger>
-										<DrawerContent className="p-4">
-											<DrawerHeader className="px-0 pt-0 text-left">
-												<DrawerTitle className="text-xl font-black">
-													Menu
-												</DrawerTitle>
-											</DrawerHeader>
+										<DrawerContent className="h-[100dvh] max-h-[100dvh] overflow-hidden p-0">
+											<div className="flex h-full flex-col overflow-hidden p-4">
+												<DrawerHeader className="px-0 pt-0 text-left">
+													<DrawerTitle className="text-xl font-black">
+														Menu
+													</DrawerTitle>
+												</DrawerHeader>
 
-											<div className="flex flex-col gap-4 mt-4">
+												<div className="mt-4 flex-1 overflow-y-auto pr-1">
+													<div className="flex flex-col gap-4 pb-4">
 												{user && (
 													<div className="p-3 border-2 border-border bg-secondary/50 rounded-lg">
 														<p className="font-black text-sm">
@@ -240,6 +231,8 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 														</Button>
 													</div>
 												</nav>
+												</div>
+											</div>
 											</div>
 										</DrawerContent>
 									</Drawer>
@@ -251,13 +244,16 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 							<Button
 								onClick={login}
 								variant="neutral"
-								className="text-foreground text-xs px-2 py-1"
+								size="sm"
+								className="h-9 border-2 border-border bg-secondary px-3 text-xs font-black text-black shadow-none hover:bg-primary hover:text-primary-foreground transition-all"
 							>
 								Log In
 							</Button>
 							<Button
 								onClick={login}
-								className="bg-foreground text-primary-foreground text-xs px-2 py-1 hover:bg-foreground/90"
+								variant="neutral"
+								size="sm"
+								className="h-9 border-2 border-border bg-foreground px-3 text-xs font-black text-background shadow-none hover:bg-foreground/90 hover:text-black transition-all"
 							>
 								Sign Up
 							</Button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { ArrowLeft, ImageIcon, Link2, Code, Info } from "lucide-react";
 import { toast } from "sonner";
 
@@ -8,10 +8,12 @@ import { CategoryTile } from "@/components/forum/CategoryTile";
 import type { TopicOption } from "@/types/forum";
 import { Button } from "@/components/ui/button";
 import { MentionTextarea } from "@/components/ui/mention-textarea";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function NewThreadPage() {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
 	const [topics, setTopics] = useState<TopicOption[]>([]);
 	const [selectedTopicId, setSelectedTopicId] = useState("");
@@ -22,6 +24,10 @@ export default function NewThreadPage() {
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	if (!isAuthLoading && !isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
 	useEffect(() => {
 		const fetchTopics = async () => {
@@ -50,12 +56,15 @@ export default function NewThreadPage() {
 		if (!selectedTopicId) return setError("Please select a category.");
 		if (title.trim().length < 5)
 			return setError("Title must be at least 5 characters.");
+		if (content.trim().length < 1)
+			return setError("Content is required.");
 
 		setSubmitting(true);
 		try {
 			const res = await api.createThread({
 				topicId: selectedTopicId,
 				threadTitle: title,
+				content: content.trim(),
 				isAnonymous,
 			});
 
@@ -64,7 +73,7 @@ export default function NewThreadPage() {
 			} else {
 				toast.success("Thread created successfully!");
 			}
-			navigate(`/topic/${selectedTopicId}`);
+			navigate(`/thread/${res.thread.id}`);
 		} catch (err: unknown) {
 			setError(
 				err instanceof Error
@@ -153,20 +162,19 @@ export default function NewThreadPage() {
 						</p>
 					</section>
 
-					<section className="opacity-60">
+					<section>
 						<div className="flex items-center gap-2 mb-2">
 							<label className="block font-bold text-xl">3. Content</label>
-							<span className="text-[10px] font-bold bg-secondary border-2 border-black px-1 rounded">
-								COMING SOON
-							</span>
 						</div>
-						<div className="neo-brutal-card overflow-hidden grayscale">
+						<div className="neo-brutal-card overflow-visible">
 							<div className="flex gap-2 border-b-4 border-black bg-secondary p-3">
 								<Button
 									type="button"
 									variant="neutral"
 									size="sm"
 									className="neo-brutal-button"
+									onClick={() => setContent((prev) => `${prev}[]()`)}
+									disabled={submitting}
 								>
 									<Link2 size={16} />
 								</Button>
@@ -175,6 +183,8 @@ export default function NewThreadPage() {
 									variant="neutral"
 									size="sm"
 									className="neo-brutal-button"
+									onClick={() => setContent((prev) => `${prev}\n![]()`)}
+									disabled={submitting}
 								>
 									<ImageIcon size={16} />
 								</Button>
@@ -183,16 +193,18 @@ export default function NewThreadPage() {
 									variant="neutral"
 									size="sm"
 									className="neo-brutal-button"
+									onClick={() => setContent((prev) => `${prev}\n\`\`\`\n\n\`\`\``)}
+									disabled={submitting}
 								>
 									<Code size={16} />
 								</Button>
 							</div>
 							<MentionTextarea
-								className="h-32 border-0 bg-card p-4 font-medium cursor-not-allowed"
-								placeholder="Detailed content will be enabled in a future update..."
+								className="h-32 border-0 bg-card p-4 font-medium"
+								placeholder="Write your opening post here... You can use markdown and @mentions"
 								value={content}
 								onValueChange={setContent}
-								disabled
+								disabled={submitting}
 							/>
 						</div>
 					</section>
@@ -207,7 +219,7 @@ export default function NewThreadPage() {
 					<div className="flex flex-col sm:flex-row gap-4 pt-4">
 						<button
 							type="submit"
-							disabled={submitting || !selectedTopicId || title.length < 5}
+							disabled={submitting || !selectedTopicId || title.length < 5 || !content.trim()}
 							className="neo-brutal-button-strong bg-yellow-400 px-10 py-4 font-bold text-lg disabled:opacity-50"
 						>
 							{submitting ? "Creating..." : "Launch Thread"}

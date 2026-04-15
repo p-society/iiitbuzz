@@ -6,6 +6,7 @@ import {
 	BookOpen,
 	ArrowRight,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const quickLinks = [
 	{
@@ -30,6 +31,10 @@ const quickLinks = [
 ];
 
 const Hero = () => {
+	const { isAuthenticated } = useAuth();
+	const forumRoute = isAuthenticated ? "/home" : "/login";
+	const browseRoute = isAuthenticated ? "/threads" : "/login";
+
 	return (
 		<section className="relative min-h-screen flex items-center justify-center overflow-hidden border-b-[1.5px] border-black">
 			<div className="absolute inset-0 bg-white z-0" />
@@ -93,24 +98,26 @@ const Hero = () => {
 					</div>
 
 					<div className="fade-in-up-delay-3 flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
-						<Link to="/login">
+						<Link to={forumRoute}>
 							<button
 								type="button"
 								className="landing-button landing-button-primary"
 							>
-								JOIN THE BUZZ
+								{isAuthenticated ? "GO TO HOME" : "LOGIN WITH IIIT MAIL"}
 								<ArrowRight className="w-4 h-4" />
 							</button>
 						</Link>
-						<Link to="/home">
-							<button
-								type="button"
-								className="landing-button landing-button-secondary"
-							>
-								EXPLORE FIRST
-								<ArrowRight className="w-4 h-4" />
-							</button>
-						</Link>
+						{isAuthenticated && (
+							<Link to={browseRoute}>
+								<button
+									type="button"
+									className="landing-button landing-button-secondary"
+								>
+									EXPLORE THREADS
+									<ArrowRight className="w-4 h-4" />
+								</button>
+							</Link>
+						)}
 					</div>
 
 					<div className="fade-in-up-delay-4">
@@ -121,8 +128,9 @@ const Hero = () => {
 						</div>
 						<div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
 							{quickLinks.map((link) => (
-								<div
+								<Link
 									key={link.label}
+									to={isAuthenticated ? "/home" : "/login"}
 									className="landing-card p-4 flex flex-col items-center gap-2 cursor-pointer hover:bg-[#fafafa]"
 								>
 									<span className="mono-label" style={{ fontSize: "0.55rem" }}>
@@ -141,7 +149,7 @@ const Hero = () => {
 									<span className="mono-label" style={{ color: "#000000" }}>
 										{link.label}
 									</span>
-								</div>
+								</Link>
 							))}
 						</div>
 					</div>

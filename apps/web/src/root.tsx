@@ -6,6 +6,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "react-router";
+import { useEffect } from "react";
 import type { Route } from "./+types/root";
 import "./index.css";
 import "./styles/pages/landingpage.css";
@@ -15,6 +16,43 @@ import { AuthProvider } from "./contexts/AuthContext";
 
 import logoIco from "../../../assets/logo.ico";
 import logoPng from "../../../assets/logo.png";
+
+function AutoButtonTooltips() {
+	useEffect(() => {
+		const applyTooltips = () => {
+			const controls = document.querySelectorAll("button, [role='button']");
+
+			controls.forEach((control) => {
+				if (!(control instanceof HTMLElement)) return;
+				if (control.hasAttribute("title")) return;
+
+				const ariaLabel = control.getAttribute("aria-label")?.trim();
+				const textLabel = control.textContent?.replace(/\s+/g, " ").trim();
+				const label = ariaLabel || textLabel;
+
+				if (label) {
+					control.setAttribute("title", label);
+				}
+			});
+		};
+
+		applyTooltips();
+
+		const observer = new MutationObserver(() => {
+			applyTooltips();
+		});
+
+		observer.observe(document.body, {
+			subtree: true,
+			childList: true,
+			characterData: true,
+		});
+
+		return () => observer.disconnect();
+	}, []);
+
+	return null;
+}
 
 export function meta(_: Route.MetaArgs) {
 	return [
@@ -78,6 +116,7 @@ export default function App() {
 	return (
 		<AuthProvider>
 			<ThemeProvider defaultTheme="blue" storageKey="vite-ui-theme">
+				<AutoButtonTooltips />
 				<div className="flex flex-col min-h-screen">
 					<Outlet />
 				</div>

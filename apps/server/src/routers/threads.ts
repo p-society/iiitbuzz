@@ -8,12 +8,119 @@ import {
 import { topicIdParamsSchema } from "@/dto/topics.dto";
 import { DrizzleClient } from "../db/index";
 import { posts as postsTable } from "../db/schema/post.schema";
+import { bookmarks as bookmarksTable } from "../db/schema/bookmark.schema";
 import { threads as threadsTable } from "../db/schema/thread.schema";
 import { topics as topicsTable } from "../db/schema/topic.schema";
 import { users as usersTable } from "../db/schema/user.schema";
 import { attachUser, authenticateUser, optionalAuth } from "./auth";
 
 export async function threadRoutes(fastify: FastifyInstance) {
+	fastify.get(
+		"/threads/:id/bookmark",
+		{ preHandler: authenticateUser },
+		async (request, reply) => {
+			const authUserId = request.userId;
+			if (!authUserId) {
+				return reply
+					.status(401)
+					.send({ success: false, error: "Unauthorized" });
+			}
+
+			const params = threadIdParamsSchema.safeParse(request.params);
+			if (!params.success) {
+				return reply
+					.status(400)
+					.send({ success: false, error: "Invalid thread ID" });
+			}
+
+			const [existing] = await DrizzleClient.select({ id: bookmarksTable.id })
+				.from(bookmarksTable)
+				.where(
+					and(
+						eq(bookmarksTable.threadId, params.data.id),
+						eq(bookmarksTable.userId, authUserId),
+					),
+				)
+				.limit(1);
+
+			return reply.send({
+				success: true,
+				isBookmarked: Boolean(existing),
+			});
+		},
+	);
+
+	fastify.put(
+		"/threads/:id/bookmark",
+		{ preHandler: authenticateUser },
+		async (request, reply) => {
+			const authUserId = request.userId;
+			if (!authUserId) {
+				return reply
+					.status(401)
+					.send({ success: false, error: "Unauthorized" });
+			}
+
+			const params = threadIdParamsSchema.safeParse(request.params);
+			if (!params.success) {
+				return reply
+					.status(400)
+					.send({ success: false, error: "Invalid thread ID" });
+			}
+
+			const thread = await DrizzleClient.query.threads.findFirst({
+				where: (t, { eq, and, isNull }) =>
+					and(eq(t.id, params.data.id), isNull(t.deletedAt)),
+				columns: { id: true },
+			});
+			if (!thread) {
+				return reply
+					.status(404)
+					.send({ success: false, error: "Thread not found" });
+			}
+
+			await DrizzleClient.insert(bookmarksTable)
+				.values({
+					threadId: params.data.id,
+					userId: authUserId,
+				})
+				.onConflictDoNothing({
+					target: [bookmarksTable.userId, bookmarksTable.threadId],
+				});
+
+			return reply.send({ success: true, isBookmarked: true });
+		},
+	);
+
+	fastify.delete(
+		"/threads/:id/bookmark",
+		{ preHandler: authenticateUser },
+		async (request, reply) => {
+			const authUserId = request.userId;
+			if (!authUserId) {
+				return reply
+					.status(401)
+					.send({ success: false, error: "Unauthorized" });
+			}
+
+			const params = threadIdParamsSchema.safeParse(request.params);
+			if (!params.success) {
+				return reply
+					.status(400)
+					.send({ success: false, error: "Invalid thread ID" });
+			}
+
+			await DrizzleClient.delete(bookmarksTable).where(
+				and(
+					eq(bookmarksTable.threadId, params.data.id),
+					eq(bookmarksTable.userId, authUserId),
+				),
+			);
+
+			return reply.send({ success: true, isBookmarked: false });
+		},
+	);
+
 	fastify.get(
 		"/threads",
 		{
@@ -549,6 +656,7 @@ export async function threadRoutes(fastify: FastifyInstance) {
 			}
 
 			const data = parsed.data;
+			const isAnonymous = data.isAnonymous ?? false;
 
 			type NewThread = typeof threadsTable.$inferInsert;
 			const toInsert: NewThread = {
@@ -556,13 +664,42 @@ export async function threadRoutes(fastify: FastifyInstance) {
 				threadTitle: data.threadTitle,
 				createdBy: userid,
 				viewCount: 0,
-				isAnonymous: data.isAnonymous ?? false,
-				isApproved: !(data.isAnonymous ?? false),
+				isAnonymous,
+				isApproved: !isAnonymous,
+			};
+
+			type NewPost = typeof postsTable.$inferInsert;
+			const firstPost: NewPost = {
+				threadId: "",
+				content: data.content,
+				createdBy: userid,
+				isAnonymous,
+				isApproved: !isAnonymous,
+				isDraft: false,
 			};
 			try {
-				const [newThread] = await DrizzleClient.insert(threadsTable)
-					.values(toInsert)
-					.returning();
+				const [newThread] = await DrizzleClient.transaction(async (tx) => {
+					const [createdThread] = await tx
+						.insert(threadsTable)
+						.values(toInsert)
+						.returning();
+
+					await tx.insert(postsTable).values({
+						...firstPost,
+						threadId: createdThread.id,
+					});
+
+					if (!isAnonymous) {
+						await tx
+							.update(usersTable)
+							.set({
+								totalPosts: sql`${usersTable.totalPosts} + 1`,
+							})
+							.where(eq(usersTable.id, userid));
+					}
+
+					return [createdThread] as const;
+				});
 				return reply.status(201).send({ success: true, thread: newThread });
 			} catch (error) {
 				fastify.log.error({ err: error, toInsert }, "Error creating thread");

@@ -86,11 +86,7 @@ export async function authRoutes(fastify: FastifyInstance) {
 
 			if (!email.endsWith("@iiit-bh.ac.in")) {
 				fastify.log.error("Unauthorized email domain:", { email });
-				return reply.status(403).send({
-					error: "Access restricted",
-					details:
-						"Only @iiit-bh.ac.in email addresses are allowed to sign up.",
-				});
+				return reply.redirect(`${env.FRONTEND_URL}/login?error=domain`);
 			}
 
 			const createUserData = createUserSchema.parse({

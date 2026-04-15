@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router";
 import { MapPin, Calendar, Settings, MessageSquare, Heart, FileText } from "lucide-react";
-import { api, type ActivityItem } from "@/lib/api";
+import { api, type ActivityItem, type BookmarkedThread } from "@/lib/api";
 import { StatCard } from "@/components/profile/StatCard";
 import type { UserProfile } from "@/types/user";
 import { toast } from "sonner";
@@ -21,9 +21,10 @@ export default function UserProfilePage() {
         totalThreads: number;
     } | null>(null);
     const [recentThreads, setRecentThreads] = useState<RecentThread[]>([]);
+    const [bookmarkedThreads, setBookmarkedThreads] = useState<RecentThread[]>([]);
     const [activity, setActivity] = useState<ActivityItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<"threads" | "activity">("threads");
+    const [activeTab, setActiveTab] = useState<"threads" | "bookmarks" | "activity">("threads");
 
     useEffect(() => {
         if (!username) return;
@@ -34,11 +35,16 @@ export default function UserProfilePage() {
                 setData({ user: profileRes.user, isOwn: profileRes.isOwnProfile });
 
                 if (profileRes.user.id) {
-                    const [statsRes, threadsRes, activityRes] = await Promise.all([
+                    const requests = [
                         api.getUserStats(profileRes.user.id),
                         api.getUserThreads(profileRes.user.id, { page: 1, limit: 10, sort: 'latest' }),
-                        api.getUserActivity(profileRes.user.id)
-                    ]);
+                        api.getUserActivity(profileRes.user.id),
+                        profileRes.isOwnProfile
+                            ? api.getUserBookmarks(profileRes.user.id)
+                            : Promise.resolve({ success: true, threads: [] as BookmarkedThread[] }),
+                    ] as const;
+
+                    const [statsRes, threadsRes, activityRes, bookmarksRes] = await Promise.all(requests);
 
                     setUserStats(statsRes.stats);
                     setRecentThreads(threadsRes.threads.map((t: any) => ({
@@ -52,6 +58,16 @@ export default function UserProfilePage() {
                         lastActive: formatTimeAgo(t.createdAt),
                     })));
                     setActivity(activityRes.activity);
+                    setBookmarkedThreads(bookmarksRes.threads.map((t) => ({
+                        id: t.id,
+                        title: t.threadTitle || "Untitled",
+                        author: t.authorName || "Anonymous",
+                        topic: t.topicName || "General",
+                        topicColor: getTopicColor(t.topicId),
+                        replies: t.replies || 0,
+                        views: t.viewCount || 0,
+                        lastActive: formatTimeAgo(t.createdAt),
+                    })));
                 }
             } catch (err: any) {
                 toast.error(err.message || "Failed to load profile data");
@@ -62,10 +78,27 @@ export default function UserProfilePage() {
         fetchProfileAndStats();
     }, [username]);
 
+    useEffect(() => {
+        if (data && !data.isOwn && activeTab === "bookmarks") {
+            setActiveTab("threads");
+        }
+    }, [activeTab, data]);
+
     if (loading) return <div className="min-h-screen flex flex-col"><Header /><Loader /><Footer /></div>;
     if (!data) return <div className="p-20 text-center font-bold">User Not Found</div>;
 
     const { user, isOwn } = data;
+
+    const tabs = isOwn
+        ? [
+            { key: "threads", label: "Recent Threads" },
+            { key: "bookmarks", label: "Bookmarks" },
+            { key: "activity", label: "Activity" },
+        ]
+        : [
+            { key: "threads", label: "Recent Threads" },
+            { key: "activity", label: "Activity" },
+        ];
 
     return (
         <div className="min-h-screen flex flex-col bg-background">
@@ -113,14 +146,14 @@ export default function UserProfilePage() {
                     </aside>
 
                     <section className="lg:col-span-2 w-full">
-                        <div className="flex gap-2 mb-6">
-                            {["threads", "activity"].map((tab) => (
+                        <div className="flex flex-wrap gap-2 mb-6">
+                            {tabs.map((tab) => (
                                 <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab as any)}
-                                    className={`border-4 border-border px-6 py-2 font-black uppercase shadow-[4px_4px_0px_0px_var(--shadow-color)] transition-all ${activeTab === tab ? "bg-foreground text-background" : "bg-card"}`}
+                                    key={tab.key}
+                                    onClick={() => setActiveTab(tab.key as any)}
+                                    className={`flex-1 min-w-[9rem] border-4 border-border px-4 sm:px-6 py-2 font-black uppercase shadow-[4px_4px_0px_0px_var(--shadow-color)] transition-all ${activeTab === tab.key ? "bg-foreground text-background" : "bg-card"}`}
                                 >
-                                    {tab === "threads" ? "Recent Threads" : "Activity"}
+                                    {tab.label}
                                 </button>
                             ))}
                         </div>
@@ -135,6 +168,18 @@ export default function UserProfilePage() {
                                     ) : (
                                         <p className="text-center py-10 font-bold border-4 border-dashed border-border text-muted-foreground">
                                             No Recent Threads
+                                        </p>
+                                    )}
+                                </div>
+                            ) : activeTab === "bookmarks" ? (
+                                <div className="space-y-4">
+                                    {bookmarkedThreads.length > 0 ? (
+                                        bookmarkedThreads.map((thread) => (
+                                            <RecentThreadRow key={thread.id} thread={thread} />
+                                        ))
+                                    ) : (
+                                        <p className="text-center py-10 font-bold border-4 border-dashed border-border text-muted-foreground">
+                                            No Bookmarks Yet
                                         </p>
                                     )}
                                 </div>

@@ -8,6 +8,7 @@ import {
 	Users,
 	Flame,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const features = [
 	{
@@ -59,6 +60,9 @@ const stats = [
 ];
 
 const FeaturesPage = () => {
+	const { isAuthenticated } = useAuth();
+	const routeTo = isAuthenticated ? "/home" : "/login";
+
 	return (
 		<section
 			id="features"
@@ -84,7 +88,7 @@ const FeaturesPage = () => {
 				<div className="feature-grid">
 					{features.map((feature, idx) => (
 						<Link
-							to="/comingsoon"
+							to={routeTo}
 							key={feature.key}
 							className="feature-grid-item group"
 						>
