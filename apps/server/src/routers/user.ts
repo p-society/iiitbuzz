@@ -1,5 +1,6 @@
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNotNull, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
+import { z } from "zod";
 import { users } from "@/db/schema/user.schema";
 import { threads } from "@/db/schema/thread.schema";
 import { posts } from "@/db/schema/post.schema";
@@ -14,6 +15,52 @@ import {
 import { authenticateUser, optionalAuth } from "./auth";
 
 export async function userRoutes(fastify: FastifyInstance) {
+	fastify.get(
+		"/search",
+		{ preHandler: authenticateUser },
+		async (request, reply) => {
+			const querySchema = z.object({
+				q: z.string().max(32).optional().default(""),
+				limit: z.coerce.number().int().min(1).max(10).optional().default(5),
+			});
+
+			try {
+				const { q, limit } = querySchema.parse(request.query);
+				const searchTerm = q.trim();
+				const matchedUsers = await DrizzleClient.select({
+					id: users.id,
+					username: users.username,
+					imageUrl: users.imageUrl,
+				})
+					.from(users)
+					.where(
+						searchTerm
+							? and(
+									isNotNull(users.username),
+									ilike(users.username, `${searchTerm}%`),
+								)
+							: isNotNull(users.username),
+					)
+					.orderBy(asc(users.username))
+					.limit(limit);
+
+				return reply.send({
+					success: true,
+					users: matchedUsers.filter(
+						(user): user is typeof matchedUsers[number] & { username: string } =>
+							Boolean(user.username),
+					),
+				});
+			} catch (err) {
+				fastify.log.error("Error searching users:", err);
+				return reply.status(500).send({
+					error: "Failed to search users",
+					success: false,
+				});
+			}
+		},
+	);
+
 	fastify.get(
 		"/details/:username",
 		{ preHandler: optionalAuth },

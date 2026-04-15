@@ -13,6 +13,7 @@ import {
 	publishDraftSchema,
 } from "@/dto/posts.dto";
 import { threadIdParamsSchema } from "@/dto/threads.dto";
+import { createMentionNotifications } from "@/utils/mentions";
 import { attachUser, authenticateUser } from "./auth";
 
 export async function postRoutes(fastify: FastifyInstance) {
@@ -206,6 +207,16 @@ export async function postRoutes(fastify: FastifyInstance) {
 				} catch (notifError) {
 					fastify.log.error("Error creating notification:", notifError);
 				}
+			}
+
+			try {
+				await createMentionNotifications({
+					content: body.data.content,
+					fromUserId: authUserId,
+					threadId: body.data.threadId,
+				});
+			} catch (notifError) {
+				fastify.log.error("Error creating mention notifications:", notifError);
 			}
 
 			return reply.status(201).send({ success: true, post });
@@ -441,6 +452,16 @@ export async function postRoutes(fastify: FastifyInstance) {
 				} catch (notifError) {
 					fastify.log.error("Error creating notification:", notifError);
 				}
+			}
+
+			try {
+				await createMentionNotifications({
+					content: body.data.content,
+					fromUserId: authUserId,
+					threadId: updated.threadId,
+				});
+			} catch (notifError) {
+				fastify.log.error("Error creating mention notifications:", notifError);
 			}
 
 			return reply.status(200).send({ success: true, post: updated });

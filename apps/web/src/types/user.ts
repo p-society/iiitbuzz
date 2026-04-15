@@ -31,3 +31,9 @@ export interface ProfileFormData {
     branch: string;
     passingOutYear: string;
 }
+
+export interface UserMentionSuggestion {
+	id: string;
+	username: string;
+	imageUrl?: string | null;
+}

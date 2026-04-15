@@ -6,7 +6,11 @@ import type {
 	ThreadListItem,
 	ThreadDetail,
 } from "@/types/forum";
-import type { UserProfile, ProfileFormData } from "@/types/user";
+import type {
+	UserProfile,
+	ProfileFormData,
+	UserMentionSuggestion,
+} from "@/types/user";
 
 const BASE_URL =
 	import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3000";
@@ -85,6 +89,16 @@ export const api = {
 			user: UserProfile;
 			isOwnProfile: boolean;
 		}>(`/user/details/${username}`),
+
+	searchUsers: (q: string, limit = 5) => {
+		const sp = new URLSearchParams();
+		if (q) sp.set("q", q);
+		sp.set("limit", String(limit));
+		return apiFetch<{
+			success: boolean;
+			users: UserMentionSuggestion[];
+		}>(`/user/search?${sp.toString()}`);
+	},
 
 	updateProfile: async (formData: ProfileFormData) => {
 		const updateData = {

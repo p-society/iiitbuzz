@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { CategoryTile } from "@/components/forum/CategoryTile";
 import type { TopicOption } from "@/types/forum";
 import { Button } from "@/components/ui/button";
+import { MentionTextarea } from "@/components/ui/mention-textarea";
 
 export default function NewThreadPage() {
 	const navigate = useNavigate();
@@ -186,11 +187,11 @@ export default function NewThreadPage() {
 									<Code size={16} />
 								</Button>
 							</div>
-							<textarea
-								className="w-full h-32 p-4 bg-card focus:outline-none font-medium cursor-not-allowed"
+							<MentionTextarea
+								className="h-32 border-0 bg-card p-4 font-medium cursor-not-allowed"
 								placeholder="Detailed content will be enabled in a future update..."
 								value={content}
-								onChange={(e) => setContent(e.target.value)}
+								onValueChange={setContent}
 								disabled
 							/>
 						</div>
