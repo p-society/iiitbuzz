@@ -29,6 +29,8 @@ export default function ThreadPage() {
 		author: string;
 		content: string;
 	} | null>(null);
+	const [isBookmarked, setIsBookmarked] = useState(false);
+	const [bookmarkLoading, setBookmarkLoading] = useState(false);
 	const replyContentRef = useRef<HTMLTextAreaElement>(null);
 
 	const loadThreadData = useCallback(async () => {
@@ -57,6 +59,14 @@ export default function ThreadPage() {
 			setLoading(false);
 		}
 	}, [threadId]);
+
+	useEffect(() => {
+		if (!threadId || !user) return;
+		api
+			.getThreadBookmarkStatus(threadId)
+			.then((res) => setIsBookmarked(res.isBookmarked))
+			.catch(() => {});
+	}, [threadId, user]);
 
 	useEffect(() => {
 		loadThreadData();
@@ -129,6 +139,33 @@ export default function ThreadPage() {
 			.catch(() => {
 				toast.error("Failed to copy link.");
 			});
+	};
+
+	const handleBookmarkToggle = async () => {
+		if (!threadId) return;
+		if (!user) {
+			toast.error("Please log in to bookmark threads");
+			return;
+		}
+
+		setBookmarkLoading(true);
+		try {
+			if (isBookmarked) {
+				await api.removeThreadBookmark(threadId);
+				setIsBookmarked(false);
+				toast.success("Bookmark removed");
+			} else {
+				await api.addThreadBookmark(threadId);
+				setIsBookmarked(true);
+				toast.success("Thread bookmarked");
+			}
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Failed to update bookmark";
+			toast.error(message);
+		} finally {
+			setBookmarkLoading(false);
+		}
 	};
 
 	const handleDeleteThread = async () => {
@@ -212,8 +249,18 @@ export default function ThreadPage() {
 						</p>
 					</div>
 					<div className="flex gap-1">
-						<Button variant="neutral" size="icon" className="h-7 w-7">
-							<Bookmark className="h-3 w-3" strokeWidth={1.5} />
+						<Button
+							variant="neutral"
+							size="icon"
+							className={`h-7 w-7 ${isBookmarked ? "bg-primary text-primary-foreground" : ""}`}
+							onClick={handleBookmarkToggle}
+							disabled={bookmarkLoading}
+						>
+							<Bookmark
+								className="h-3 w-3"
+								strokeWidth={1.5}
+								fill={isBookmarked ? "currentColor" : "none"}
+							/>
 						</Button>
 						<Button
 							variant="neutral"

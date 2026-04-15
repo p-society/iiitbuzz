@@ -2,6 +2,7 @@ import { and, asc, desc, eq, ilike, isNotNull, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { users } from "@/db/schema/user.schema";
+import { bookmarks } from "@/db/schema/bookmark.schema";
 import { threads } from "@/db/schema/thread.schema";
 import { posts } from "@/db/schema/post.schema";
 import { votes } from "@/db/schema/vote.schema";
@@ -285,6 +286,89 @@ export async function userRoutes(fastify: FastifyInstance) {
 					error: "Failed to delete user",
 					success: false,
 					details: err instanceof Error ? err.message : "Unknown error",
+				});
+			}
+		},
+	);
+
+	fastify.get(
+		"/:userId/bookmarks",
+		{ preHandler: authenticateUser },
+		async (request, reply) => {
+			try {
+				const authUserId = request.userId;
+				const { userId } = request.params as { userId: string };
+				if (!authUserId) {
+					return reply
+						.status(401)
+						.send({ error: "Unauthorized", success: false });
+				}
+				if (authUserId !== userId) {
+					return reply
+						.status(403)
+						.send({ error: "Forbidden", success: false });
+				}
+
+				const bookmarkedThreads = await DrizzleClient.select({
+					id: threads.id,
+					threadTitle: threads.threadTitle,
+					topicName: topics.topicName,
+					topicId: threads.topicId,
+					authorName: sql<string>`
+						CASE
+							WHEN ${threads.isAnonymous} = true THEN 'Anonymous'
+							WHEN ${users.username} IS NOT NULL THEN ${users.username}
+							ELSE ${users.firstName}
+						END
+					`.as("authorName"),
+					replies: sql<number>`GREATEST(COUNT(${posts.id}) - 1, 0)`.as(
+						"replies",
+					),
+					viewCount: threads.viewCount,
+					createdAt:
+						sql<string>`COALESCE(MAX(${posts.createdAt}), ${threads.createdAt})`.as(
+							"createdAt",
+						),
+				})
+					.from(bookmarks)
+					.innerJoin(threads, eq(bookmarks.threadId, threads.id))
+					.leftJoin(users, eq(threads.createdBy, users.id))
+					.leftJoin(
+						posts,
+						and(
+							eq(posts.threadId, threads.id),
+							eq(posts.isDraft, false),
+							isNull(posts.deletedAt),
+						),
+					)
+					.leftJoin(topics, eq(threads.topicId, topics.id))
+					.where(
+						and(eq(bookmarks.userId, userId), isNull(threads.deletedAt)),
+					)
+					.groupBy(
+						threads.id,
+						threads.threadTitle,
+						threads.topicId,
+						threads.viewCount,
+						threads.createdAt,
+						threads.isAnonymous,
+						users.username,
+						users.firstName,
+						topics.topicName,
+						bookmarks.createdAt,
+					)
+					.orderBy(desc(bookmarks.createdAt))
+					.limit(20);
+
+				return reply.send({
+					success: true,
+					threads: bookmarkedThreads,
+				});
+			} catch (err) {
+				fastify.log.error("Error fetching bookmarked threads:", err);
+				return reply.status(500).send({
+					error: "Failed to fetch bookmarked threads",
+					success: false,
 				});
 			}
 		},

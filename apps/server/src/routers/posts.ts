@@ -8,6 +8,7 @@ import { posts as postsTable } from "@/db/schema/post.schema";
 import { threads as threadsTable } from "@/db/schema/thread.schema";
 import { users as usersTable } from "@/db/schema/user.schema";
 import { notifications as notifTable } from "@/db/schema/notification.schema";
+import { reports as reportsTable } from "@/db/schema/report.schema";
 import {
 	createPostSchema,
 	postIdParamsSchema,
@@ -353,7 +354,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 
 			const now = new Date().toISOString();
 			await DrizzleClient.transaction(async (tx) => {
-				await tx
+				const [deletedPost] = await tx
 					.update(postsTable)
 					.set({
 						deletedAt: now,
@@ -361,18 +362,152 @@ export async function postRoutes(fastify: FastifyInstance) {
 						updatedAt: now,
 						updatedBy: authUserId,
 					})
-					.where(eq(postsTable.id, params.data.id));
+					.where(
+						and(eq(postsTable.id, params.data.id), isNull(postsTable.deletedAt)),
+					)
+					.returning({
+						createdBy: postsTable.createdBy,
+						isDraft: postsTable.isDraft,
+						isAnonymous: postsTable.isAnonymous,
+					});
 
-				if (!post.isDraft && !post.isAnonymous) {
+				if (deletedPost && !deletedPost.isDraft && !deletedPost.isAnonymous) {
 					await tx
 						.update(usersTable)
 						.set({
 							totalPosts: sql`GREATEST(${usersTable.totalPosts} - 1, 0)`,
 						})
-						.where(eq(usersTable.id, post.createdBy));
+						.where(eq(usersTable.id, deletedPost.createdBy));
 				}
 			});
 			return reply.status(204).send();
+		},
+	);
+
+	fastify.post(
+		"/posts/:id/report",
+		{ preHandler: authenticateUser },
+		async (request, reply) => {
+			const authUserId = request.userId;
+			if (!authUserId) {
+				return reply
+					.status(401)
+					.send({ success: false, error: "Unauthorized" });
+			}
+
+			const params = postIdParamsSchema.safeParse(request.params);
+			if (!params.success) {
+				return reply
+					.status(400)
+					.send({ success: false, error: "Invalid post id" });
+			}
+
+			const result = await DrizzleClient.transaction(async (tx) => {
+				const post = await tx.query.posts.findFirst({
+					where: (p, { eq, isNull, and }) =>
+						and(eq(p.id, params.data.id), isNull(p.deletedAt)),
+					columns: { id: true, createdBy: true },
+				});
+
+				if (!post) return { type: "not_found" as const };
+				if (post.createdBy === authUserId) return { type: "self" as const };
+
+				const [inserted] = await tx
+					.insert(reportsTable)
+					.values({
+						postId: params.data.id,
+						userId: authUserId,
+					})
+					.onConflictDoNothing({
+						target: [reportsTable.userId, reportsTable.postId],
+					})
+					.returning();
+
+				if (inserted) {
+					return { type: "created" as const, report: inserted };
+				}
+
+				const [existing] = await tx
+					.select({
+						id: reportsTable.id,
+						status: reportsTable.status,
+					})
+					.from(reportsTable)
+					.where(
+						and(
+							eq(reportsTable.postId, params.data.id),
+							eq(reportsTable.userId, authUserId),
+						),
+					)
+					.limit(1);
+
+				return { type: "exists" as const, existing };
+			});
+
+			if (result.type === "not_found") {
+				return reply
+					.status(404)
+					.send({ success: false, error: "Post not found" });
+			}
+
+			if (result.type === "self") {
+				return reply
+					.status(400)
+					.send({ success: false, error: "You cannot report your own post" });
+			}
+
+			if (result.type === "exists") {
+				return reply.status(200).send({
+					success: true,
+					alreadyReported: true,
+					status: result.existing?.status ?? "pending",
+				});
+			}
+
+			return reply.status(201).send({
+				success: true,
+				report: result.report,
+				alreadyReported: false,
+			});
+		},
+	);
+
+	fastify.get(
+		"/posts/:id/report-status",
+		{ preHandler: authenticateUser },
+		async (request, reply) => {
+			const authUserId = request.userId;
+			if (!authUserId) {
+				return reply
+					.status(401)
+					.send({ success: false, error: "Unauthorized" });
+			}
+
+			const params = postIdParamsSchema.safeParse(request.params);
+			if (!params.success) {
+				return reply
+					.status(400)
+					.send({ success: false, error: "Invalid post id" });
+			}
+
+			const [existing] = await DrizzleClient.select({
+				id: reportsTable.id,
+				status: reportsTable.status,
+			})
+				.from(reportsTable)
+				.where(
+					and(
+						eq(reportsTable.postId, params.data.id),
+						eq(reportsTable.userId, authUserId),
+					),
+				)
+				.limit(1);
+
+			return reply.send({
+				success: true,
+				alreadyReported: Boolean(existing),
+				status: existing?.status ?? null,
+			});
 		},
 	);
 

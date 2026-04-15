@@ -149,6 +149,30 @@ export const api = {
 			`/threads/${threadId}/posts?limit=100`,
 		),
 
+	getPostReportStatus: (postId: string) =>
+		apiFetch<{
+			success: boolean;
+			alreadyReported: boolean;
+			status: string | null;
+		}>(`/posts/${postId}/report-status`),
+
+	getThreadBookmarkStatus: (threadId: string) =>
+		apiFetch<{ success: boolean; isBookmarked: boolean }>(
+			`/threads/${threadId}/bookmark`,
+		),
+
+	addThreadBookmark: (threadId: string) =>
+		apiFetch<{ success: boolean; isBookmarked: boolean }>(
+			`/threads/${threadId}/bookmark`,
+			{ method: "PUT", body: JSON.stringify({}) },
+		),
+
+	removeThreadBookmark: (threadId: string) =>
+		apiFetch<{ success: boolean; isBookmarked: boolean }>(
+			`/threads/${threadId}/bookmark`,
+			{ method: "DELETE" },
+		),
+
 	createPost: (payload: {
 		threadId: string;
 		content: string;
@@ -165,6 +189,16 @@ export const api = {
 	deletePost: (postId: string) =>
 		apiFetch<{ success: boolean }>(`/posts/${postId}`, {
 			method: "DELETE",
+		}),
+
+	reportPost: (postId: string) =>
+		apiFetch<{
+			success: boolean;
+			alreadyReported: boolean;
+			status?: string;
+		}>(`/posts/${postId}/report`, {
+			method: "POST",
+			body: JSON.stringify({}),
 		}),
 
 	deleteThread: (threadId: string) =>
@@ -312,6 +346,36 @@ export const api = {
 			success: boolean;
 			activity: ActivityItem[];
 		}>(`/user/${userId}/activity`),
+
+	getUserBookmarks: (userId: string) =>
+		apiFetch<{
+			success: boolean;
+			threads: BookmarkedThread[];
+		}>(`/user/${userId}/bookmarks`),
+
+	getPendingReports: () =>
+		apiFetch<{
+			success: boolean;
+			reports: AdminReport[];
+		}>("/admin/reports/pending"),
+
+	getResolvedReports: () =>
+		apiFetch<{
+			success: boolean;
+			reports: AdminReport[];
+		}>("/admin/reports/resolved"),
+
+	resolveReport: (id: string) =>
+		apiFetch<{ success: boolean; report: AdminReport }>(
+			`/admin/reports/${id}/resolve`,
+			{ method: "PATCH", body: JSON.stringify({}) },
+		),
+
+	deleteReportedPost: (id: string) =>
+		apiFetch<{ success: boolean; report: AdminReport }>(
+			`/admin/reports/${id}/delete-post`,
+			{ method: "PATCH", body: JSON.stringify({}) },
+		),
 };
 
 export type ActivityItem = {
@@ -320,6 +384,17 @@ export type ActivityItem = {
 	title: string;
 	content?: string;
 	threadId?: string;
+	createdAt: string;
+};
+
+export type BookmarkedThread = {
+	id: string;
+	threadTitle: string;
+	topicName: string;
+	topicId: string;
+	authorName: string;
+	replies: number;
+	viewCount: number;
 	createdAt: string;
 };
 
@@ -365,4 +440,15 @@ export type AdminPost = {
 	isAnonymous: boolean;
 	isApproved: boolean;
 	isRejected: boolean;
+};
+
+export type AdminReport = {
+	id: string;
+	postId: string;
+	postContent: string;
+	threadId: string;
+	threadTitle: string;
+	reportedAt: string;
+	status: string;
+	reportedBy: string | null;
 };

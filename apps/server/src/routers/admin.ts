@@ -1,8 +1,9 @@
-import { eq, and, desc, isNull } from "drizzle-orm";
+import { eq, and, desc, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { threads as threadsTable } from "@/db/schema/thread.schema";
 import { posts as postsTable } from "@/db/schema/post.schema";
+import { reports as reportsTable } from "@/db/schema/report.schema";
 import { topics as topicsTable } from "@/db/schema/topic.schema";
 import { users as usersTable } from "@/db/schema/user.schema";
 import { authenticateAdmin } from "./auth";
@@ -342,6 +343,184 @@ export async function adminRoutes(fastify: FastifyInstance) {
 				return reply
 					.status(500)
 					.send({ success: false, error: "Failed to reject post" });
+			}
+		},
+	);
+
+	fastify.get(
+		"/admin/reports/pending",
+		{ preHandler: authenticateAdmin },
+		async (_request, reply) => {
+			try {
+				const reports = await DrizzleClient.select({
+					id: reportsTable.id,
+					postId: postsTable.id,
+					postContent: postsTable.content,
+					threadId: threadsTable.id,
+					threadTitle: threadsTable.threadTitle,
+					reportedAt: reportsTable.createdAt,
+					status: reportsTable.status,
+					reportedBy: usersTable.username,
+				})
+					.from(reportsTable)
+					.innerJoin(postsTable, eq(reportsTable.postId, postsTable.id))
+					.innerJoin(threadsTable, eq(postsTable.threadId, threadsTable.id))
+					.leftJoin(usersTable, eq(reportsTable.userId, usersTable.id))
+					.where(and(eq(reportsTable.status, "pending"), isNull(postsTable.deletedAt)))
+					.orderBy(desc(reportsTable.createdAt));
+
+				return reply.send({ success: true, reports });
+			} catch (error) {
+				fastify.log.error("Error fetching pending reports:", error);
+				return reply
+					.status(500)
+					.send({ success: false, error: "Failed to fetch pending reports" });
+			}
+		},
+	);
+
+	fastify.get(
+		"/admin/reports/resolved",
+		{ preHandler: authenticateAdmin },
+		async (_request, reply) => {
+			try {
+				const reports = await DrizzleClient.select({
+					id: reportsTable.id,
+					postId: postsTable.id,
+					postContent: postsTable.content,
+					threadId: threadsTable.id,
+					threadTitle: threadsTable.threadTitle,
+					reportedAt: reportsTable.createdAt,
+					status: reportsTable.status,
+					reportedBy: usersTable.username,
+				})
+					.from(reportsTable)
+					.innerJoin(postsTable, eq(reportsTable.postId, postsTable.id))
+					.innerJoin(threadsTable, eq(postsTable.threadId, threadsTable.id))
+					.leftJoin(usersTable, eq(reportsTable.userId, usersTable.id))
+					.where(eq(reportsTable.status, "resolved"))
+					.orderBy(desc(reportsTable.createdAt));
+
+				return reply.send({ success: true, reports });
+			} catch (error) {
+				fastify.log.error("Error fetching resolved reports:", error);
+				return reply
+					.status(500)
+					.send({ success: false, error: "Failed to fetch resolved reports" });
+			}
+		},
+	);
+
+	fastify.patch(
+		"/admin/reports/:id/resolve",
+		{ preHandler: authenticateAdmin },
+		async (request, reply) => {
+			const { id } = request.params as { id: string };
+			const adminId = request.userId;
+
+			try {
+				const [updated] = await DrizzleClient.update(reportsTable)
+					.set({
+						status: "resolved",
+						resolvedAt: new Date().toISOString(),
+						resolvedBy: adminId,
+					})
+					.where(eq(reportsTable.id, id))
+					.returning();
+
+				if (!updated) {
+					return reply
+						.status(404)
+						.send({ success: false, error: "Report not found" });
+				}
+
+				return reply.send({ success: true, report: updated });
+			} catch (error) {
+				fastify.log.error("Error resolving report:", error);
+				return reply
+					.status(500)
+					.send({ success: false, error: "Failed to resolve report" });
+			}
+		},
+	);
+
+	fastify.patch(
+		"/admin/reports/:id/delete-post",
+		{ preHandler: authenticateAdmin },
+		async (request, reply) => {
+			const { id } = request.params as { id: string };
+			const adminId = request.userId;
+
+			try {
+				const result = await DrizzleClient.transaction(async (tx) => {
+					const [report] = await tx
+						.select({
+							id: reportsTable.id,
+							postId: reportsTable.postId,
+							status: reportsTable.status,
+						})
+						.from(reportsTable)
+						.where(eq(reportsTable.id, id))
+						.limit(1);
+
+					if (!report) return { type: "not_found" as const };
+
+					const now = new Date().toISOString();
+
+					const [deletedPost] = await tx
+						.update(postsTable)
+						.set({
+							deletedAt: now,
+							deletedBy: adminId,
+							updatedAt: now,
+							updatedBy: adminId,
+						})
+						.where(
+							and(eq(postsTable.id, report.postId), isNull(postsTable.deletedAt)),
+						)
+						.returning({
+							createdBy: postsTable.createdBy,
+							isDraft: postsTable.isDraft,
+							isAnonymous: postsTable.isAnonymous,
+						});
+
+					if (deletedPost && !deletedPost.isDraft && !deletedPost.isAnonymous) {
+						await tx
+							.update(usersTable)
+							.set({
+								totalPosts: sql`GREATEST(${usersTable.totalPosts} - 1, 0)`,
+							})
+							.where(eq(usersTable.id, deletedPost.createdBy));
+					}
+
+					const [resolvedReport] = await tx
+						.update(reportsTable)
+						.set({
+							status: "resolved",
+							resolvedAt: now,
+							resolvedBy: adminId,
+						})
+						.where(eq(reportsTable.id, id))
+						.returning();
+
+					return {
+						type: "ok" as const,
+						report: resolvedReport,
+					};
+				});
+
+				if (result.type === "not_found") {
+					return reply
+						.status(404)
+						.send({ success: false, error: "Report not found" });
+				}
+
+				return reply.send({ success: true, report: result.report });
+			} catch (error) {
+				fastify.log.error("Error deleting reported post:", error);
+				return reply
+					.status(500)
+					.send({ success: false, error: "Failed to delete reported post" });
 			}
 		},
 	);

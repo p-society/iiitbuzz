@@ -6,6 +6,7 @@ import { MarkdownContent } from "@/components/ui/markdown";
 import { api } from "@/lib/api";
 import type { PostDetail } from "@/types/forum";
 import { formatTimeAgo } from "@/lib/utils/date";
+import { toast } from "sonner";
 
 interface PostItemProps {
 	post: PostDetail;
@@ -29,6 +30,8 @@ export const PostItem = ({
 	const [voteValue, setVoteValue] = useState(0);
 	const [voteCount, setVoteCount] = useState(post.likes);
 	const [voting, setVoting] = useState(false);
+	const [reporting, setReporting] = useState(false);
+	const [hasReported, setHasReported] = useState(false);
 
 	useEffect(() => {
 		if (!post.authorName) return;
@@ -47,6 +50,17 @@ export const PostItem = ({
 			.getPostVote(post.postId)
 			.then((res) => {
 				if (res.success) setVoteValue(res.vote);
+			})
+			.catch(() => {});
+	}, [post.postId]);
+
+	useEffect(() => {
+		api
+			.getPostReportStatus(post.postId)
+			.then((res) => {
+				if (res.success) {
+					setHasReported(res.alreadyReported);
+				}
 			})
 			.catch(() => {});
 	}, [post.postId]);
@@ -109,7 +123,7 @@ export const PostItem = ({
 					<div className="post-body mb-3" style={{ lineHeight: 1.6 }}>
 						<MarkdownContent content={post.content} />
 					</div>
-					<div className="post-actions flex items-center gap-1.5">
+					<div className="post-actions flex flex-wrap items-center gap-1.5">
 						<Button
 							size="sm"
 							onClick={() => handleVote(1)}
@@ -153,9 +167,34 @@ export const PostItem = ({
 						<Button
 							size="sm"
 							variant="neutral"
-							className="bg-card px-1.5 py-0.5 font-bold text-[10px] ml-auto"
+							className={`px-1.5 py-0.5 font-bold text-[10px] ml-auto transition-colors ${hasReported ? "text-red-600 border-red-600" : "bg-card"}`}
+							disabled={reporting}
+							onClick={async () => {
+								if (reporting) return;
+								if (hasReported) {
+									toast.success("Post already reported");
+									return;
+								}
+								setReporting(true);
+								try {
+									const res = await api.reportPost(post.postId);
+									if (res.alreadyReported) {
+										setHasReported(true);
+										toast.success("Post already reported");
+										return;
+									}
+									setHasReported(true);
+									toast.success("Post reported to admins");
+								} catch (err) {
+									const message =
+										err instanceof Error ? err.message : "Failed to report post";
+									toast.error(message);
+								} finally {
+									setReporting(false);
+								}
+							}}
 						>
-							<Flag className="h-3 w-3" />
+							<Flag className={`h-3 w-3 ${hasReported ? "fill-current text-red-600" : ""}`} />
 						</Button>
 					</div>
 				</div>
