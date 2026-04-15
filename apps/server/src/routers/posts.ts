@@ -1,5 +1,8 @@
 import { and, count, eq, ne, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
+
+const ANONYMOUS_USER_ID = "00000000-0000-0000-0000-000000000000";
+
 import { DrizzleClient } from "@/db/index";
 import { posts as postsTable } from "@/db/schema/post.schema";
 import { threads as threadsTable } from "@/db/schema/thread.schema";
@@ -64,10 +67,11 @@ export async function postRoutes(fastify: FastifyInstance) {
 
 					authorId: sql<string>`
 						CASE 
-							WHEN ${postsTable.isAnonymous} = true THEN 'anonymous'
+							WHEN ${postsTable.isAnonymous} = true THEN '${ANONYMOUS_USER_ID}'
 							ELSE ${usersTable.id}
 						END
 					`.as("authorId"),
+
 					authorName: sql<string>`
 						CASE 
 							WHEN ${postsTable.isAnonymous} = true THEN 'Anonymous'
@@ -123,13 +127,11 @@ export async function postRoutes(fastify: FastifyInstance) {
 					{ err: error, threadId },
 					"Error fetching posts for thread - FULL ERROR",
 				);
-				return reply
-					.status(500)
-					.send({
-						success: false,
-						error: "Failed to fetch posts",
-						details: String(error),
-					});
+				return reply.status(500).send({
+					success: false,
+					error: "Failed to fetch posts",
+					details: String(error),
+				});
 			}
 		},
 	);
