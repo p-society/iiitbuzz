@@ -65,12 +65,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 					isRejected: postsTable.isRejected,
 					createdBy: postsTable.createdBy,
 
-					authorId: sql<string>`
-						CASE 
-							WHEN ${postsTable.isAnonymous} = true THEN '${ANONYMOUS_USER_ID}'
-							ELSE ${usersTable.id}
-						END
-					`.as("authorId"),
+					authorId: postsTable.createdBy,
 
 					authorName: sql<string>`
 						CASE 
@@ -86,6 +81,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							sql`(CASE WHEN ${postsTable.isAnonymous} = true THEN ${postsTable.isApproved} ELSE true END)`,
 						),
 					)
 					.orderBy(postsTable.createdAt)
@@ -98,6 +94,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							sql`(CASE WHEN ${postsTable.isAnonymous} = true THEN ${postsTable.isApproved} ELSE true END)`,
 						),
 					);
 
