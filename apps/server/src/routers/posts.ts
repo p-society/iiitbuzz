@@ -351,22 +351,27 @@ export async function postRoutes(fastify: FastifyInstance) {
 			if (post.createdBy !== authUserId && authUser.role !== "admin")
 				return reply.status(403).send({ success: false, error: "Forbidden" });
 
-			await DrizzleClient.update(postsTable)
-				.set({
-					deletedAt: new Date().toISOString(),
-					deletedBy: authUserId,
-					updatedAt: new Date().toISOString(),
-					updatedBy: authUserId,
-				})
-				.where(eq(postsTable.id, params.data.id));
-
-			if (!post.isDraft && !post.isAnonymous) {
-				await DrizzleClient.update(usersTable)
+			const now = new Date().toISOString();
+			await DrizzleClient.transaction(async (tx) => {
+				await tx
+					.update(postsTable)
 					.set({
-						totalPosts: sql`GREATEST(${usersTable.totalPosts} - 1, 0)`,
+						deletedAt: now,
+						deletedBy: authUserId,
+						updatedAt: now,
+						updatedBy: authUserId,
 					})
-					.where(eq(usersTable.id, post.createdBy));
-			}
+					.where(eq(postsTable.id, params.data.id));
+
+				if (!post.isDraft && !post.isAnonymous) {
+					await tx
+						.update(usersTable)
+						.set({
+							totalPosts: sql`GREATEST(${usersTable.totalPosts} - 1, 0)`,
+						})
+						.where(eq(usersTable.id, post.createdBy));
+				}
+			});
 			return reply.status(204).send();
 		},
 	);
