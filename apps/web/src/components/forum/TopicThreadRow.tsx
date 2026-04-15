@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import type { ThreadListItem, Topic } from "@/types/forum";
 import { formatTimeAgo } from "@/lib/utils/date";
@@ -63,6 +63,7 @@ const TopicRow = ({ topic, threadCount, latestPost }: TopicRowProps) => {
 };
 
 const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
+	const navigate = useNavigate();
 	const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 	const [imgError, setImgError] = useState(false);
 
@@ -83,12 +84,30 @@ const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
 
 	const initials = (username || "??").substring(0, 2).toUpperCase();
 	const color = topicColor || getTopicColorHex(thread.topicId);
+	const profileUsername = !thread.isAnonymous && username ? username : null;
+
+	const goToProfile = (event: React.MouseEvent | React.KeyboardEvent) => {
+		if (!profileUsername) return;
+		event.preventDefault();
+		event.stopPropagation();
+		navigate(`/profile/${encodeURIComponent(profileUsername)}`);
+	};
 
 	return (
 		<Link to={`/thread/${thread.id}`} className="block">
 			<div className="py-2 px-3 flex items-center gap-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors">
 				<div className="col-author w-10 flex-shrink-0">
-					<div className="h-8 w-8 flex items-center justify-center bg-foreground text-background text-[10px] font-bold border border-black overflow-hidden">
+					<div
+						className={`h-8 w-8 flex items-center justify-center bg-foreground text-background text-[10px] font-bold border border-black overflow-hidden ${profileUsername ? "cursor-pointer hover:opacity-85" : ""}`}
+						onClick={goToProfile}
+						onKeyDown={(event) => {
+							if (event.key === "Enter" || event.key === " ") {
+								goToProfile(event);
+							}
+						}}
+						role={profileUsername ? "button" : undefined}
+						tabIndex={profileUsername ? 0 : undefined}
+					>
 						{!imgError && avatarUrl ? (
 							<img
 								src={avatarUrl}
@@ -119,7 +138,19 @@ const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
 					<h3 className="font-bold text-sm truncate">
 						{thread.title || thread.threadTitle}
 					</h3>
-					<span className="mono-meta">{username || "Unknown"}</span>
+					<span
+						className={`mono-meta ${profileUsername ? "cursor-pointer hover:underline" : ""}`}
+						onClick={goToProfile}
+						onKeyDown={(event) => {
+							if (event.key === "Enter" || event.key === " ") {
+								goToProfile(event);
+							}
+						}}
+						role={profileUsername ? "button" : undefined}
+						tabIndex={profileUsername ? 0 : undefined}
+					>
+						{username || "Unknown"}
+					</span>
 				</div>
 				<div className="col-replies w-16 text-center flex-shrink-0 flex flex-col justify-center">
 					<div className="font-bold text-sm">{thread.replies ?? 0}</div>

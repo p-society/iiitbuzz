@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import type { PostDetail } from "@/types/forum";
 import { formatTimeAgo } from "@/lib/utils/date";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 
 interface PostItemProps {
 	post: PostDetail;
@@ -32,6 +33,7 @@ export const PostItem = ({
 	const [voting, setVoting] = useState(false);
 	const [reporting, setReporting] = useState(false);
 	const [hasReported, setHasReported] = useState(false);
+	const profileUsername = !post.isAnonymous ? post.authorName : null;
 
 	useEffect(() => {
 		if (!post.authorName) return;
@@ -94,21 +96,51 @@ export const PostItem = ({
 		<div className="border border-black bg-card">
 			<div className="post-block flex flex-col sm:flex-row">
 				<div className="author-pane w-full sm:w-[140px] p-2 sm:p-3 flex-shrink-0">
-					<div className="h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px]">
-						{!imgError && avatarUrl ? (
-							<img
-								src={avatarUrl}
-								alt={post.authorName}
-								className="h-full w-full object-cover"
-								referrerPolicy="no-referrer"
-								onError={() => setImgError(true)}
-							/>
-						) : (
-							<span>{post.authorAvatar}</span>
-						)}
-					</div>
+					{profileUsername ? (
+						<Link
+							to={`/profile/${encodeURIComponent(profileUsername)}`}
+							className="block h-10 w-10 sm:h-12 sm:w-12 mb-2"
+						>
+							<div className="h-full w-full text-sm sm:text-base overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px] hover:opacity-85 transition-opacity">
+								{!imgError && avatarUrl ? (
+									<img
+										src={avatarUrl}
+										alt={post.authorName}
+										className="h-full w-full object-cover"
+										referrerPolicy="no-referrer"
+										onError={() => setImgError(true)}
+									/>
+								) : (
+									<span>{post.authorAvatar}</span>
+								)}
+							</div>
+						</Link>
+					) : (
+						<div className="h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px]">
+							{!imgError && avatarUrl ? (
+								<img
+									src={avatarUrl}
+									alt={post.authorName}
+									className="h-full w-full object-cover"
+									referrerPolicy="no-referrer"
+									onError={() => setImgError(true)}
+								/>
+							) : (
+								<span>{post.authorAvatar}</span>
+							)}
+						</div>
+					)}
 					<div className="font-bold text-xs truncate">
-						{post.isAnonymous ? "Anonymous" : post.authorName}
+						{profileUsername ? (
+							<Link
+								to={`/profile/${encodeURIComponent(profileUsername)}`}
+								className="hover:underline"
+							>
+								{post.authorName}
+							</Link>
+						) : (
+							"Anonymous"
+						)}
 					</div>
 					{isOP && <span className="tech-stamp mt-1 text-[8px]">OP</span>}
 					<div className="mt-2 mono-meta">{post.postCount || 1} posts</div>

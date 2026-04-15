@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { Share2, Bookmark, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
@@ -242,9 +242,16 @@ export default function ThreadPage() {
 						</h1>
 						<p className="mono-meta">
 							by{" "}
-							<span className="font-bold text-foreground">
-								{thread.authorName}
-							</span>{" "}
+							{thread.isAnonymous ? (
+								<span className="font-bold text-foreground">{thread.authorName}</span>
+							) : (
+								<Link
+									to={`/profile/${encodeURIComponent(thread.authorName)}`}
+									className="font-bold text-foreground hover:underline"
+								>
+									{thread.authorName}
+								</Link>
+							)}{" "}
 							· {formatDateIST(thread.createdAt)}
 						</p>
 					</div>
@@ -255,6 +262,8 @@ export default function ThreadPage() {
 							className={`h-7 w-7 ${isBookmarked ? "bg-primary text-primary-foreground" : ""}`}
 							onClick={handleBookmarkToggle}
 							disabled={bookmarkLoading}
+							aria-label={isBookmarked ? "Remove bookmark" : "Bookmark thread"}
+							title={isBookmarked ? "Remove bookmark" : "Bookmark thread"}
 						>
 							<Bookmark
 								className="h-3 w-3"
@@ -267,6 +276,8 @@ export default function ThreadPage() {
 							size="icon"
 							className="h-7 w-7"
 							onClick={handleShare}
+							aria-label="Share thread"
+							title="Share thread"
 						>
 							<Share2 className="h-3 w-3" strokeWidth={1.5} />
 						</Button>
