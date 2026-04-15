@@ -93,7 +93,9 @@ export const PostItem = ({
 							<span>{post.authorAvatar}</span>
 						)}
 					</div>
-					<div className="font-bold text-xs truncate">{post.authorName}</div>
+					<div className="font-bold text-xs truncate">
+						{post.isAnonymous ? "Anonymous" : post.authorName}
+					</div>
 					{isOP && <span className="tech-stamp mt-1 text-[8px]">OP</span>}
 					<div className="mt-2 mono-meta">{post.postCount || 1} posts</div>
 				</div>

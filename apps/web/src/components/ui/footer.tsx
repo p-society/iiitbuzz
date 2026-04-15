@@ -1,4 +1,5 @@
 import { Instagram, Linkedin, Mail, Twitter } from "lucide-react";
+import logo from "../../../../../assets/logo.png";
 
 const Footer = () => {
 	return (
@@ -7,11 +8,7 @@ const Footer = () => {
 				<div className="flex flex-wrap items-center justify-between gap-4">
 					<div className="flex items-center gap-4">
 						<div className="flex items-center gap-2">
-							<img
-								src="/images/logo.png"
-								alt="IIITBuzz Logo"
-								className="w-6 h-6"
-							/>
+							<img src={logo} alt="IIITBuzz Logo" className="w-6 h-6" />
 							<span className="font-black text-sm text-foreground tracking-tight">
 								IIITBuzz
 							</span>

@@ -6,6 +6,7 @@ export type Post = typeof posts.$inferSelect;
 export const createPostSchema = z.object({
 	threadId: z.string().uuid(),
 	content: z.string().min(1, "Content is required").max(10_000),
+	isAnonymous: z.boolean().optional().default(false),
 });
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 
@@ -16,6 +17,7 @@ export type CreateDraftInput = z.infer<typeof createDraftSchema>;
 
 export const publishDraftSchema = z.object({
 	content: z.string().min(1, "Content is required").max(10_000),
+	isAnonymous: z.boolean().optional().default(false),
 });
 export type PublishDraftInput = z.infer<typeof publishDraftSchema>;
 

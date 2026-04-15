@@ -19,6 +19,9 @@ interface ReplyBoxProps {
 	threadId: string;
 	useDraft?: boolean;
 	onReload?: () => Promise<void>;
+	isThreadAnonymous?: boolean;
+	isAnonymous?: boolean;
+	onAnonymousChange?: (val: boolean) => void;
 }
 
 export const ReplyBox = ({
@@ -34,6 +37,9 @@ export const ReplyBox = ({
 	threadId,
 	useDraft = true,
 	onReload,
+	isThreadAnonymous,
+	isAnonymous,
+	onAnonymousChange,
 }: ReplyBoxProps) => {
 	const [showHelp, setShowHelp] = useState(false);
 	const [showPreview, setShowPreview] = useState(false);
@@ -282,6 +288,17 @@ export const ReplyBox = ({
 					>
 						Preview
 					</Button>
+					{isThreadAnonymous && (
+						<label className="flex items-center gap-1 px-2 py-0.5 font-bold text-[10px] cursor-pointer">
+							<input
+								type="checkbox"
+								checked={isAnonymous}
+								onChange={(e) => onAnonymousChange?.(e.target.checked)}
+								className="accent-primary"
+							/>
+							Anonymous
+						</label>
+					)}
 				</div>
 				<button
 					type="submit"

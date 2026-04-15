@@ -38,6 +38,7 @@ export const threads = pgTable(
 		isLocked: boolean("is_locked").default(false),
 		isAnonymous: boolean("is_anonymous").default(false),
 		isApproved: boolean("is_approved").default(true),
+		isRejected: boolean("is_rejected").default(false),
 	},
 	(table) => [
 		index("idx_view_count").on(table.viewCount),
