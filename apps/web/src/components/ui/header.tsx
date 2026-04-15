@@ -62,7 +62,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 										type="button"
 										variant="neutral"
 										size="sm"
-										className="flex h-9 items-center gap-1 px-3 text-xs font-bold border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
+										className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-black border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
 									>
 										<Home className="h-4 w-4 transition-transform group-hover:scale-110" />
 										<span>Home</span>
@@ -74,7 +74,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 											type="button"
 											variant="neutral"
 											size="sm"
-											className="flex h-9 items-center gap-1 px-3 text-xs font-bold border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
+											className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-black border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
 										>
 											<Shield className="h-4 w-4 transition-transform group-hover:scale-110" />
 											<span>Admin</span>
@@ -249,13 +249,16 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 							<Button
 								onClick={login}
 								variant="neutral"
-								className="text-foreground text-xs px-2 py-1"
+								size="sm"
+								className="h-9 border-2 border-border bg-secondary px-3 text-xs font-black text-black shadow-none hover:bg-primary hover:text-primary-foreground transition-all"
 							>
 								Log In
 							</Button>
 							<Button
 								onClick={login}
-								className="bg-foreground text-primary-foreground text-xs px-2 py-1 hover:bg-foreground/90"
+								variant="neutral"
+								size="sm"
+								className="h-9 border-2 border-border bg-foreground px-3 text-xs font-black text-background shadow-none hover:bg-foreground/90 hover:text-black transition-all"
 							>
 								Sign Up
 							</Button>
