@@ -100,6 +100,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
 							isNull(postsTable.deletedAt),
+							sql`(CASE WHEN ${postsTable.isAnonymous} = true THEN ${postsTable.isApproved} ELSE true END)`,
 						),
 					)
 					.orderBy(postsTable.createdAt)
@@ -113,6 +114,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
 							isNull(postsTable.deletedAt),
+							sql`(CASE WHEN ${postsTable.isAnonymous} = true THEN ${postsTable.isApproved} ELSE true END)`,
 						),
 					);
 
