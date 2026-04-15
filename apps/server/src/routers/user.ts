@@ -1,4 +1,4 @@
-import { desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { users } from "@/db/schema/user.schema";
 import { threads } from "@/db/schema/thread.schema";
@@ -257,7 +257,7 @@ export async function userRoutes(fastify: FastifyInstance) {
 					createdAt: threads.createdAt,
 				})
 					.from(threads)
-					.where(eq(threads.createdBy, userId))
+					.where(and(eq(threads.createdBy, userId), isNull(threads.deletedAt)))
 					.orderBy(desc(threads.createdAt))
 					.limit(5);
 
@@ -271,7 +271,13 @@ export async function userRoutes(fastify: FastifyInstance) {
 				})
 					.from(posts)
 					.innerJoin(threads, eq(posts.threadId, threads.id))
-					.where(eq(posts.createdBy, userId))
+					.where(
+						and(
+							eq(posts.createdBy, userId),
+							isNull(posts.deletedAt),
+							isNull(threads.deletedAt),
+						),
+					)
 					.orderBy(desc(posts.createdAt))
 					.limit(5);
 
@@ -285,7 +291,13 @@ export async function userRoutes(fastify: FastifyInstance) {
 					.from(votes)
 					.innerJoin(posts, eq(votes.postId, posts.id))
 					.innerJoin(threads, eq(posts.threadId, threads.id))
-					.where(eq(votes.userId, userId))
+					.where(
+						and(
+							eq(votes.userId, userId),
+							isNull(posts.deletedAt),
+							isNull(threads.deletedAt),
+						),
+					)
 					.orderBy(desc(votes.createdAt))
 					.limit(5);
 

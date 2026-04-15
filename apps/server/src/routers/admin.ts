@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, isNull } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { threads as threadsTable } from "@/db/schema/thread.schema";
@@ -29,6 +29,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 						and(
 							eq(threadsTable.isAnonymous, true),
 							eq(threadsTable.isApproved, false),
+							isNull(threadsTable.deletedAt),
 						),
 					)
 					.orderBy(desc(threadsTable.createdAt));
@@ -65,6 +66,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 						and(
 							eq(threadsTable.isAnonymous, true),
 							eq(threadsTable.isApproved, true),
+							isNull(threadsTable.deletedAt),
 						),
 					)
 					.orderBy(desc(threadsTable.createdAt));
@@ -101,6 +103,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 						and(
 							eq(threadsTable.isAnonymous, true),
 							eq(threadsTable.isApproved, false),
+							isNull(threadsTable.deletedAt),
 						),
 					)
 					.orderBy(desc(threadsTable.createdAt));
@@ -124,7 +127,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 			try {
 				const [updated] = await DrizzleClient.update(threadsTable)
 					.set({ isApproved: true })
-					.where(eq(threadsTable.id, id))
+					.where(and(eq(threadsTable.id, id), isNull(threadsTable.deletedAt)))
 					.returning();
 
 				if (!updated) {
@@ -148,9 +151,28 @@ export async function adminRoutes(fastify: FastifyInstance) {
 		{ preHandler: authenticateAdmin },
 		async (request, reply) => {
 			const { id } = request.params as { id: string };
+			const adminId = request.userId;
+
+			if (!adminId) {
+				return reply.status(401).send({ success: false, error: "Unauthorized" });
+			}
 
 			try {
-				await DrizzleClient.delete(threadsTable).where(eq(threadsTable.id, id));
+				const [updated] = await DrizzleClient.update(threadsTable)
+					.set({
+						deletedAt: new Date().toISOString(),
+						deletedBy: adminId,
+						updatedAt: new Date().toISOString(),
+						updatedBy: adminId,
+					})
+					.where(and(eq(threadsTable.id, id), isNull(threadsTable.deletedAt)))
+					.returning({ id: threadsTable.id });
+
+				if (!updated) {
+					return reply
+						.status(404)
+						.send({ success: false, error: "Thread not found" });
+				}
 
 				return reply.send({ success: true });
 			} catch (error) {

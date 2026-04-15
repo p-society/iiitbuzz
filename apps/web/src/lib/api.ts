@@ -25,7 +25,12 @@ async function apiFetch<T>(
 		},
 	});
 
-	const data = await response.json();
+	if (response.status === 204) {
+		return { success: true } as T;
+	}
+
+	const raw = await response.text();
+	const data = raw ? JSON.parse(raw) : {};
 
 	if (!response.ok || !data.success) {
 		throw new Error(data.error || `API Error: ${response.status}`);
@@ -134,6 +139,16 @@ export const api = {
 		apiFetch<{ success: boolean; post: PostDetail }>("/posts", {
 			method: "POST",
 			body: JSON.stringify(payload),
+		}),
+
+	deletePost: (postId: string) =>
+		apiFetch<{ success: boolean }>(`/posts/${postId}`, {
+			method: "DELETE",
+		}),
+
+	deleteThread: (threadId: string) =>
+		apiFetch<{ success: boolean }>(`/threads/${threadId}`, {
+			method: "DELETE",
 		}),
 
 	// Votes

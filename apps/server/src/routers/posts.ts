@@ -1,4 +1,4 @@
-import { and, count, eq, ne, sql } from "drizzle-orm";
+import { and, count, eq, isNull, ne, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { posts as postsTable } from "@/db/schema/post.schema";
@@ -46,6 +46,18 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid thread ID" });
 			const threadId = params.data.id;
 			try {
+				const thread = await DrizzleClient.query.threads.findFirst({
+					where: (t, { eq, isNull, and }) =>
+						and(eq(t.id, threadId), isNull(t.deletedAt)),
+					columns: { id: true },
+				});
+
+				if (!thread) {
+					return reply
+						.status(404)
+						.send({ success: false, error: "Thread not found" });
+				}
+
 				const postsQuery = DrizzleClient.select({
 					postId: postsTable.id,
 					content: postsTable.content,
@@ -66,6 +78,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							isNull(postsTable.deletedAt),
 						),
 					)
 					.orderBy(postsTable.createdAt)
@@ -78,6 +91,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							isNull(postsTable.deletedAt),
 						),
 					);
 
@@ -116,7 +130,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 			}
 			try {
 				const post = await DrizzleClient.query.posts.findFirst({
-					where: (p, { eq }) => eq(p.id, params.data.id),
+					where: (p, { eq, isNull, and }) =>
+						and(eq(p.id, params.data.id), isNull(p.deletedAt)),
 				});
 				if (!post) {
 					return reply
@@ -150,7 +165,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid request body" });
 
 			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, body.data.threadId),
+				where: (t, { eq, isNull, and }) =>
+					and(eq(t.id, body.data.threadId), isNull(t.deletedAt)),
 			});
 			if (!thread)
 				return reply
@@ -218,7 +234,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid request body" });
 
 			const post = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq }) => eq(p.id, params.data.id),
+				where: (p, { eq, isNull, and }) =>
+					and(eq(p.id, params.data.id), isNull(p.deletedAt)),
 			});
 			if (!post)
 				return reply
@@ -255,18 +272,43 @@ export async function postRoutes(fastify: FastifyInstance) {
 				return reply
 					.status(400)
 					.send({ success: false, error: "Invalid post id" });
-			const post = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq }) => eq(p.id, params.data.id),
-			});
+			const [authUser, post] = await Promise.all([
+				DrizzleClient.query.users.findFirst({
+					where: (u, { eq }) => eq(u.id, authUserId),
+					columns: { id: true, role: true },
+				}),
+				DrizzleClient.query.posts.findFirst({
+					where: (p, { eq, isNull, and }) =>
+						and(eq(p.id, params.data.id), isNull(p.deletedAt)),
+				}),
+			]);
+			if (!authUser)
+				return reply
+					.status(404)
+					.send({ success: false, error: "User not found" });
 			if (!post)
 				return reply
 					.status(404)
 					.send({ success: false, error: "Post not found" });
-			if (post.createdBy !== authUserId)
+			if (post.createdBy !== authUserId && authUser.role !== "admin")
 				return reply.status(403).send({ success: false, error: "Forbidden" });
-			await DrizzleClient.delete(postsTable).where(
-				eq(postsTable.id, params.data.id),
-			);
+
+			await DrizzleClient.update(postsTable)
+				.set({
+					deletedAt: new Date().toISOString(),
+					deletedBy: authUserId,
+					updatedAt: new Date().toISOString(),
+					updatedBy: authUserId,
+				})
+				.where(eq(postsTable.id, params.data.id));
+
+			if (!post.isDraft) {
+				await DrizzleClient.update(usersTable)
+					.set({
+						totalPosts: sql`GREATEST(${usersTable.totalPosts} - 1, 0)`,
+					})
+					.where(eq(usersTable.id, post.createdBy));
+			}
 			return reply.status(204).send();
 		},
 	);
@@ -291,7 +333,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 			const { threadId } = body.data;
 
 			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, threadId),
+				where: (t, { eq, isNull, and }) =>
+					and(eq(t.id, threadId), isNull(t.deletedAt)),
 			});
 			if (!thread)
 				return reply
@@ -299,11 +342,12 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Thread not found" });
 
 			const existingDraft = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq, and }) =>
+				where: (p, { eq, and, isNull }) =>
 					and(
 						eq(p.threadId, threadId),
 						eq(p.createdBy, authUserId),
 						eq(p.isDraft, true),
+						isNull(p.deletedAt),
 					),
 			});
 
@@ -349,7 +393,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid request body" });
 
 			const post = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq }) => eq(p.id, params.data.id),
+				where: (p, { eq, isNull, and }) =>
+					and(eq(p.id, params.data.id), isNull(p.deletedAt)),
 			});
 
 			if (!post)
@@ -380,7 +425,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 				.where(eq(usersTable.id, authUserId));
 
 			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, updated.threadId),
+				where: (t, { eq, isNull, and }) =>
+					and(eq(t.id, updated.threadId), isNull(t.deletedAt)),
 			});
 
 			if (thread && thread.createdBy !== authUserId) {

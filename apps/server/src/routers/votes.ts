@@ -32,7 +32,8 @@ export async function voteRoutes(fastify: FastifyInstance) {
 			const { postId, value } = body.data;
 
 			const post = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq }) => eq(p.id, postId),
+				where: (p, { eq, and, isNull }) =>
+					and(eq(p.id, postId), isNull(p.deletedAt)),
 			});
 			if (!post)
 				return reply

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ThumbsUp, ThumbsDown, Flag, MessageSquare } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Flag, MessageSquare, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MarkdownContent } from "@/components/ui/markdown";
@@ -12,9 +12,18 @@ interface PostItemProps {
 	index: number;
 	isOP: boolean;
 	onQuote?: () => void;
+	canDelete?: boolean;
+	onDelete?: () => Promise<void>;
 }
 
-export const PostItem = ({ post, index, isOP, onQuote }: PostItemProps) => {
+export const PostItem = ({
+	post,
+	index,
+	isOP,
+	onQuote,
+	canDelete = false,
+	onDelete,
+}: PostItemProps) => {
 	const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 	const [imgError, setImgError] = useState(false);
 	const [voteValue, setVoteValue] = useState(0);
@@ -126,6 +135,19 @@ export const PostItem = ({ post, index, isOP, onQuote }: PostItemProps) => {
 							<MessageSquare className="h-3 w-3 mr-1" />
 							Quote
 						</Button>
+						{canDelete && onDelete && (
+							<Button
+								size="sm"
+								variant="neutral"
+								className="bg-card px-1.5 py-0.5 font-bold text-[10px] text-red-600"
+								onClick={() => {
+									void onDelete();
+								}}
+							>
+								<Trash2 className="h-3 w-3 mr-1" />
+								Delete
+							</Button>
+						)}
 						<Button
 							size="sm"
 							variant="neutral"
