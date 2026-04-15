@@ -285,7 +285,7 @@ export const ReplyBox = ({
 				</div>
 				<button
 					type="submit"
-					disabled={submitting || !content.trim() || creatingDraft}
+					disabled={submitting || !content.trim() || creatingDraft || uploading}
 					className="bg-primary text-primary-foreground px-3 py-1 font-bold text-xs border-[1.5px] border-border disabled:opacity-50"
 				>
 					{submitting ? "..." : "Post"}

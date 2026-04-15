@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, Navigate } from "react-router-dom";
 import { Check, X, MessageSquare, Eye, Ban } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDateIST } from "@/lib/utils/date";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
@@ -182,7 +183,7 @@ export default function AdminPage() {
 										</h3>
 										<p className="text-[10px] text-muted-foreground">
 											by {thread.authorName || "Anonymous"} ·{" "}
-											{new Date(thread.createdAt).toLocaleDateString()}
+											{formatDateIST(thread.createdAt)}
 										</p>
 									</div>
 

@@ -10,6 +10,7 @@ import { ReplyBox } from "@/components/forum/ReplyBox";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { api } from "@/lib/api";
 import { getTopicColor } from "@/lib/utils/topicColor";
+import { formatDateIST } from "@/lib/utils/date";
 import type { ThreadDetail, PostDetail } from "@/types/forum";
 
 export default function ThreadPage() {
@@ -83,6 +84,17 @@ export default function ThreadPage() {
 		if (postError) setPostError(null);
 	};
 
+	const handleQuote = (author: string, content: string) => {
+		setReplyTo({ author, content });
+		setTimeout(() => {
+			replyContentRef.current?.scrollIntoView({
+				behavior: "smooth",
+				block: "center",
+			});
+			replyContentRef.current?.focus();
+		}, 100);
+	};
+
 	const handleFormatting = (syntax: string) => {
 		const el = replyContentRef.current;
 		if (!el) return;
@@ -100,11 +112,14 @@ export default function ThreadPage() {
 
 	const handleShare = () => {
 		const url = window.location.href;
-		navigator.clipboard.writeText(url).then(() => {
-			toast.success("Link copied to clipboard!");
-		}).catch(() => {
-			toast.error("Failed to copy link.");
-		});
+		navigator.clipboard
+			.writeText(url)
+			.then(() => {
+				toast.success("Link copied to clipboard!");
+			})
+			.catch(() => {
+				toast.error("Failed to copy link.");
+			});
 	};
 
 	if (loading || !thread)
@@ -145,16 +160,16 @@ export default function ThreadPage() {
 							<span className="font-bold text-foreground">
 								{thread.authorName}
 							</span>{" "}
-							· {new Date(thread.createdAt).toLocaleDateString()}
+							· {formatDateIST(thread.createdAt)}
 						</p>
 					</div>
 					<div className="flex gap-1">
 						<Button variant="neutral" size="icon" className="h-7 w-7">
 							<Bookmark className="h-3 w-3" strokeWidth={1.5} />
 						</Button>
-						<Button 
-							variant="neutral" 
-							size="icon" 
+						<Button
+							variant="neutral"
+							size="icon"
 							className="h-7 w-7"
 							onClick={handleShare}
 						>
@@ -170,9 +185,7 @@ export default function ThreadPage() {
 							post={post}
 							index={i}
 							isOP={post.authorId === thread.authorId}
-							onQuote={() =>
-								setReplyTo({ author: post.authorName, content: post.content })
-							}
+							onQuote={() => handleQuote(post.authorName, post.content)}
 						/>
 					))}
 				</div>
