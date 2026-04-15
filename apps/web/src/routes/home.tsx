@@ -195,6 +195,18 @@ export default function HomePage() {
 					</div>
 
 					<aside className="sidebar">
+						<Button
+							asChild
+							className="nav-desktop w-full py-1.5 mb-3 font-bold border-2 border-border bg-primary text-primary-foreground shadow-none hover:bg-primary/90"
+						>
+							<Link
+								to="/new-thread"
+								className="block text-center text-xs uppercase tracking-wider"
+							>
+								New +
+							</Link>
+						</Button>
+
 						<div className="border border-black">
 							<div className="p-3 border-b border-gray-200">
 								<span className="mono-label">{"// SECTION: ACTIVITY"}</span>

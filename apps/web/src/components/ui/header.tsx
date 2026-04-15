@@ -83,15 +83,6 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 								)}
 								<NotificationBell />
 								<ProfileDropdown />
-								{!hideThemeToggle && (
-									<Link
-										to="/new-thread"
-										className="bg-primary h-9 px-4 flex items-center gap-2 font-bold text-primary-foreground text-xs border-2 border-border hover:bg-primary/90 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-none group"
-									>
-										<Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-										<span>New</span>
-									</Link>
-								)}
 							</div>
 
 							<div className="nav-mobile items-center gap-2">
@@ -116,14 +107,16 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 												<Menu className="h-5 w-5" />
 											</Button>
 										</DrawerTrigger>
-										<DrawerContent className="p-4">
-											<DrawerHeader className="px-0 pt-0 text-left">
-												<DrawerTitle className="text-xl font-black">
-													Menu
-												</DrawerTitle>
-											</DrawerHeader>
+										<DrawerContent className="h-[100dvh] max-h-[100dvh] overflow-hidden p-0">
+											<div className="flex h-full flex-col overflow-hidden p-4">
+												<DrawerHeader className="px-0 pt-0 text-left">
+													<DrawerTitle className="text-xl font-black">
+														Menu
+													</DrawerTitle>
+												</DrawerHeader>
 
-											<div className="flex flex-col gap-4 mt-4">
+												<div className="mt-4 flex-1 overflow-y-auto pr-1">
+													<div className="flex flex-col gap-4 pb-4">
 												{user && (
 													<div className="p-3 border-2 border-border bg-secondary/50 rounded-lg">
 														<p className="font-black text-sm">
@@ -238,6 +231,8 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 														</Button>
 													</div>
 												</nav>
+												</div>
+											</div>
 											</div>
 										</DrawerContent>
 									</Drawer>
