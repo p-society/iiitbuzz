@@ -130,11 +130,18 @@ export const api = {
 			`/threads/${threadId}/posts?limit=100`,
 		),
 
-	createPost: (payload: { threadId: string; content: string }) =>
-		apiFetch<{ success: boolean; post: PostDetail }>("/posts", {
-			method: "POST",
-			body: JSON.stringify(payload),
-		}),
+	createPost: (payload: {
+		threadId: string;
+		content: string;
+		isAnonymous?: boolean;
+	}) =>
+		apiFetch<{ success: boolean; post: PostDetail; isAnonymous: boolean }>(
+			"/posts",
+			{
+				method: "POST",
+				body: JSON.stringify(payload),
+			},
+		),
 
 	// Votes
 	voteOnPost: (postId: string, value: number) =>
@@ -235,9 +242,41 @@ export const api = {
 		),
 
 	rejectThread: (id: string) =>
-		apiFetch<{ success: boolean }>(`/admin/threads/${id}/reject`, {
-			method: "DELETE",
-		}),
+		apiFetch<{ success: boolean; thread: AdminThread }>(
+			`/admin/threads/${id}/reject`,
+			{ method: "PATCH", body: JSON.stringify({}) },
+		),
+
+	// Admin Posts
+	getPendingPosts: () =>
+		apiFetch<{
+			success: boolean;
+			posts: AdminPost[];
+		}>("/admin/posts/pending"),
+
+	getApprovedPosts: () =>
+		apiFetch<{
+			success: boolean;
+			posts: AdminPost[];
+		}>("/admin/posts/approved"),
+
+	getRejectedPosts: () =>
+		apiFetch<{
+			success: boolean;
+			posts: AdminPost[];
+		}>("/admin/posts/rejected"),
+
+	approvePost: (id: string) =>
+		apiFetch<{ success: boolean; post: AdminPost }>(
+			`/admin/posts/${id}/approve`,
+			{ method: "PATCH", body: JSON.stringify({}) },
+		),
+
+	rejectPost: (id: string) =>
+		apiFetch<{ success: boolean; post: AdminPost }>(
+			`/admin/posts/${id}/reject`,
+			{ method: "PATCH", body: JSON.stringify({}) },
+		),
 
 	getUserActivity: (userId: string) =>
 		apiFetch<{
@@ -285,4 +324,16 @@ export type AdminThread = {
 	isAnonymous: boolean;
 	isApproved: boolean;
 	authorName: string | null;
+};
+
+export type AdminPost = {
+	postId: string;
+	content: string;
+	createdAt: string;
+	threadId: string;
+	threadTitle?: string;
+	authorName: string | null;
+	isAnonymous: boolean;
+	isApproved: boolean;
+	isRejected: boolean;
 };

@@ -51,14 +51,21 @@ export async function postRoutes(fastify: FastifyInstance) {
 					content: postsTable.content,
 					createdAt: postsTable.createdAt,
 					likes: postsTable.vote,
+					isAnonymous: postsTable.isAnonymous,
 
-					authorId: usersTable.id,
+					authorId: sql<string>`
+						CASE 
+							WHEN ${postsTable.isAnonymous} = true THEN 'anonymous'
+							ELSE ${usersTable.id}
+						END
+					`.as("authorId"),
 					authorName: sql<string>`
-                CASE 
-                    WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username} 
-                    ELSE ${usersTable.firstName} 
-                END
-            `.as("authorName"),
+						CASE 
+							WHEN ${postsTable.isAnonymous} = true THEN 'Anonymous'
+							WHEN ${usersTable.username} IS NOT NULL THEN ${usersTable.username} 
+							ELSE ${usersTable.firstName} 
+						END
+					`.as("authorName"),
 				})
 					.from(postsTable)
 					.leftJoin(usersTable, eq(postsTable.createdBy, usersTable.id))
@@ -66,6 +73,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							eq(postsTable.isApproved, true),
 						),
 					)
 					.orderBy(postsTable.createdAt)
@@ -78,6 +86,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							eq(postsTable.isApproved, true),
 						),
 					);
 
@@ -157,10 +166,16 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.status(404)
 					.send({ success: false, error: "Thread not found" });
 
+			const wantsAnonymous = body.data.isAnonymous ?? false;
+			const canBeAnonymous = thread.isAnonymous;
+			const isAnonymous = canBeAnonymous && wantsAnonymous;
+
 			const toInsert: typeof postsTable.$inferInsert = {
 				threadId: body.data.threadId,
 				content: body.data.content,
 				createdBy: authUserId,
+				isAnonymous,
+				isApproved: !isAnonymous,
 			};
 
 			const post = await DrizzleClient.transaction(async (tx) => {
@@ -168,17 +183,18 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.insert(postsTable)
 					.values(toInsert)
 					.returning();
-				await tx
-					.update(usersTable)
-					.set({
-						totalPosts: sql`${usersTable.totalPosts} + 1`,
-					})
-					.where(eq(usersTable.id, authUserId));
+				if (!isAnonymous) {
+					await tx
+						.update(usersTable)
+						.set({
+							totalPosts: sql`${usersTable.totalPosts} + 1`,
+						})
+						.where(eq(usersTable.id, authUserId));
+				}
 				return newPost;
 			});
 
-			// Create notification for thread author (if not replying to own thread)
-			if (thread.createdBy !== authUserId) {
+			if (!isAnonymous && thread.createdBy !== authUserId) {
 				try {
 					await DrizzleClient.insert(notifTable).values({
 						userId: thread.createdBy,
@@ -192,7 +208,11 @@ export async function postRoutes(fastify: FastifyInstance) {
 				}
 			}
 
-			return reply.status(201).send({ success: true, post });
+			return reply.status(201).send({
+				success: true,
+				post,
+				isAnonymous,
+			});
 		},
 	);
 
@@ -363,27 +383,34 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.status(400)
 					.send({ success: false, error: "Post is not a draft" });
 
+			const thread = await DrizzleClient.query.threads.findFirst({
+				where: (t, { eq }) => eq(t.id, post.threadId),
+			});
+
+			const wantsAnonymous = body.data.isAnonymous ?? false;
+			const canBeAnonymous = thread?.isAnonymous ?? false;
+			const isAnonymous = canBeAnonymous && wantsAnonymous;
+
 			const [updated] = await DrizzleClient.update(postsTable)
 				.set({
 					content: body.data.content,
 					isDraft: false,
-					isApproved: true,
+					isApproved: !isAnonymous,
+					isAnonymous,
 					updatedAt: new Date().toISOString(),
 				})
 				.where(eq(postsTable.id, params.data.id))
 				.returning();
 
-			await DrizzleClient.update(usersTable)
-				.set({
-					totalPosts: sql`${usersTable.totalPosts} + 1`,
-				})
-				.where(eq(usersTable.id, authUserId));
+			if (!isAnonymous) {
+				await DrizzleClient.update(usersTable)
+					.set({
+						totalPosts: sql`${usersTable.totalPosts} + 1`,
+					})
+					.where(eq(usersTable.id, authUserId));
+			}
 
-			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, updated.threadId),
-			});
-
-			if (thread && thread.createdBy !== authUserId) {
+			if (thread && thread.createdBy !== authUserId && !isAnonymous) {
 				try {
 					await DrizzleClient.insert(notifTable).values({
 						userId: thread.createdBy,
@@ -397,7 +424,11 @@ export async function postRoutes(fastify: FastifyInstance) {
 				}
 			}
 
-			return reply.status(200).send({ success: true, post: updated });
+			return reply.status(200).send({
+				success: true,
+				post: updated,
+				isAnonymous,
+			});
 		},
 	);
 }

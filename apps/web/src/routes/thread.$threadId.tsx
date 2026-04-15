@@ -19,6 +19,7 @@ export default function ThreadPage() {
 	const [posts, setPosts] = useState<PostDetail[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [replyContent, setReplyContent] = useState("");
+	const [replyAnonymous, setReplyAnonymous] = useState(false);
 	const [submittingReply, setSubmittingReply] = useState(false);
 	const [postError, setPostError] = useState<string | null>(null);
 	const [replyTo, setReplyTo] = useState<{
@@ -66,8 +67,13 @@ export default function ThreadPage() {
 		setPostError(null);
 
 		try {
-			await api.createPost({ threadId, content: replyContent });
+			await api.createPost({
+				threadId,
+				content: replyContent,
+				isAnonymous: replyAnonymous,
+			});
 			setReplyContent("");
+			setReplyAnonymous(false);
 			await loadThreadData();
 		} catch (err) {
 			const message =
@@ -204,6 +210,9 @@ export default function ThreadPage() {
 						threadId={threadId || ""}
 						useDraft
 						onReload={loadThreadData}
+						isThreadAnonymous={thread?.isAnonymous}
+						isAnonymous={replyAnonymous}
+						onAnonymousChange={setReplyAnonymous}
 					/>
 				</div>
 			</main>

@@ -24,20 +24,22 @@ import {
 	DrawerTitle,
 	DrawerTrigger,
 } from "@/components/ui/drawer";
+import logo from "../../../../../assets/logo.png";
 
 interface HeaderProps {
 	hideThemeToggle?: boolean;
 }
 
 const Header = ({ hideThemeToggle = false }: HeaderProps) => {
-	const { user, isLoading, isAuthenticated, isAdmin, login, logout } = useAuth();
+	const { user, isLoading, isAuthenticated, isAdmin, login, logout } =
+		useAuth();
 	const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
 	return (
 		<header className="border-b border-border bg-background/95 backdrop-blur-sm sticky top-0 z-50">
 			<div className="site-container py-3 flex items-center justify-between">
 				<Link to="/" className="flex items-center gap-2">
-					<img src="/images/logo.png" alt="IIITBuzz Logo" className="w-7 h-7" />
+					<img src={logo} alt="IIITBuzz Logo" className="w-7 h-7" />
 					<h1 className="font-black text-lg text-foreground tracking-tight">
 						IIITBuzz
 					</h1>
@@ -118,14 +120,20 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 										</DrawerTrigger>
 										<DrawerContent className="p-4">
 											<DrawerHeader className="px-0 pt-0 text-left">
-												<DrawerTitle className="text-xl font-black">Menu</DrawerTitle>
+												<DrawerTitle className="text-xl font-black">
+													Menu
+												</DrawerTitle>
 											</DrawerHeader>
 
 											<div className="flex flex-col gap-4 mt-4">
 												{user && (
 													<div className="p-3 border-2 border-border bg-secondary/50 rounded-lg">
-														<p className="font-black text-sm">{user.firstName || user.username}</p>
-														<p className="text-xs text-muted-foreground">@{user.username}</p>
+														<p className="font-black text-sm">
+															{user.firstName || user.username}
+														</p>
+														<p className="text-xs text-muted-foreground">
+															@{user.username}
+														</p>
 													</div>
 												)}
 
@@ -163,7 +171,11 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 													<div className="h-px bg-border my-1" />
 
 													<Link
-														to={user?.username ? `/profile/${user.username}` : "/my/profile"}
+														to={
+															user?.username
+																? `/profile/${user.username}`
+																: "/my/profile"
+														}
 														className="flex items-center gap-3 p-3 font-bold border-2 border-transparent hover:border-border hover:bg-secondary rounded-lg transition-all"
 														onClick={() => setIsMobileNavOpen(false)}
 													>
@@ -181,7 +193,11 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 													</Link>
 
 													<Link
-														to={user?.username ? `/profile/${user.username}` : "/my/profile"}
+														to={
+															user?.username
+																? `/profile/${user.username}`
+																: "/my/profile"
+														}
 														className="flex items-center gap-3 p-3 font-bold border-2 border-transparent hover:border-border hover:bg-secondary rounded-lg transition-all"
 														onClick={() => setIsMobileNavOpen(false)}
 													>
@@ -191,11 +207,21 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 
 													<div className="h-px bg-border my-1" />
 
-													<a href="https://github.com/p-society/" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 font-bold border-2 border-transparent hover:border-border hover:bg-secondary rounded-lg transition-all">
+													<a
+														href="https://github.com/p-society/"
+														target="_blank"
+														rel="noreferrer"
+														className="flex items-center gap-3 p-3 font-bold border-2 border-transparent hover:border-border hover:bg-secondary rounded-lg transition-all"
+													>
 														<Github className="h-5 w-5" />
 														<span>GitHub</span>
 													</a>
-													<a href="https://discord.gg/q74qC2exY4" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 font-bold border-2 border-transparent hover:border-border hover:bg-secondary rounded-lg transition-all">
+													<a
+														href="https://discord.gg/q74qC2exY4"
+														target="_blank"
+														rel="noreferrer"
+														className="flex items-center gap-3 p-3 font-bold border-2 border-transparent hover:border-border hover:bg-secondary rounded-lg transition-all"
+													>
 														<RxDiscordLogo className="h-5 w-5" />
 														<span>Discord</span>
 													</a>

@@ -13,7 +13,20 @@ import { ThemeProvider } from "./components/theme-provider";
 import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 
+import logoIco from "../../../assets/logo.ico";
+import logoPng from "../../../assets/logo.png";
+
 export const links: Route.LinksFunction = () => [
+	{
+		rel: "icon",
+		href: logoIco,
+		type: "image/x-icon",
+	},
+	{
+		rel: "icon",
+		href: logoPng,
+		type: "image/png",
+	},
 	{
 		rel: "preconnect",
 		href: "https://fonts.googleapis.com",

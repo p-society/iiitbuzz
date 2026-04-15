@@ -47,6 +47,7 @@ export interface ThreadDetail {
 	createdAt: string;
 	viewCount: number;
 	isPinned: boolean;
+	isAnonymous?: boolean;
 }
 
 export interface PostDetail {
@@ -58,6 +59,7 @@ export interface PostDetail {
 	authorAvatar: string;
 	postCount?: number;
 	likes: number;
+	isAnonymous?: boolean;
 }
 
 //used in threads.tsx
@@ -118,3 +120,15 @@ export interface Thread {
 }
 
 export type ThreadSortOption = "latest" | "top" | "trending" | "views";
+
+export interface AdminPost {
+	postId: string;
+	content: string;
+	createdAt: string;
+	threadId: string;
+	threadTitle?: string;
+	authorName: string | null;
+	isAnonymous: boolean;
+	isApproved: boolean;
+	isRejected: boolean;
+}

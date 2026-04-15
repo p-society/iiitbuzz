@@ -8,15 +8,18 @@ import Footer from "@/components/ui/footer";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
-import type { AdminThread } from "@/lib/api";
 import { toast } from "sonner";
+import type { AdminThread, AdminPost } from "@/lib/api";
 
 type Tab = "pending" | "approved" | "rejected";
+type SectionType = "threads" | "posts";
 
 export default function AdminPage() {
 	const { isAdmin, isAuthenticated, isLoading } = useAuth();
+	const [sectionType, setSectionType] = useState<SectionType>("threads");
 	const [activeTab, setActiveTab] = useState<Tab>("pending");
 	const [threads, setThreads] = useState<AdminThread[]>([]);
+	const [posts, setPosts] = useState<AdminPost[]>([]);
 	const [loading, setLoading] = useState(true);
 
 	const fetchThreads = useCallback(async () => {
@@ -34,9 +37,29 @@ export default function AdminPage() {
 		}
 	}, [activeTab]);
 
+	const fetchPosts = useCallback(async () => {
+		setLoading(true);
+		try {
+			let res: { success: boolean; posts: AdminPost[] };
+			if (activeTab === "pending") res = await api.getPendingPosts();
+			else if (activeTab === "approved") res = await api.getApprovedPosts();
+			else res = await api.getRejectedPosts();
+			setPosts(res.posts);
+		} catch (_err) {
+			toast.error("Failed to load posts");
+		} finally {
+			setLoading(false);
+		}
+	}, [activeTab]);
+
+	const fetchData = useCallback(async () => {
+		if (sectionType === "threads") await fetchThreads();
+		else await fetchPosts();
+	}, [sectionType, fetchThreads, fetchPosts]);
+
 	useEffect(() => {
-		if (isAuthenticated && isAdmin) fetchThreads();
-	}, [fetchThreads, isAuthenticated, isAdmin]);
+		if (isAuthenticated && isAdmin) fetchData();
+	}, [fetchData, isAuthenticated, isAdmin]);
 
 	if (isLoading) {
 		return (
@@ -80,7 +103,7 @@ export default function AdminPage() {
 		try {
 			await api.approveThread(id);
 			toast.success("Thread approved");
-			fetchThreads();
+			fetchData();
 		} catch (_err) {
 			toast.error("Failed to approve thread");
 		}
@@ -90,9 +113,29 @@ export default function AdminPage() {
 		try {
 			await api.rejectThread(id);
 			toast.success("Thread rejected");
-			fetchThreads();
+			fetchData();
 		} catch (_err) {
 			toast.error("Failed to reject thread");
+		}
+	};
+
+	const handleApprovePost = async (id: string) => {
+		try {
+			await api.approvePost(id);
+			toast.success("Post approved");
+			fetchData();
+		} catch (_err) {
+			toast.error("Failed to approve post");
+		}
+	};
+
+	const handleRejectPost = async (id: string) => {
+		try {
+			await api.rejectPost(id);
+			toast.success("Post rejected");
+			fetchData();
+		} catch (_err) {
+			toast.error("Failed to reject post");
 		}
 	};
 
@@ -135,11 +178,35 @@ export default function AdminPage() {
 				<div className="page-header mb-3">
 					<h1 className="font-black text-xl">Admin Panel</h1>
 					<p className="text-xs text-muted-foreground">
-						Manage anonymous thread approvals
+						Manage{" "}
+						{sectionType === "threads" ? "anonymous thread" : "anonymous post"}{" "}
+						approvals
 					</p>
 				</div>
 
 				<div className="flex gap-1 mb-3">
+					<div className="flex gap-1 mr-3 pr-3 border-r border-gray-300">
+						<Button
+							variant={sectionType === "threads" ? "default" : "neutral"}
+							onClick={() => {
+								setSectionType("threads");
+								setActiveTab("pending");
+							}}
+							className="neo-brutal-button text-xs py-1 px-3"
+						>
+							Threads
+						</Button>
+						<Button
+							variant={sectionType === "posts" ? "default" : "neutral"}
+							onClick={() => {
+								setSectionType("posts");
+								setActiveTab("pending");
+							}}
+							className="neo-brutal-button text-xs py-1 px-3"
+						>
+							Posts
+						</Button>
+					</div>
 					{tabConfig.map((tab) => (
 						<Button
 							key={tab.key}
@@ -156,16 +223,99 @@ export default function AdminPage() {
 				<div className="neo-brutal-card space-y-0 border-4 border-black">
 					{loading ? (
 						<p className="text-center py-4 font-bold text-sm">Loading...</p>
-					) : threads.length === 0 ? (
+					) : sectionType === "threads" ? (
+						threads.length === 0 ? (
+							<p className="text-center py-4 font-bold text-sm">
+								No {activeTab} threads
+							</p>
+						) : (
+							threads.map((thread, idx) => (
+								<div
+									key={thread.id}
+									className={
+										idx !== threads.length - 1 ? "border-b-2 border-black" : ""
+									}
+								>
+									<div className="flex items-center gap-3 py-3 px-3">
+										<div className="flex-1 min-w-0">
+											<div className="flex items-center gap-1 mb-0.5">
+												<span className="rounded border border-black bg-yellow-400 px-1 py-0 font-bold text-[10px] text-black uppercase">
+													ANON
+												</span>
+												<span className="text-[10px] text-muted-foreground">
+													in {thread.topicName}
+												</span>
+											</div>
+											<h3 className="font-bold text-sm truncate">
+												{thread.threadTitle}
+											</h3>
+											<p className="text-[10px] text-muted-foreground">
+												by {thread.authorName || "Anonymous"} ·{" "}
+												{formatDateIST(thread.createdAt)}
+											</p>
+										</div>
+
+										<div className="flex items-center gap-1 flex-shrink-0">
+											{activeTab === "pending" && (
+												<>
+													<Button
+														variant="neutral"
+														size="sm"
+														className="neo-brutal-button bg-green-400 text-black font-bold text-[10px] h-7 px-2"
+														onClick={() => handleApprove(thread.id)}
+													>
+														<Check className="h-3 w-3 mr-1" />
+														Approve
+													</Button>
+													<Button
+														variant="neutral"
+														size="sm"
+														className="neo-brutal-button bg-red-400 text-black font-bold text-[10px] h-7 px-2"
+														onClick={() => handleReject(thread.id)}
+													>
+														<X className="h-3 w-3 mr-1" />
+														Reject
+													</Button>
+												</>
+											)}
+											{activeTab === "approved" && (
+												<Link to={`/thread/${thread.id}`}>
+													<Button
+														variant="neutral"
+														size="sm"
+														className="neo-brutal-button bg-card font-bold text-[10px] h-7 px-2"
+													>
+														<Eye className="h-3 w-3 mr-1" />
+														View
+													</Button>
+												</Link>
+											)}
+											{activeTab === "rejected" && (
+												<Button
+													variant="neutral"
+													size="sm"
+													className="neo-brutal-button bg-green-400 text-black font-bold text-[10px] h-7 px-2"
+													onClick={() => handleApprove(thread.id)}
+												>
+													<Check className="h-3 w-3 mr-1" />
+													Re-approve
+												</Button>
+											)}
+										</div>
+									</div>
+								</div>
+							))
+						)
+					) : posts.length === 0 ? (
 						<p className="text-center py-4 font-bold text-sm">
-							No {activeTab} threads
+							No {activeTab} posts
 						</p>
 					) : (
-						threads.map((thread, idx) => (
+						posts.map((post, idx) => (
 							<div
-								key={thread.id}
+								key={post.postId}
 								className={
-									idx !== threads.length - 1 ? "border-b-2 border-black" : ""
+									idx !== posts.length - 1 ? "border-b-2 border-black" : ""
 								}
 							>
 								<div className="flex items-center gap-3 py-3 px-3">
@@ -175,15 +325,16 @@ export default function AdminPage() {
 												ANON
 											</span>
 											<span className="text-[10px] text-muted-foreground">
-												in {thread.topicName}
+												in thread #{post.threadId.slice(-6)}
 											</span>
 										</div>
-										<h3 className="font-bold text-sm truncate">
-											{thread.threadTitle}
-										</h3>
+										<p className="text-xs truncate mb-1">
+											{post.content.substring(0, 100)}
+											{post.content.length > 100 ? "..." : ""}
+										</p>
 										<p className="text-[10px] text-muted-foreground">
-											by {thread.authorName || "Anonymous"} ·{" "}
-											{formatDateIST(thread.createdAt)}
+											by {post.authorName || "Anonymous"} ·{" "}
+											{formatDateIST(post.createdAt)}
 										</p>
 									</div>
 
@@ -194,7 +345,7 @@ export default function AdminPage() {
 													variant="neutral"
 													size="sm"
 													className="neo-brutal-button bg-green-400 text-black font-bold text-[10px] h-7 px-2"
-													onClick={() => handleApprove(thread.id)}
+													onClick={() => handleApprovePost(post.postId)}
 												>
 													<Check className="h-3 w-3 mr-1" />
 													Approve
@@ -203,7 +354,7 @@ export default function AdminPage() {
 													variant="neutral"
 													size="sm"
 													className="neo-brutal-button bg-red-400 text-black font-bold text-[10px] h-7 px-2"
-													onClick={() => handleReject(thread.id)}
+													onClick={() => handleRejectPost(post.postId)}
 												>
 													<X className="h-3 w-3 mr-1" />
 													Reject
@@ -211,7 +362,7 @@ export default function AdminPage() {
 											</>
 										)}
 										{activeTab === "approved" && (
-											<Link to={`/thread/${thread.id}`}>
+											<Link to={`/thread/${post.threadId}`}>
 												<Button
 													variant="neutral"
 													size="sm"
@@ -227,7 +378,7 @@ export default function AdminPage() {
 												variant="neutral"
 												size="sm"
 												className="neo-brutal-button bg-green-400 text-black font-bold text-[10px] h-7 px-2"
-												onClick={() => handleApprove(thread.id)}
+												onClick={() => handleApprovePost(post.postId)}
 											>
 												<Check className="h-3 w-3 mr-1" />
 												Re-approve

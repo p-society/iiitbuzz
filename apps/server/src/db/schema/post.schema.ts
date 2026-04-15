@@ -34,7 +34,9 @@ export const posts = pgTable(
 		deletedBy: uuid("deleted_by").references(() => users.id),
 
 		isApproved: boolean("is_approved").default(false),
+		isRejected: boolean("is_rejected").default(false),
 		isDraft: boolean("is_draft").default(false),
+		isAnonymous: boolean("is_anonymous").default(false),
 	},
 	(table) => [
 		index("idx_post_created_by").on(table.createdBy),
