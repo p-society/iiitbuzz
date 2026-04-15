@@ -352,7 +352,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 			if (post.createdBy !== authUserId && authUser.role !== "admin")
 				return reply.status(403).send({ success: false, error: "Forbidden" });
 
-			const now = new Date().toISOString();
+			const now = sql`now()`;
 			await DrizzleClient.transaction(async (tx) => {
 				const [deletedPost] = await tx
 					.update(postsTable)

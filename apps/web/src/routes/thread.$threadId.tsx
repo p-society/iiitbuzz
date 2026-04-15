@@ -151,19 +151,22 @@ export default function ThreadPage() {
 			toast.error("Please log in to bookmark threads");
 			return;
 		}
+		if (bookmarkLoading) return;
 
+		const previousBookmarked = isBookmarked;
+		const nextBookmarked = !previousBookmarked;
+		setIsBookmarked(nextBookmarked);
 		setBookmarkLoading(true);
 		try {
-			if (isBookmarked) {
+			if (previousBookmarked) {
 				await api.removeThreadBookmark(threadId);
-				setIsBookmarked(false);
 				toast.success("Bookmark removed");
 			} else {
 				await api.addThreadBookmark(threadId);
-				setIsBookmarked(true);
 				toast.success("Thread bookmarked");
 			}
 		} catch (err) {
+			setIsBookmarked(previousBookmarked);
 			const message =
 				err instanceof Error ? err.message : "Failed to update bookmark";
 			toast.error(message);

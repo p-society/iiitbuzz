@@ -422,7 +422,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 				const [updated] = await DrizzleClient.update(reportsTable)
 					.set({
 						status: "resolved",
-						resolvedAt: new Date().toISOString(),
+						resolvedAt: sql`now()`,
 						resolvedBy: adminId,
 					})
 					.where(eq(reportsTable.id, id))
