@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, ne, sql } from "drizzle-orm";
+import { and, count, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import {
 	createThreadSchema,
@@ -103,6 +103,7 @@ export async function threadRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadsTable.id),
 							eq(postsTable.isDraft, false),
+							isNull(postsTable.deletedAt),
 						),
 					)
 					.leftJoin(topicsTable, eq(threadsTable.topicId, topicsTable.id));
@@ -111,6 +112,7 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					search && search.trim()
 						? selectQuery.where(
 								and(
+									isNull(threadsTable.deletedAt),
 									ilike(
 										threadsTable.threadTitle,
 										sql`${"%" + search.trim() + "%"}`,
@@ -119,7 +121,10 @@ export async function threadRoutes(fastify: FastifyInstance) {
 								),
 							)
 						: selectQuery.where(
-								sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
+								and(
+									isNull(threadsTable.deletedAt),
+									sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
+								),
 							);
 
 				const threadsQuery = withSearch
@@ -139,7 +144,10 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.limit(limit)
 					.offset(offset);
 
-				const approvalFilter = sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`;
+				const approvalFilter = and(
+					isNull(threadsTable.deletedAt),
+					sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
+				);
 
 				const countBase = DrizzleClient.select({ total: count() })
 					.from(threadsTable)
@@ -284,11 +292,13 @@ export async function threadRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadsTable.id),
 							eq(postsTable.isDraft, false),
+							isNull(postsTable.deletedAt),
 						),
 					)
 					.where(
 						and(
 							eq(threadsTable.topicId, topicId),
+							isNull(threadsTable.deletedAt),
 							sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
 						),
 					)
@@ -315,6 +325,7 @@ export async function threadRoutes(fastify: FastifyInstance) {
 						.where(
 							and(
 								eq(threadsTable.topicId, topicId),
+								isNull(threadsTable.deletedAt),
 								sql`(${threadsTable.isAnonymous} = false OR ${threadsTable.isApproved} = true)`,
 							),
 						),
@@ -389,7 +400,9 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.from(threadsTable)
 					.leftJoin(usersTable, eq(threadsTable.createdBy, usersTable.id))
 					.leftJoin(topicsTable, eq(threadsTable.topicId, topicsTable.id))
-					.where(eq(threadsTable.id, params.data.id))
+					.where(
+						and(eq(threadsTable.id, params.data.id), isNull(threadsTable.deletedAt)),
+					)
 					.limit(1);
 
 				const thread = threadData[0];
@@ -466,9 +479,12 @@ export async function threadRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadsTable.id),
 							eq(postsTable.isDraft, false),
+							isNull(postsTable.deletedAt),
 						),
 					)
-					.where(eq(threadsTable.createdBy, userId))
+					.where(
+						and(eq(threadsTable.createdBy, userId), isNull(threadsTable.deletedAt)),
+					)
 					.groupBy(
 						threadsTable.id,
 						threadsTable.threadTitle,
@@ -482,7 +498,9 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.offset(offset);
 				const countQuery = DrizzleClient.select({ total: count() })
 					.from(threadsTable)
-					.where(eq(threadsTable.createdBy, userId));
+					.where(
+						and(eq(threadsTable.createdBy, userId), isNull(threadsTable.deletedAt)),
+					);
 				const [threads, totalCount] = await Promise.all([
 					userThreadsQuery,
 					countQuery,
@@ -547,7 +565,7 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.returning();
 				return reply.status(201).send({ success: true, thread: newThread });
 			} catch (error) {
-				fastify.log.error("Error creating thread:", error);
+				fastify.log.error({ err: error, toInsert }, "Error creating thread");
 				return reply.status(500).send({
 					error: "Failed to create thread",
 					success: false,
@@ -578,7 +596,8 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid request body" });
 
 			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, params.data.id),
+				where: (t, { eq, isNull, and }) =>
+					and(eq(t.id, params.data.id), isNull(t.deletedAt)),
 			});
 			if (!thread)
 				return reply
@@ -615,18 +634,35 @@ export async function threadRoutes(fastify: FastifyInstance) {
 				return reply
 					.status(400)
 					.send({ success: false, error: "Invalid thread id" });
-			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, params.data.id),
-			});
+			const [authUser, thread] = await Promise.all([
+				DrizzleClient.query.users.findFirst({
+					where: (u, { eq }) => eq(u.id, authUserId),
+					columns: { id: true, role: true },
+				}),
+				DrizzleClient.query.threads.findFirst({
+					where: (t, { eq, isNull, and }) =>
+						and(eq(t.id, params.data.id), isNull(t.deletedAt)),
+				}),
+			]);
+			if (!authUser)
+				return reply
+					.status(404)
+					.send({ success: false, error: "User not found" });
 			if (!thread)
 				return reply
 					.status(404)
 					.send({ success: false, error: "Thread not found" });
-			if (thread.createdBy !== authUserId)
+			if (thread.createdBy !== authUserId && authUser.role !== "admin")
 				return reply.status(403).send({ success: false, error: "Forbidden" });
-			await DrizzleClient.delete(threadsTable).where(
-				eq(threadsTable.id, params.data.id),
-			);
+
+			await DrizzleClient.update(threadsTable)
+				.set({
+					deletedAt: new Date().toISOString(),
+					deletedBy: authUserId,
+					updatedAt: new Date().toISOString(),
+					updatedBy: authUserId,
+				})
+				.where(eq(threadsTable.id, params.data.id));
 			return reply.status(204).send();
 		},
 	);

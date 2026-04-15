@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
-import { Share2, Bookmark } from "lucide-react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Share2, Bookmark, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
@@ -12,9 +12,12 @@ import { api } from "@/lib/api";
 import { getTopicColor } from "@/lib/utils/topicColor";
 import { formatDateIST } from "@/lib/utils/date";
 import type { ThreadDetail, PostDetail } from "@/types/forum";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ThreadPage() {
 	const { threadId } = useParams<{ threadId: string }>();
+	const navigate = useNavigate();
+	const { user, isAdmin } = useAuth();
 	const [thread, setThread] = useState<ThreadDetail | null>(null);
 	const [posts, setPosts] = useState<PostDetail[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -128,6 +131,31 @@ export default function ThreadPage() {
 			});
 	};
 
+	const handleDeleteThread = async () => {
+		if (!threadId) return;
+
+		try {
+			await api.deleteThread(threadId);
+			toast.success("Thread deleted");
+			navigate("/threads");
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Failed to delete thread";
+			toast.error(message);
+		}
+	};
+
+	const handleDeletePost = async (postId: string) => {
+		try {
+			await api.deletePost(postId);
+			toast.success("Post deleted");
+			await loadThreadData();
+		} catch (err) {
+			const message = err instanceof Error ? err.message : "Failed to delete post";
+			toast.error(message);
+		}
+	};
+
 	if (loading || !thread)
 		return (
 			<div className="min-h-screen flex flex-col">
@@ -153,6 +181,20 @@ export default function ThreadPage() {
 			</div>
 
 			<main className="site-container flex-1 py-3">
+				{thread && (isAdmin || thread.authorId === user?.id) && (
+					<div className="mb-2 flex justify-end">
+						<Button
+							variant="neutral"
+							size="sm"
+							className="text-red-600 border-red-600"
+							onClick={handleDeleteThread}
+						>
+							<Trash2 className="h-3.5 w-3.5 mr-1" />
+							Delete Thread
+						</Button>
+					</div>
+				)}
+
 				<div className="flex justify-between items-start mb-3">
 					<div className="flex-1">
 						<span className="mono-label text-[9px] mb-1 block">
@@ -192,6 +234,8 @@ export default function ThreadPage() {
 							index={i}
 							isOP={post.authorId === thread.authorId}
 							onQuote={() => handleQuote(post.authorName, post.content)}
+							canDelete={Boolean(isAdmin || post.authorId === user?.id)}
+							onDelete={() => handleDeletePost(post.postId)}
 						/>
 					))}
 				</div>

@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, isNull } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { DrizzleClient } from "@/db/index";
 import { threads as threadsTable } from "@/db/schema/thread.schema";
@@ -69,6 +69,7 @@ export async function adminRoutes(fastify: FastifyInstance) {
 						and(
 							eq(threadsTable.isAnonymous, true),
 							eq(threadsTable.isApproved, true),
+							isNull(threadsTable.deletedAt),
 						),
 					)
 					.orderBy(desc(threadsTable.createdAt));

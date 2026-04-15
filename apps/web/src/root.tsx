@@ -16,6 +16,16 @@ import { AuthProvider } from "./contexts/AuthContext";
 import logoIco from "../../../assets/logo.ico";
 import logoPng from "../../../assets/logo.png";
 
+export function meta(_: Route.MetaArgs) {
+	return [
+		{ title: "IIITBuzz" },
+		{
+			name: "description",
+			content: "IIITBuzz - A community forum for IIIT Bhubaneswar students",
+		},
+	];
+}
+
 export const links: Route.LinksFunction = () => [
 	{
 		rel: "icon",

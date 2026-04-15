@@ -1,6 +1,6 @@
 import React, { type ForwardedRef, useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import { MentionTextarea } from "@/components/ui/mention-textarea";
 import { ImageIcon } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -206,10 +206,10 @@ export const ReplyBox = ({
 			)}
 
 			<div className="relative">
-				<Textarea
-					placeholder="Share your thoughts... Use **bold**, *italic*, >quote or paste/drop images"
+				<MentionTextarea
+					placeholder="Share your thoughts... Use @username, **bold**, *italic*, >quote or paste/drop images"
 					value={content}
-					onChange={(e) => setContent(e.target.value)}
+					onValueChange={setContent}
 					onPaste={handlePaste}
 					onDrop={handleDrop}
 					onDragOver={(e) => e.preventDefault()}

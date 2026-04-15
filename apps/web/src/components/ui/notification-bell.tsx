@@ -113,7 +113,11 @@ export function NotificationBell() {
 									className={`block p-2 border-b border-black/10 hover:bg-muted/30 ${!n.read ? "bg-muted/50" : ""}`}
 								>
 									<div className="text-xs font-bold">
-										{n.type === "reply" ? "💬" : "🔔"}{" "}
+										{n.type === "reply"
+											? "💬"
+											: n.type === "mention"
+												? "@"
+												: "🔔"}{" "}
 										{n.fromUsername || "Someone"} {n.message || "interacted"}
 									</div>
 									{n.threadTitle && (

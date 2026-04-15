@@ -1,4 +1,4 @@
-import { count } from "drizzle-orm";
+import { and, count, eq, isNull } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { DrizzleClient } from "../db/index";
 import { posts as postsTable } from "../db/schema/post.schema";
@@ -6,7 +6,6 @@ import { threads as threadsTable } from "../db/schema/thread.schema";
 import { topics as topicsTable } from "../db/schema/topic.schema";
 import { users as usersTable } from "../db/schema/user.schema";
 import { optionalAuth } from "./auth";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 export async function statsRoutes(fastify: FastifyInstance) {
@@ -20,8 +19,12 @@ export async function statsRoutes(fastify: FastifyInstance) {
 				const [topicsCount, threadsCount, postsCount, usersCount] =
 					await Promise.all([
 						DrizzleClient.select({ total: count() }).from(topicsTable),
-						DrizzleClient.select({ total: count() }).from(threadsTable),
-						DrizzleClient.select({ total: count() }).from(postsTable),
+						DrizzleClient.select({ total: count() })
+							.from(threadsTable)
+							.where(isNull(threadsTable.deletedAt)),
+						DrizzleClient.select({ total: count() })
+							.from(postsTable)
+							.where(isNull(postsTable.deletedAt)),
 						DrizzleClient.select({ total: count() }).from(usersTable),
 					]);
 
@@ -57,7 +60,9 @@ export async function statsRoutes(fastify: FastifyInstance) {
 				const [threadResult, topicResult] = await Promise.all([
 					DrizzleClient.select({ total: count() })
 						.from(threadsTable)
-						.where(eq(threadsTable.createdBy, userId)),
+						.where(
+							and(eq(threadsTable.createdBy, userId), isNull(threadsTable.deletedAt)),
+						),
 					DrizzleClient.select({ total: count() })
 						.from(topicsTable)
 						.where(eq(topicsTable.createdBy, userId)),

@@ -1,4 +1,4 @@
-import { and, count, eq, ne, sql } from "drizzle-orm";
+import { and, count, eq, isNull, ne, sql } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 
 const ANONYMOUS_USER_ID = "00000000-0000-0000-0000-000000000000";
@@ -16,6 +16,7 @@ import {
 	publishDraftSchema,
 } from "@/dto/posts.dto";
 import { threadIdParamsSchema } from "@/dto/threads.dto";
+import { createMentionNotifications } from "@/utils/mentions";
 import { attachUser, authenticateUser } from "./auth";
 
 export async function postRoutes(fastify: FastifyInstance) {
@@ -54,6 +55,18 @@ export async function postRoutes(fastify: FastifyInstance) {
 					"Fetching posts for thread",
 				);
 
+				const thread = await DrizzleClient.query.threads.findFirst({
+					where: (t, { eq, isNull, and }) =>
+						and(eq(t.id, threadId), isNull(t.deletedAt)),
+					columns: { id: true },
+				});
+
+				if (!thread) {
+					return reply
+						.status(404)
+						.send({ success: false, error: "Thread not found" });
+				}
+
 				const postsQuery = DrizzleClient.select({
 					postId: postsTable.id,
 					content: postsTable.content,
@@ -65,7 +78,12 @@ export async function postRoutes(fastify: FastifyInstance) {
 					isRejected: postsTable.isRejected,
 					createdBy: postsTable.createdBy,
 
-					authorId: postsTable.createdBy,
+					authorId: sql<string>`
+						CASE 
+							WHEN ${postsTable.isAnonymous} = true THEN ${ANONYMOUS_USER_ID}::uuid
+							ELSE ${usersTable.id}
+						END
+					`.as("authorId"),
 
 					authorName: sql<string>`
 						CASE 
@@ -81,6 +99,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							isNull(postsTable.deletedAt),
 							sql`(CASE WHEN ${postsTable.isAnonymous} = true THEN ${postsTable.isApproved} ELSE true END)`,
 						),
 					)
@@ -94,6 +113,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
+							isNull(postsTable.deletedAt),
 							sql`(CASE WHEN ${postsTable.isAnonymous} = true THEN ${postsTable.isApproved} ELSE true END)`,
 						),
 					);
@@ -145,7 +165,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 			}
 			try {
 				const post = await DrizzleClient.query.posts.findFirst({
-					where: (p, { eq }) => eq(p.id, params.data.id),
+					where: (p, { eq, isNull, and }) =>
+						and(eq(p.id, params.data.id), isNull(p.deletedAt)),
 				});
 				if (!post) {
 					return reply
@@ -179,7 +200,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid request body" });
 
 			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, body.data.threadId),
+				where: (t, { eq, isNull, and }) =>
+					and(eq(t.id, body.data.threadId), isNull(t.deletedAt)),
 			});
 			if (!thread)
 				return reply
@@ -228,6 +250,18 @@ export async function postRoutes(fastify: FastifyInstance) {
 				}
 			}
 
+			if (!isAnonymous) {
+				try {
+					await createMentionNotifications({
+						content: body.data.content,
+						fromUserId: authUserId,
+						threadId: body.data.threadId,
+					});
+				} catch (notifError) {
+					fastify.log.error("Error creating mention notifications:", notifError);
+				}
+			}
+
 			return reply.status(201).send({
 				success: true,
 				post,
@@ -258,7 +292,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid request body" });
 
 			const post = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq }) => eq(p.id, params.data.id),
+				where: (p, { eq, isNull, and }) =>
+					and(eq(p.id, params.data.id), isNull(p.deletedAt)),
 			});
 			if (!post)
 				return reply
@@ -295,18 +330,48 @@ export async function postRoutes(fastify: FastifyInstance) {
 				return reply
 					.status(400)
 					.send({ success: false, error: "Invalid post id" });
-			const post = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq }) => eq(p.id, params.data.id),
-			});
+			const [authUser, post] = await Promise.all([
+				DrizzleClient.query.users.findFirst({
+					where: (u, { eq }) => eq(u.id, authUserId),
+					columns: { id: true, role: true },
+				}),
+				DrizzleClient.query.posts.findFirst({
+					where: (p, { eq, isNull, and }) =>
+						and(eq(p.id, params.data.id), isNull(p.deletedAt)),
+				}),
+			]);
+			if (!authUser)
+				return reply
+					.status(404)
+					.send({ success: false, error: "User not found" });
 			if (!post)
 				return reply
 					.status(404)
 					.send({ success: false, error: "Post not found" });
-			if (post.createdBy !== authUserId)
+			if (post.createdBy !== authUserId && authUser.role !== "admin")
 				return reply.status(403).send({ success: false, error: "Forbidden" });
-			await DrizzleClient.delete(postsTable).where(
-				eq(postsTable.id, params.data.id),
-			);
+
+			const now = new Date().toISOString();
+			await DrizzleClient.transaction(async (tx) => {
+				await tx
+					.update(postsTable)
+					.set({
+						deletedAt: now,
+						deletedBy: authUserId,
+						updatedAt: now,
+						updatedBy: authUserId,
+					})
+					.where(eq(postsTable.id, params.data.id));
+
+				if (!post.isDraft && !post.isAnonymous) {
+					await tx
+						.update(usersTable)
+						.set({
+							totalPosts: sql`GREATEST(${usersTable.totalPosts} - 1, 0)`,
+						})
+						.where(eq(usersTable.id, post.createdBy));
+				}
+			});
 			return reply.status(204).send();
 		},
 	);
@@ -331,7 +396,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 			const { threadId } = body.data;
 
 			const thread = await DrizzleClient.query.threads.findFirst({
-				where: (t, { eq }) => eq(t.id, threadId),
+				where: (t, { eq, isNull, and }) =>
+					and(eq(t.id, threadId), isNull(t.deletedAt)),
 			});
 			if (!thread)
 				return reply
@@ -339,11 +405,12 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Thread not found" });
 
 			const existingDraft = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq, and }) =>
+				where: (p, { eq, and, isNull }) =>
 					and(
 						eq(p.threadId, threadId),
 						eq(p.createdBy, authUserId),
 						eq(p.isDraft, true),
+						isNull(p.deletedAt),
 					),
 			});
 
@@ -389,7 +456,8 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid request body" });
 
 			const post = await DrizzleClient.query.posts.findFirst({
-				where: (p, { eq }) => eq(p.id, params.data.id),
+				where: (p, { eq, isNull, and }) =>
+					and(eq(p.id, params.data.id), isNull(p.deletedAt)),
 			});
 
 			if (!post)
@@ -441,6 +509,18 @@ export async function postRoutes(fastify: FastifyInstance) {
 					});
 				} catch (notifError) {
 					fastify.log.error("Error creating notification:", notifError);
+				}
+			}
+
+			if (!isAnonymous) {
+				try {
+					await createMentionNotifications({
+						content: body.data.content,
+						fromUserId: authUserId,
+						threadId: updated.threadId,
+					});
+				} catch (notifError) {
+					fastify.log.error("Error creating mention notifications:", notifError);
 				}
 			}
 
