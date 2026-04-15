@@ -7,6 +7,13 @@ import {
 	ScrollRestoration,
 } from "react-router";
 import type { Route } from "./+types/root";
+
+export function meta(_: Route.MetaArgs) {
+	return [
+		{ title: "IIITBuzz" },
+		{ name: "description", content: "IIITBuzz - A community forum for IIIT Bhubaneswar students" },
+	];
+}
 import "./index.css";
 import "./styles/pages/landingpage.css";
 import { ThemeProvider } from "./components/theme-provider";
@@ -14,6 +21,11 @@ import { Toaster } from "./components/ui/sonner";
 import { AuthProvider } from "./contexts/AuthContext";
 
 export const links: Route.LinksFunction = () => [
+	{
+		rel: "icon",
+		href: "/images/logo.png",
+		type: "image/png",
+	},
 	{
 		rel: "preconnect",
 		href: "https://fonts.googleapis.com",
