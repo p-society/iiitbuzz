@@ -33,7 +33,7 @@ export const posts = pgTable(
 		updatedBy: uuid("updated_by").references(() => users.id),
 		deletedBy: uuid("deleted_by").references(() => users.id),
 
-		isApproved: boolean("is_approved").default(false),
+		isApproved: boolean("is_approved").default(true),
 		isRejected: boolean("is_rejected").default(false),
 		isDraft: boolean("is_draft").default(false),
 		isAnonymous: boolean("is_anonymous").default(false),

@@ -46,12 +46,21 @@ export async function postRoutes(fastify: FastifyInstance) {
 					.send({ success: false, error: "Invalid thread ID" });
 			const threadId = params.data.id;
 			try {
+				fastify.log.info(
+					{ threadId, page, limit },
+					"Fetching posts for thread",
+				);
+
 				const postsQuery = DrizzleClient.select({
 					postId: postsTable.id,
 					content: postsTable.content,
 					createdAt: postsTable.createdAt,
 					likes: postsTable.vote,
 					isAnonymous: postsTable.isAnonymous,
+					isDraft: postsTable.isDraft,
+					isApproved: postsTable.isApproved,
+					isRejected: postsTable.isRejected,
+					createdBy: postsTable.createdBy,
 
 					authorId: sql<string>`
 						CASE 
@@ -73,7 +82,6 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
-							eq(postsTable.isApproved, true),
 						),
 					)
 					.orderBy(postsTable.createdAt)
@@ -86,14 +94,20 @@ export async function postRoutes(fastify: FastifyInstance) {
 						and(
 							eq(postsTable.threadId, threadId),
 							ne(postsTable.isDraft, true),
-							eq(postsTable.isApproved, true),
 						),
 					);
+
+				fastify.log.info("Executing DB queries...");
 
 				const [threadPosts, countResult] = await Promise.all([
 					postsQuery,
 					countQuery,
 				]);
+
+				fastify.log.info(
+					{ postCount: threadPosts.length, total: countResult[0]?.total },
+					"Posts fetched successfully",
+				);
 
 				return reply.status(200).send({
 					success: true,
@@ -105,10 +119,17 @@ export async function postRoutes(fastify: FastifyInstance) {
 					},
 				});
 			} catch (error) {
-				fastify.log.error("Error fetching posts for thread:", error);
+				fastify.log.error(
+					{ err: error, threadId },
+					"Error fetching posts for thread - FULL ERROR",
+				);
 				return reply
 					.status(500)
-					.send({ success: false, error: "Failed to fetch posts" });
+					.send({
+						success: false,
+						error: "Failed to fetch posts",
+						details: String(error),
+					});
 			}
 		},
 	);
