@@ -565,7 +565,7 @@ export async function threadRoutes(fastify: FastifyInstance) {
 					.returning();
 				return reply.status(201).send({ success: true, thread: newThread });
 			} catch (error) {
-				fastify.log.error("Error creating thread:", error);
+				fastify.log.error({ err: error, toInsert }, "Error creating thread");
 				return reply.status(500).send({
 					error: "Failed to create thread",
 					success: false,

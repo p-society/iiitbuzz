@@ -80,7 +80,7 @@ export async function postRoutes(fastify: FastifyInstance) {
 
 					authorId: sql<string>`
 						CASE 
-							WHEN ${postsTable.isAnonymous} = true THEN '${ANONYMOUS_USER_ID}'
+							WHEN ${postsTable.isAnonymous} = true THEN ${ANONYMOUS_USER_ID}::uuid
 							ELSE ${usersTable.id}
 						END
 					`.as("authorId"),

@@ -3,6 +3,7 @@ ALTER TABLE "user" ALTER COLUMN "branch" SET DATA TYPE varchar(50);--> statement
 ALTER TABLE "post" ADD COLUMN "is_rejected" boolean DEFAULT false;--> statement-breakpoint
 ALTER TABLE "post" ADD COLUMN "is_draft" boolean DEFAULT false;--> statement-breakpoint
 ALTER TABLE "post" ADD COLUMN "is_anonymous" boolean DEFAULT false;--> statement-breakpoint
+ALTER TABLE "thread" ADD COLUMN "is_anonymous" boolean DEFAULT false;--> statement-breakpoint
 ALTER TABLE "thread" ADD COLUMN "is_approved" boolean DEFAULT true;--> statement-breakpoint
 ALTER TABLE "thread" ADD COLUMN "is_rejected" boolean DEFAULT false;--> statement-breakpoint
 ALTER TABLE "topic" ADD COLUMN "category" varchar(50) DEFAULT 'Official';--> statement-breakpoint
