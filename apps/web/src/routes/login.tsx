@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/ui/footer";
+import { useSearchParams } from "react-router-dom";
 
 export default function LoginPage() {
+	const [searchParams] = useSearchParams();
+	const domainError = searchParams.get("error") === "domain";
+
 	const redirectToGoogle = () => {
 		const backendUrl =
 			import.meta.env.VITE_BACKEND_API_URL || "http://localhost:3000";
@@ -11,38 +15,53 @@ export default function LoginPage() {
 
 	return (
 		<div className="flex flex-col min-h-screen landing-theme">
-			<main className="flex-1">
-				<section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-					<div className="absolute inset-0 bg-gradient-to-br from-background via-muted/20 to-background z-0" />
+			<main className="flex-1 px-4 py-10 sm:py-14 flex items-center justify-center">
+				<section className="mx-auto w-full max-w-2xl border-[1.5px] border-black bg-white fade-in-up">
+					<div className="flex items-center justify-between border-b-[1.5px] border-black bg-[#fafafa] px-4 py-2">
+						<span className="tech-stamp">AUTH :: ACCESS</span>
+						<span className="mono-label" style={{ color: "#000000" }}>
+							IIIT FORUM LOGIN
+						</span>
+					</div>
 
-					<div className="container mx-auto px-4 text-center relative z-20">
-						<div className="max-w-3xl mx-auto fade-in-up">
-							<h1
-								className="pixel-font text-4xl md:text-5xl lg:text-6xl mb-6 font-bold text-primary "
-								data-text="Welcome"
-							>
-								Welcome
-							</h1>
+					<div className="p-6 md:p-8 text-center">
+						<h1 className="heading-brutal text-4xl sm:text-5xl tracking-tight mb-3">
+							Welcome
+						</h1>
+						<p className="subheading-brutal text-xl sm:text-2xl mb-6">
+							Login to join the buzz
+						</p>
 
-							<p className="text-2xl md:text-3xl mb-8 text-primary font-bold ">
-								Login to join the buzz
+						<div className="mb-4 border-[1.5px] border-black bg-black px-4 py-3">
+							<p className="text-lg sm:text-xl text-foreground public-sans-font font-semibold leading-snug">
+								Sign in with your Google account to access discussions,
+								events, and resources
 							</p>
+						</div>
 
-							<div className="neo-brutal-card p-8 mb-8 max-w-xl mx-auto ghibli-card">
-								<p className="text-lg md:text-xl mb-4 text-foreground public-sans-font">
-									🎯 Sign in with your Google account to access discussions,
-									events, and resources
-								</p>
-								<p className="text-muted-foreground public-sans-font">
-									Your digital campus hub is just a click away.
+						<div className="mb-3 border-[1.5px] border-foreground bg-zinc-900 px-4 py-2.5">
+							<p className="text-sm sm:text-base font-semibold text-foreground public-sans-font">
+								Use your institute email only: @iiit-bh.ac.in
+							</p>
+						</div>
+
+						{domainError && (
+							<div className="mb-3 border-[1.5px] border-destructive bg-destructive/10 px-4 py-2.5">
+								<p className="text-sm font-bold text-destructive public-sans-font">
+									Access restricted: please sign in using your IIIT Bhubaneswar email id.
 								</p>
 							</div>
+						)}
 
-							<Button
-								size="lg"
-								onClick={redirectToGoogle}
-								className="neo-brutal-button bg-foreground text-black hover:bg-primary/90 border-primary text-lg px-8 py-6 ghibli-button"
-							>
+						<p className="text-muted-foreground public-sans-font mb-5">
+							Your digital campus hub is just a click away.
+						</p>
+
+						<Button
+							size="lg"
+							onClick={redirectToGoogle}
+							className="w-full sm:w-auto neo-brutal-button bg-foreground text-black hover:bg-primary/90 border-primary text-lg px-8 py-6 ghibli-button"
+						>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"
 									viewBox="0 0 533.5 544.3"
@@ -67,9 +86,8 @@ export default function LoginPage() {
 										d="M272 107.7c39.4 0 74.8 13.6 102.5 40.3l76.8-76.8C405 24 344.4 0 272 0 170.5 0 85 67.2 32.4 164.3l89.4 69.4C143.1 154.8 202.2 107.7 272 107.7z"
 									/>
 								</svg>
-								Login with Google
-							</Button>
-						</div>
+							Login with Google
+						</Button>
 					</div>
 				</section>
 			</main>

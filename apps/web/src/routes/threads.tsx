@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 import { ThreadRow } from "@/components/forum/ThreadRow";
 import { PaginationControls } from "@/components/forum/PaginationControls";
@@ -13,10 +14,12 @@ import { api } from "@/lib/api";
 import Header from "@/components/ui/header";
 import Footer from "@/components/ui/footer";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { useAuth } from "@/contexts/AuthContext";
 
 const PAGE_LIMIT = 20;
 
 export default function AllThreadsPage() {
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 	const [threads, setThreads] = useState<ThreadListItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
@@ -60,6 +63,10 @@ export default function AllThreadsPage() {
 	}, [fetchThreads]);
 
 	const totalPages = Math.ceil(pagination.count / PAGE_LIMIT);
+
+	if (!isAuthLoading && !isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
 	return (
 		<div className="min-h-screen flex flex-col bg-background">

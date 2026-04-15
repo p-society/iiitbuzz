@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, Link, Navigate } from "react-router-dom";
 import { Share2, Bookmark, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function ThreadPage() {
 	const { threadId } = useParams<{ threadId: string }>();
 	const navigate = useNavigate();
-	const { user, isAdmin } = useAuth();
+	const { user, isAdmin, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 	const [thread, setThread] = useState<ThreadDetail | null>(null);
 	const [posts, setPosts] = useState<PostDetail[]>([]);
 	const [loading, setLoading] = useState(true);
@@ -32,6 +32,10 @@ export default function ThreadPage() {
 	const [isBookmarked, setIsBookmarked] = useState(false);
 	const [bookmarkLoading, setBookmarkLoading] = useState(false);
 	const replyContentRef = useRef<HTMLTextAreaElement>(null);
+
+	if (!isAuthLoading && !isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
 	const loadThreadData = useCallback(async () => {
 		if (!threadId) return;

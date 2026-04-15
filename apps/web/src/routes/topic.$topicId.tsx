@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 
 import { api } from "@/lib/api";
@@ -15,8 +16,10 @@ import type {
 	ThreadListItem,
 	ThreadSortOption,
 } from "@/types/forum";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ThreadsPage() {
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 	const { topicId } = useParams<{ topicId: string }>();
 	const [topic, setTopic] = useState<TopicDetail | null>(null);
 	const [threads, setThreads] = useState<ThreadListItem[]>([]);
@@ -47,6 +50,10 @@ export default function ThreadsPage() {
 		};
 		loadData();
 	}, [topicId, currentPage, sortBy]);
+
+	if (!isAuthLoading && !isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
 	if (loading)
 		return (

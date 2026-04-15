@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { ArrowLeft, ImageIcon, Link2, Code, Info } from "lucide-react";
 import { toast } from "sonner";
 
@@ -8,10 +8,12 @@ import { CategoryTile } from "@/components/forum/CategoryTile";
 import type { TopicOption } from "@/types/forum";
 import { Button } from "@/components/ui/button";
 import { MentionTextarea } from "@/components/ui/mention-textarea";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function NewThreadPage() {
 	const navigate = useNavigate();
 	const location = useLocation();
+	const { isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
 	const [topics, setTopics] = useState<TopicOption[]>([]);
 	const [selectedTopicId, setSelectedTopicId] = useState("");
@@ -22,6 +24,10 @@ export default function NewThreadPage() {
 	const [loading, setLoading] = useState(true);
 	const [submitting, setSubmitting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+
+	if (!isAuthLoading && !isAuthenticated) {
+		return <Navigate to="/login" replace />;
+	}
 
 	useEffect(() => {
 		const fetchTopics = async () => {

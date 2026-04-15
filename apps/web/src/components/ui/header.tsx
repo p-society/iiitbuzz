@@ -57,19 +57,17 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 					) : isAuthenticated ? (
 						<>
 							<div className="nav-desktop items-center gap-3">
-								{!hideThemeToggle && (
-									<Link to="/home">
-										<Button
-											type="button"
-											variant="neutral"
-											size="sm"
-											className="flex h-9 items-center gap-1 px-3 text-xs font-bold border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
-										>
-											<Home className="h-4 w-4 transition-transform group-hover:scale-110" />
-											<span>Home</span>
-										</Button>
-									</Link>
-								)}
+								<Link to="/home">
+									<Button
+										type="button"
+										variant="neutral"
+										size="sm"
+										className="flex h-9 items-center gap-1 px-3 text-xs font-bold border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
+									>
+										<Home className="h-4 w-4 transition-transform group-hover:scale-110" />
+										<span>Home</span>
+									</Button>
+								</Link>
 								{isAdmin && (
 									<Link to="/admin">
 										<Button
