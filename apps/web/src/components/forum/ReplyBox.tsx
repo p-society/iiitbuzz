@@ -69,8 +69,8 @@ export const ReplyBox = ({
 			.map((line) => `> ${line}`)
 			.join("\n");
 		const newContent = content
-			? `${content}\n\n${quotedContent}\n`
-			: `${quotedContent}\n`;
+			? `${content}\n\n${quotedContent}\n\n`
+			: `${quotedContent}\n\n`;
 		setContent(newContent);
 		onClearReplyTo?.();
 	};
