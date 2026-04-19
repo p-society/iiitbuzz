@@ -197,7 +197,7 @@ export default function HomePage() {
 					<aside className="sidebar">
 						<Button
 							asChild
-							className="nav-desktop w-full py-1.5 mb-3 font-bold border-2 border-border bg-primary text-primary-foreground shadow-none hover:bg-primary/90"
+							className="nav-desktop w-full py-1.5 mb-3 font-bold border-2 border-border bg-primary text-primary-foreground shadow-none hover:bg-primary/90 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)]"
 						>
 							<Link
 								to="/new-thread"
