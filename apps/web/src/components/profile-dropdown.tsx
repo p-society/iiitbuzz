@@ -43,7 +43,7 @@ export default function ProfileDropdown() {
         <Button 
           variant="neutral" 
           size="sm"
-          className="h-9 border-2 border-border flex items-center gap-2 px-3 text-sm font-bold text-black shadow-none hover:bg-secondary hover:text-black transition-all group"
+          className="h-9 border-2 border-border flex items-center gap-2 px-3 text-sm font-bold text-foreground shadow-none hover:bg-secondary hover:text-foreground transition-all group"
         >
           
           <span className="tracking-tight">

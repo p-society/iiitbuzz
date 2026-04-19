@@ -90,7 +90,10 @@ export default function ThreadPage() {
 				isAnonymous: replyAnonymous,
 			});
 			setReplyContent("");
-			setReplyAnonymous(false);
+			if (replyAnonymous) {
+				toast.success("Reply submitted! It will appear after admin approval.");
+			}
+			setReplyAnonymous(true);
 			await loadThreadData();
 		} catch (err) {
 			const message =
@@ -291,7 +294,7 @@ export default function ThreadPage() {
 					</div>
 				</div>
 
-				<div className="space-y-3">
+				<div className="space-y-3 animate-fade-in">
 					{posts.map((post, i) => (
 						<PostItem
 							key={post.postId}

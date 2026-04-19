@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { ModeToggle } from "@/components/mode-toggle";
+import { DarkModeToggle } from "@/components/dark-mode-toggle";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/ui/notification-bell";
@@ -47,7 +48,8 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 
 				<div className="flex items-center gap-2">
 					{!hideThemeToggle && (
-						<div className="nav-desktop">
+						<div className="nav-desktop items-center gap-2">
+							<DarkModeToggle />
 							<ModeToggle />
 						</div>
 					)}
@@ -62,7 +64,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 										type="button"
 										variant="neutral"
 										size="sm"
-										className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-black border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
+										className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-foreground border-2 border-border shadow-none hover:bg-secondary hover:text-foreground transition-all group"
 									>
 										<Home className="h-4 w-4 transition-transform group-hover:scale-110" />
 										<span>Home</span>
@@ -74,7 +76,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 											type="button"
 											variant="neutral"
 											size="sm"
-											className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-black border-2 border-border shadow-none hover:bg-secondary hover:text-black transition-all group"
+											className="flex h-9 items-center gap-1 px-3 text-xs font-bold text-foreground border-2 border-border shadow-none hover:bg-secondary hover:text-foreground transition-all group"
 										>
 											<Shield className="h-4 w-4 transition-transform group-hover:scale-110" />
 											<span>Admin</span>
@@ -144,7 +146,10 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 																<Settings className="h-5 w-5 opacity-50" />
 																<span>Theme</span>
 															</div>
-															<ModeToggle />
+															<div className="flex items-center gap-2">
+																<DarkModeToggle />
+																<ModeToggle />
+															</div>
 														</div>
 													)}
 
@@ -245,7 +250,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 								onClick={login}
 								variant="neutral"
 								size="sm"
-								className="h-9 border-2 border-border bg-secondary px-3 text-xs font-black text-black shadow-none hover:bg-primary hover:text-primary-foreground transition-all"
+								className="h-9 border-2 border-border bg-secondary px-3 text-xs font-black text-foreground shadow-none hover:bg-primary hover:text-primary-foreground transition-all"
 							>
 								Log In
 							</Button>
@@ -253,7 +258,7 @@ const Header = ({ hideThemeToggle = false }: HeaderProps) => {
 								onClick={login}
 								variant="neutral"
 								size="sm"
-								className="h-9 border-2 border-border bg-foreground px-3 text-xs font-black text-background shadow-none hover:bg-foreground/90 hover:text-black transition-all"
+								className="h-9 border-2 border-border bg-foreground px-3 text-xs font-black text-background shadow-none hover:bg-foreground/90 transition-all"
 							>
 								Sign Up
 							</Button>

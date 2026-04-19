@@ -154,8 +154,12 @@ export const ReplyBox = ({
 
 		if (useDraft && draftId) {
 			try {
-				await api.publishDraft(draftId, content);
-				toast.success("Reply posted!");
+				await api.publishDraft(draftId, content, isAnonymous);
+				if (isAnonymous) {
+					toast.success("Reply submitted! It will appear after admin approval.");
+				} else {
+					toast.success("Reply posted!");
+				}
 				setDraftId(null);
 				setContent("");
 				if (onReload) await onReload();
@@ -171,7 +175,7 @@ export const ReplyBox = ({
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="mt-4 border border-black bg-card p-3"
+			className="mt-4 border border-border bg-card p-3"
 		>
 			<div className="flex items-center justify-between mb-2">
 				<h3 className="font-bold text-sm text-foreground">Post a Reply</h3>

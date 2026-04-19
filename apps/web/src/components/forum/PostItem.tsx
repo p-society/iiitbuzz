@@ -93,7 +93,7 @@ export const PostItem = ({
 	);
 
 	return (
-		<div className="border border-black bg-card">
+		<div className="border border-border bg-card animate-fade-in" style={{ animationDelay: `${index * 30}ms` }}>
 			<div className="post-block flex flex-col sm:flex-row">
 				<div className="author-pane w-full sm:w-[140px] p-2 sm:p-3 flex-shrink-0">
 					{profileUsername ? (
@@ -101,7 +101,7 @@ export const PostItem = ({
 							to={`/profile/${encodeURIComponent(profileUsername)}`}
 							className="block h-10 w-10 sm:h-12 sm:w-12 mb-2"
 						>
-							<div className="h-full w-full text-sm sm:text-base overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px] hover:opacity-85 transition-opacity">
+							<div className="h-full w-full text-sm sm:text-base overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-border text-[10px] hover:opacity-85 transition-opacity">
 								{!imgError && avatarUrl ? (
 									<img
 										src={avatarUrl}
@@ -116,7 +116,7 @@ export const PostItem = ({
 							</div>
 						</Link>
 					) : (
-						<div className="h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-black text-[10px]">
+						<div className="h-10 w-10 sm:h-12 sm:w-12 text-sm sm:text-base mb-2 overflow-hidden flex items-center justify-center bg-foreground text-background font-bold border border-border text-[10px]">
 							{!imgError && avatarUrl ? (
 								<img
 									src={avatarUrl}

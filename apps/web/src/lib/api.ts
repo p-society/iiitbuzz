@@ -262,10 +262,10 @@ export const api = {
 			{ method: "POST", body: JSON.stringify({ threadId }) },
 		),
 
-	publishDraft: (postId: string, content: string) =>
+	publishDraft: (postId: string, content: string, isAnonymous?: boolean) =>
 		apiFetch<{ success: boolean; post: PostDetail }>(
 			`/posts/${postId}/publish`,
-			{ method: "PATCH", body: JSON.stringify({ content }) },
+			{ method: "PATCH", body: JSON.stringify({ content, isAnonymous }) },
 		),
 
 	// Stats

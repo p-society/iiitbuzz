@@ -75,7 +75,7 @@ export function NotificationBell() {
 			<button
 				type="button"
 				onClick={() => setIsOpen(!isOpen)}
-				className="relative h-9 w-9 flex items-center justify-center border-2 border-black bg-foreground text-background hover:opacity-90 transition-all shadow-none group"
+				className="relative h-9 w-9 flex items-center justify-center border-2 border-border bg-foreground text-background hover:opacity-90 transition-all shadow-none group"
 				aria-label="Open notifications"
 				title="Open notifications"
 			>
@@ -88,8 +88,8 @@ export function NotificationBell() {
 			</button>
 
 			{isOpen && (
-				<div className="absolute right-2 top-10 max-w-[calc(100vw-2rem)] sm:w-80 border-4 border-black bg-card shadow-[4px_4px_0px_0px_var(--shadow-color)] z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
-					<div className="flex justify-between items-center border-b-2 border-black p-2">
+				<div className="absolute right-2 top-10 max-w-[calc(100vw-2rem)] sm:w-80 border-4 border-border bg-card shadow-[4px_4px_0px_0px_var(--shadow-color)] z-50 max-h-[calc(100vh-4rem)] overflow-y-auto">
+					<div className="flex justify-between items-center border-b-2 border-border p-2">
 						<span className="font-black text-xs uppercase">Notifications</span>
 						{unreadCount > 0 && (
 							<button

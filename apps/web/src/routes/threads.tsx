@@ -119,8 +119,8 @@ export default function AllThreadsPage() {
 					</div>
 				</div>
 
-				<div className="border border-black space-y-0">
-					<div className="border-b border-black px-3 py-2 bg-gray-50">
+				<div className="border border-border space-y-0">
+					<div className="border-b border-border px-3 py-2 bg-muted/30">
 						<span className="font-black text-xs uppercase tracking-wider">
 							Thread
 						</span>

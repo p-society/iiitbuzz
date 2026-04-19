@@ -8,6 +8,17 @@
 @tailwind utilities;
 @custom-variant dark (&:is(.dark *));
 
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 :root {
 	--background: #f0f7ff;
 	--foreground: #0a2540;
@@ -152,6 +163,26 @@
 	--shadow-color: #042f2e;
 }
 
+/* Dark mode overrides - works on top of any color theme */
+.dark {
+	--background: #0a0a0f;
+	--foreground: #e4e4e7;
+	--card: #141420;
+	--card-foreground: #e4e4e7;
+	--popover: #141420;
+	--popover-foreground: #e4e4e7;
+	--secondary: #1e1e2e;
+	--secondary-foreground: #e4e4e7;
+	--muted: #1e1e2e;
+	--muted-foreground: #9ca3af;
+	--accent-foreground: #e4e4e7;
+	--destructive: #ef4444;
+	--destructive-foreground: #ffffff;
+	--border: #2e2e3e;
+	--input: #1e1e2e;
+	--shadow-color: #000000;
+}
+
 @theme inline {
 	/* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
 	--color-background: var(--background);
@@ -255,10 +286,15 @@
 	}
 	body {
 		@apply bg-background text-foreground;
+		transition: background-color 0.3s ease, color 0.3s ease;
 	}
 }
 
 @layer utilities {
+
+	.animate-fade-in {
+		animation: fadeIn 0.3s ease-out both;
+	}
 	/* Technical-brutalist style building blocks - thin precision lines */
 
 	.neo-brutal-card-lg {

@@ -89,7 +89,7 @@ export default function ThreadsPage() {
 			</div>
 
 			<main className="site-container flex-1 py-3">
-				<div className="topic-header mb-3 p-3 border border-black bg-card">
+				<div className="topic-header mb-3 p-3 border border-border bg-card">
 					<span className="mono-label text-[9px] mb-1 block">{"// TOPIC"}</span>
 					<h1 className="font-black text-xl uppercase tracking-tight">
 						{topic?.topicName}
@@ -119,7 +119,7 @@ export default function ThreadsPage() {
 					</Button>
 				</div>
 
-				<div className="border border-black space-y-0">
+				<div className="border border-border space-y-0">
 					{threads.length === 0 ? (
 						<p className="text-center py-4 font-bold text-sm">
 							No threads here yet...
