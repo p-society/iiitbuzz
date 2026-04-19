@@ -18,13 +18,13 @@ const Footer = () => {
 								href="https://www.linkedin.com/company/p-soc"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="w-6 h-6 border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+								className="w-6 h-6 border border-border flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
 							>
 								<Linkedin className="w-3 h-3" />
 							</a>
 							<a
 								href="mailto:tech-society@eiiit-bh.ac.in"
-								className="w-6 h-6 border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+								className="w-6 h-6 border border-border flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
 							>
 								<Mail className="w-3 h-3" />
 							</a>
@@ -32,7 +32,7 @@ const Footer = () => {
 								href="https://twitter.com/psociiit"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="w-6 h-6 border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+								className="w-6 h-6 border border-border flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
 							>
 								<Twitter className="w-3 h-3" />
 							</a>
@@ -40,7 +40,7 @@ const Footer = () => {
 								href="https://www.instagram.com/psoc_iiitbh"
 								target="_blank"
 								rel="noopener noreferrer"
-								className="w-6 h-6 border border-black flex items-center justify-center hover:bg-black hover:text-white transition-colors"
+								className="w-6 h-6 border border-border flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-colors"
 							>
 								<Instagram className="w-3 h-3" />
 							</a>
@@ -61,8 +61,8 @@ const Footer = () => {
 						</a>
 					</div>
 				</div>
-				<div className="border-t border-gray-300 mt-3 py-2 text-center">
-					<p className="mono-meta text-[10px]" style={{ color: "#9ca3af" }}>
+				<div className="border-t border-border mt-3 py-2 text-center">
+					<p className="mono-meta text-[10px]">
 						© 2026 IIITBuzz · by P-Soc IIIT-bh
 					</p>
 				</div>

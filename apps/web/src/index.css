@@ -166,25 +166,50 @@
 /* Dark mode overrides - works on top of any color theme */
 .dark {
 	--background: #0b0e14;
-	--foreground: #e2e8f0;
+	--foreground: #f8fafc;
 	--card: #151921;
-	--card-foreground: #e2e8f0;
+	--card-foreground: #f8fafc;
 	--popover: #151921;
-	--popover-foreground: #e2e8f0;
+	--popover-foreground: #f8fafc;
 	--primary: #4f86c6;
 	--primary-foreground: #f8fafc;
 	--secondary: #1c212b;
-	--secondary-foreground: #e2e8f0;
+	--secondary-foreground: #f8fafc;
 	--muted: #1c212b;
-	--muted-foreground: #8b949e;
+	--muted-foreground: #94a3b8;
 	--accent: #4f86c6;
-	--accent-foreground: #e2e8f0;
+	--accent-foreground: #f8fafc;
 	--destructive: #e45858;
 	--destructive-foreground: #ffffff;
 	--border: #30363d;
 	--input: #1c212b;
 	--ring: #4f86c6;
 	--shadow-color: #000000;
+}
+
+.dark .text-black {
+	color: #f8fafc !important;
+}
+
+.dark .hover\:text-black:hover {
+	color: #f8fafc !important;
+}
+
+.dark .bg-white {
+	background-color: var(--card) !important;
+}
+
+.dark .border-black,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-black\/10 {
+	border-color: var(--border) !important;
+}
+
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-gray-700 {
+	color: #94a3b8 !important;
 }
 
 .dark.blue {

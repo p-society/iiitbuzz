@@ -95,7 +95,7 @@ export function NotificationBell() {
 							<button
 								type="button"
 								onClick={markAllRead}
-								className="text-[10px] font-bold text-black hover:underline"
+								className="text-[10px] font-bold text-foreground hover:underline"
 								aria-label="Mark all notifications as read"
 								title="Mark all notifications as read"
 							>
