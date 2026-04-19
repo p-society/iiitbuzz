@@ -33,14 +33,14 @@ const TopicRow = ({ topic, threadCount, latestPost }: TopicRowProps) => {
 					</div>
 
 					<div className="zone-b min-w-0">
-						<h3 className="font-bold text-sm truncate uppercase tracking-tight">
+						<h3 className="font-bold text-sm truncate uppercase tracking-tight text-foreground">
 							{topic.topicName}
 						</h3>
-						<p className="mono-meta truncate">{topic.topicDescription}</p>
+						<p className="mono-meta truncate text-muted-foreground">{topic.topicDescription}</p>
 					</div>
 
 					<div className="zone-c flex flex-col items-center justify-center text-center min-w-[3.5rem]">
-						<div className="font-bold text-sm leading-none">{threadCount}</div>
+						<div className="font-bold text-sm leading-none text-foreground">{threadCount}</div>
 						<div className="mono-label leading-none mt-1">Threads</div>
 					</div>
 
@@ -51,7 +51,7 @@ const TopicRow = ({ topic, threadCount, latestPost }: TopicRowProps) => {
 								<span>{latestPost.authorInitials}</span>
 							</div>
 							<div className="min-w-0 flex-1">
-								<div className="text-[11px] font-semibold truncate leading-tight">
+								<div className="text-[11px] font-semibold truncate leading-tight text-foreground">
 									{latestPost.title}
 								</div>
 								<div className="mono-meta">{latestPost.timeAgo}</div>
@@ -140,7 +140,7 @@ const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
 							{topicName || thread.topicName}
 						</span>
 					</div>
-					<h3 className="font-bold text-sm truncate">
+					<h3 className="font-bold text-sm truncate text-foreground">
 						{thread.title || thread.threadTitle}
 					</h3>
 					<span
@@ -158,7 +158,7 @@ const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
 					</span>
 				</div>
 				<div className="col-replies w-16 text-center flex-shrink-0 flex flex-col justify-center">
-					<div className="font-bold text-sm">{thread.replies ?? 0}</div>
+					<div className="font-bold text-sm text-foreground">{thread.replies ?? 0}</div>
 					<div className="mono-label">Replies</div>
 				</div>
 				<div className="col-last w-20 text-right flex-shrink-0 flex flex-col justify-center">

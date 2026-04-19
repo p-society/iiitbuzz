@@ -137,7 +137,7 @@ export default function HomePage() {
 									<span className="mono-label text-[9px] mb-1 block">
 										CATEGORY
 									</span>
-									<h2 className="font-black text-lg uppercase tracking-tight">
+									<h2 className="font-black text-lg uppercase tracking-tight text-foreground">
 										Official
 									</h2>
 								</div>
@@ -168,7 +168,7 @@ export default function HomePage() {
 									<span className="mono-label text-[9px] mb-1 block">
 										CATEGORY
 									</span>
-									<h2 className="font-black text-lg uppercase tracking-tight">
+									<h2 className="font-black text-lg uppercase tracking-tight text-foreground">
 										The Hub
 									</h2>
 								</div>
@@ -222,12 +222,12 @@ export default function HomePage() {
 											to={`/thread/${thread.id}`}
 										className="block hover:bg-muted/40 -mx-1 px-1 transition-colors"
 										>
-											<div className="font-bold text-xs truncate text-foreground">
-												{thread.title}
-											</div>
-											<div className="mono-meta">
-												{thread.author} · {thread.lastActive}
-											</div>
+										<div className="font-bold text-xs truncate text-foreground">
+											{thread.title}
+										</div>
+										<div className="mono-meta">
+											{thread.author} · {thread.lastActive}
+										</div>
 										</Link>
 									))}
 								</div>
@@ -239,28 +239,28 @@ export default function HomePage() {
 										</h3>
 										<div className="grid grid-cols-2 gap-2">
 											<div className="text-center">
-												<div className="font-black text-base">
-													{stats.totalThreads}
-												</div>
-												<div className="mono-label">Threads</div>
-											</div>
-											<div className="text-center">
-												<div className="font-black text-base">
-													{stats.totalPosts}
-												</div>
-												<div className="mono-label">Posts</div>
-											</div>
-											<div className="text-center">
-												<div className="font-black text-base">
-													{stats.totalMembers}
-												</div>
-												<div className="mono-label">Members</div>
-											</div>
-											<div className="text-center">
-												<div className="font-black text-base">
-													{stats.onlineMembers}
-												</div>
-												<div className="mono-label">Online</div>
+										<div className="font-black text-base text-foreground">
+											{stats.totalThreads}
+										</div>
+										<div className="mono-label">Threads</div>
+									</div>
+									<div className="text-center">
+										<div className="font-black text-base text-foreground">
+											{stats.totalPosts}
+										</div>
+										<div className="mono-label">Posts</div>
+									</div>
+									<div className="text-center">
+										<div className="font-black text-base text-foreground">
+											{stats.totalMembers}
+										</div>
+										<div className="mono-label">Members</div>
+									</div>
+									<div className="text-center">
+										<div className="font-black text-base text-foreground">
+											{stats.onlineMembers}
+										</div>
+										<div className="mono-label">Online</div>
 											</div>
 										</div>
 									</>
