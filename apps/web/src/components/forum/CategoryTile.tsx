@@ -18,10 +18,10 @@ export const CategoryTile = ({
 			type="button"
 			onClick={onClick}
 			disabled={disabled}
-			className={`border border-black p-3 sm:p-4 text-left transition-colors ${
+			className={`border border-border p-3 sm:p-4 text-left transition-colors ${
 				isSelected
-					? "bg-black text-white"
-					: "bg-white text-foreground hover:bg-gray-50"
+					? "bg-foreground text-background"
+					: "bg-card text-foreground hover:bg-muted/40"
 			} disabled:opacity-70`}
 		>
 			<div className="flex items-center gap-2">

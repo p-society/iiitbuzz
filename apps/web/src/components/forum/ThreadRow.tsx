@@ -25,10 +25,10 @@ export const ThreadRow = ({ thread }: { thread: ThreadListItem }) => {
 
 	return (
 		<Link to={`/thread/${thread.id}`} className="block">
-			<div className="py-2 px-3 flex items-center gap-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors">
+			<div className="py-2 px-3 flex items-center gap-3 border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors">
 				<div className="col-avatar w-10 flex-shrink-0">
 					<div
-						className={`h-8 w-8 flex items-center justify-center bg-foreground text-background text-[10px] font-bold border border-black ${profileUsername ? "cursor-pointer hover:opacity-85" : ""}`}
+						className={`h-8 w-8 flex items-center justify-center bg-foreground text-background text-[10px] font-bold border border-border ${profileUsername ? "cursor-pointer hover:opacity-85" : ""}`}
 						onClick={goToProfile}
 						onKeyDown={(event) => {
 							if (event.key === "Enter" || event.key === " ") {

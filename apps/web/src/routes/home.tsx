@@ -141,13 +141,13 @@ export default function HomePage() {
 										Official
 									</h2>
 								</div>
-								<div className="border border-black space-y-0">
+								<div className="border border-border space-y-0 bg-card">
 									{officialTopics.map((t, idx) => (
 										<div
 											key={t.id}
 											className={
 												idx !== officialTopics.length - 1
-													? "border-b border-gray-200"
+													? "border-b border-border"
 													: ""
 											}
 										>
@@ -172,13 +172,13 @@ export default function HomePage() {
 										The Hub
 									</h2>
 								</div>
-								<div className="border border-black space-y-0">
+								<div className="border border-border space-y-0 bg-card">
 									{hubTopics.map((t, idx) => (
 										<div
 											key={t.id}
 											className={
 												idx !== hubTopics.length - 1
-													? "border-b border-gray-200"
+													? "border-b border-border"
 													: ""
 											}
 										>
@@ -207,12 +207,12 @@ export default function HomePage() {
 							</Link>
 						</Button>
 
-						<div className="border border-black">
-							<div className="p-3 border-b border-gray-200">
+						<div className="border border-border bg-card">
+							<div className="p-3 border-b border-border">
 								<span className="mono-label">{"// SECTION: ACTIVITY"}</span>
 							</div>
 							<div className="p-3">
-								<h3 className="font-bold text-xs mb-2 uppercase tracking-wider border-b border-gray-200 pb-1">
+								<h3 className="font-bold text-xs mb-2 uppercase tracking-wider border-b border-border pb-1 text-foreground">
 									Recent
 								</h3>
 								<div className="space-y-1.5 mb-4">
@@ -220,9 +220,9 @@ export default function HomePage() {
 										<Link
 											key={thread.id}
 											to={`/thread/${thread.id}`}
-											className="block hover:bg-gray-50 -mx-1 px-1 transition-colors"
+										className="block hover:bg-muted/40 -mx-1 px-1 transition-colors"
 										>
-											<div className="font-bold text-xs truncate">
+											<div className="font-bold text-xs truncate text-foreground">
 												{thread.title}
 											</div>
 											<div className="mono-meta">
@@ -234,7 +234,7 @@ export default function HomePage() {
 
 								{stats && (
 									<>
-										<h3 className="font-bold text-xs mb-2 uppercase tracking-wider border-b border-gray-200 pb-1">
+										<h3 className="font-bold text-xs mb-2 uppercase tracking-wider border-b border-border pb-1 text-foreground">
 											Stats
 										</h3>
 										<div className="grid grid-cols-2 gap-2">
