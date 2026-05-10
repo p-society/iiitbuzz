@@ -41,7 +41,7 @@ const Hero = () => {
 			<div
 				className="absolute inset-0 z-[1] opacity-[0.04]"
 				style={{
-					backgroundImage: `radial-gradient(${getComputedStyle(document.documentElement).getPropertyValue('--landing-grid-color').trim() || '#d1d1d1'} 1px, transparent 1px)`,
+					backgroundImage: "radial-gradient(var(--landing-grid-color, #d1d1d1) 1px, transparent 1px)",
 					backgroundSize: "16px 16px",
 				}}
 			/>
