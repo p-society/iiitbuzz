@@ -45,6 +45,22 @@
 	--chart-4: #1d4ed8;
 	--chart-5: #93c5fd;
 	--shadow-color: #0a2540;
+
+	/* Landing page specific variables */
+	--text-primary: #000000;
+	--text-secondary: #374151;
+	--surface: #fafafa;
+	--landing-grid-color: #d1d1d1;
+	--landing-button-shadow: rgba(0, 0, 0, 1);
+	--landing-card-border: #000000;
+	--landing-icon-border: #000000;
+	--landing-divider: #000000;
+
+	/* Component-specific colors */
+	--card-variant-yellow: #ffe066;
+	--card-variant-red: #ff6b6b;
+	--card-shadow: #000;
+	--button-text: #000;
 }
 
 /* Green expressive theme */
@@ -74,6 +90,22 @@
 	--chart-4: #15803d;
 	--chart-5: #86efac;
 	--shadow-color: #052e16;
+
+	/* Landing page specific */
+	--text-primary: #052e16;
+	--text-secondary: #14532d;
+	--surface: #e8f5e9;
+	--landing-grid-color: #c8e6c9;
+	--landing-button-shadow: rgba(22, 163, 74, 0.6);
+	--landing-card-border: #052e16;
+	--landing-icon-border: #052e16;
+	--landing-divider: #052e16;
+
+	/* Component-specific */
+	--card-variant-yellow: #c6f6d5;
+	--card-variant-red: #a7f3d0;
+	--card-shadow: #052e16;
+	--button-text: #052e16;
 }
 
 /* Purple expressive theme */
@@ -103,6 +135,22 @@
 	--chart-4: #7e22ce;
 	--chart-5: #d8b4fe;
 	--shadow-color: #3b0764;
+
+	/* Landing page specific */
+	--text-primary: #3b0764;
+	--text-secondary: #581c87;
+	--surface: #faf5ff;
+	--landing-grid-color: #e9d5ff;
+	--landing-button-shadow: rgba(147, 51, 234, 0.6);
+	--landing-card-border: #3b0764;
+	--landing-icon-border: #3b0764;
+	--landing-divider: #3b0764;
+
+	/* Component-specific */
+	--card-variant-yellow: #ddd6fe;
+	--card-variant-red: #c4b5fd;
+	--card-shadow: #3b0764;
+	--button-text: #3b0764;
 }
 
 /* Orange expressive theme */
@@ -132,6 +180,22 @@
 	--chart-4: #c2410c;
 	--chart-5: #fdba74;
 	--shadow-color: #431407;
+
+	/* Landing page specific */
+	--text-primary: #431407;
+	--text-secondary: #7c2d12;
+	--surface: #ffedd5;
+	--landing-grid-color: #fed7aa;
+	--landing-button-shadow: rgba(234, 88, 12, 0.6);
+	--landing-card-border: #431407;
+	--landing-icon-border: #431407;
+	--landing-divider: #431407;
+
+	/* Component-specific */
+	--card-variant-yellow: #fed7aa;
+	--card-variant-red: #fbcfe8;
+	--card-shadow: #431407;
+	--button-text: #431407;
 }
 
 /* Teal expressive theme */
@@ -161,6 +225,22 @@
 	--chart-4: #0f766e;
 	--chart-5: #7dd3fc;
 	--shadow-color: #042f2e;
+
+	/* Landing page specific */
+	--text-primary: #042f2e;
+	--text-secondary: #134e4a;
+	--surface: #ccfbf1;
+	--landing-grid-color: #99f6e4;
+	--landing-button-shadow: rgba(20, 184, 166, 0.6);
+	--landing-card-border: #042f2e;
+	--landing-icon-border: #042f2e;
+	--landing-divider: #042f2e;
+
+	/* Component-specific */
+	--card-variant-yellow: #a7f3d0;
+	--card-variant-red: #99f6e4;
+	--card-shadow: #042f2e;
+	--button-text: #042f2e;
 }
 
 /* Dark mode overrides - works on top of any color theme */
@@ -185,6 +265,22 @@
 	--input: #1c212b;
 	--ring: #4f86c6;
 	--shadow-color: #000000;
+
+	/* Landing page specific */
+	--text-primary: #f8fafc;
+	--text-secondary: #94a3b8;
+	--surface: #1c212b;
+	--landing-grid-color: #30363d;
+	--landing-button-shadow: rgba(79, 134, 198, 0.4);
+	--landing-card-border: #30363d;
+	--landing-icon-border: #30363d;
+	--landing-divider: #30363d;
+
+	/* Component-specific */
+	--card-variant-yellow: #44403c;
+	--card-variant-red: #5a5a5a;
+	--card-shadow: #000;
+	--button-text: #f8fafc;
 }
 
 .dark .text-black {
@@ -347,6 +443,37 @@
 		@apply bg-background text-foreground;
 		transition: background-color 0.3s ease, color 0.3s ease;
 	}
+
+	input,
+	textarea,
+	select {
+		@apply bg-input text-foreground;
+		transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+	}
+
+	input::placeholder,
+	textarea::placeholder {
+		@apply text-muted-foreground;
+	}
+
+	button {
+		transition: all 0.2s ease;
+	}
+
+	a {
+		@apply text-foreground;
+		transition: color 0.2s ease;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply text-foreground;
+		transition: color 0.3s ease;
+	}
 }
 
 @layer utilities {
@@ -354,6 +481,56 @@
 	.animate-fade-in {
 		animation: fadeIn 0.3s ease-out both;
 	}
+
+	/* Light mode overrides for specific elements that need adjustment */
+	.light {
+		color-scheme: light;
+	}
+
+	.dark {
+		color-scheme: dark;
+	}
+
+	/* Table and list items */
+	table {
+		@apply bg-card text-card-foreground;
+		transition: background-color 0.3s ease;
+	}
+
+	tbody tr {
+		@apply border-border;
+		transition: background-color 0.3s ease, border-color 0.3s ease;
+	}
+
+	tbody tr:hover {
+		@apply bg-muted/30;
+	}
+
+	/* Code blocks */
+	code,
+	pre {
+		@apply bg-muted text-muted-foreground;
+		transition: background-color 0.3s ease, color 0.3s ease;
+	}
+
+	/* Scrollbar styling */
+	::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+
+	::-webkit-scrollbar-track {
+		@apply bg-background;
+	}
+
+	::-webkit-scrollbar-thumb {
+		@apply bg-border rounded;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		@apply bg-muted-foreground;
+	}
+
 	/* Technical-brutalist style building blocks - thin precision lines */
 
 	.neo-brutal-card-lg {
@@ -381,7 +558,7 @@
 	}
 
 	.neo-brutal-input {
-		@apply border border-border bg-card text-foreground focus:outline-none focus:border-foreground;
+		@apply border border-border bg-input text-foreground focus:outline-none focus:border-foreground;
 	}
 
 	.neo-brutal-empty {
@@ -477,6 +654,7 @@
 		text-transform: uppercase;
 		font-size: 0.65rem;
 		color: var(--muted-foreground);
+		transition: color 0.3s ease;
 	}
 
 	.mono-meta {
@@ -485,6 +663,7 @@
 		font-size: 0.7rem;
 		letter-spacing: 0.03em;
 		color: var(--muted-foreground);
+		transition: color 0.3s ease;
 	}
 
 	.tech-stamp {
@@ -497,6 +676,7 @@
 		border: 1px solid var(--border);
 		display: inline-block;
 		line-height: 1.4;
+		transition: all 0.3s ease;
 	}
 
 	.dark .mono-label {
@@ -510,33 +690,43 @@
 	/* Accent left-border indicators */
 	.accent-border-green {
 		border-left: 3px solid #22c55e;
+		transition: all 0.3s ease;
 	}
 	.accent-border-blue {
 		border-left: 3px solid #3b82f6;
+		transition: all 0.3s ease;
 	}
 	.accent-border-red {
 		border-left: 3px solid #ef4444;
+		transition: all 0.3s ease;
 	}
 	.accent-border-yellow {
 		border-left: 3px solid #eab308;
+		transition: all 0.3s ease;
 	}
 	.accent-border-purple {
 		border-left: 3px solid #a855f7;
+		transition: all 0.3s ease;
 	}
 	.accent-border-pink {
 		border-left: 3px solid #ec4899;
+		transition: all 0.3s ease;
 	}
 	.accent-border-indigo {
 		border-left: 3px solid #6366f1;
+		transition: all 0.3s ease;
 	}
 	.accent-border-orange {
 		border-left: 3px solid #f97316;
+		transition: all 0.3s ease;
 	}
 	.accent-border-teal {
 		border-left: 3px solid #14b8a6;
+		transition: all 0.3s ease;
 	}
 	.accent-border-cyan {
 		border-left: 3px solid #06b6d4;
+		transition: all 0.3s ease;
 	}
 
 	.dark .accent-border-green,

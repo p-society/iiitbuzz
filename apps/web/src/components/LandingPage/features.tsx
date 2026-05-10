@@ -66,20 +66,24 @@ const FeaturesPage = () => {
 	return (
 		<section
 			id="features"
-			className="py-20 lg:py-28 bg-[#fafafa] relative overflow-hidden border-b-[1.5px] border-black"
+			className="py-20 lg:py-28 relative overflow-hidden border-b-[1.5px]"
+			style={{
+				backgroundColor: 'var(--surface)',
+				borderColor: 'var(--landing-divider)',
+			}}
 		>
 			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 				<div className="mb-16">
 					<div className="flex items-center gap-3 mb-3">
 						<span className="tech-stamp">FEATURES</span>
-						<div className="h-[1px] flex-1 bg-black" />
+						<div className="h-[1px] flex-1" style={{ backgroundColor: 'var(--landing-divider)' }} />
 					</div>
-					<h2 className="heading-brutal text-4xl tracking-tight">
+					<h2 className="heading-brutal text-4xl tracking-tight" style={{ color: 'var(--text-primary)' }}>
 						POWER-UP YOUR
 						<br />
 						COLLEGE EXPERIENCE
 					</h2>
-					<p className="body-brutal mt-3 max-w-lg" style={{ color: "#6b7280" }}>
+					<p className="body-brutal mt-3 max-w-lg" style={{ color: 'var(--text-secondary)' }}>
 						Level up your academic journey with features designed for the modern
 						IIIT student
 					</p>
@@ -91,6 +95,11 @@ const FeaturesPage = () => {
 							to={routeTo}
 							key={feature.key}
 							className="feature-grid-item group"
+							style={{
+								borderColor: 'var(--landing-divider)',
+								backgroundColor: 'var(--card)',
+								color: 'var(--card-foreground)',
+							}}
 						>
 							<div
 								className={`h-full flex flex-col ${feature.accentBarClass}`}
@@ -110,16 +119,17 @@ const FeaturesPage = () => {
 										hyphens: "auto",
 										overflowWrap: "break-word",
 										wordBreak: "break-word",
+										color: 'var(--text-primary)',
 									}}
 								>
 									{feature.title}
 								</h3>
-								<p className="body-brutal text-sm flex-1">
+								<p className="body-brutal text-sm flex-1" style={{ color: 'var(--text-secondary)' }}>
 									{feature.description}
 								</p>
 								<div
 									className="mt-4 pt-3 flex items-center gap-1"
-									style={{ borderTop: "1px solid #e5e7eb" }}
+									style={{ borderTop: `1px solid var(--landing-divider)` }}
 								>
 									<span
 										className="mono-label"
@@ -143,8 +153,8 @@ const FeaturesPage = () => {
 									width: "36px",
 									height: "36px",
 									boxShadow: "none",
-									borderLeft: "1px solid #000000",
-									borderBottom: "1px solid #000000",
+									borderLeft: `1px solid var(--landing-divider)`,
+									borderBottom: `1px solid var(--landing-divider)`,
 									borderTop: "none",
 									borderRight: "none",
 									zIndex: 2,
@@ -164,8 +174,8 @@ const FeaturesPage = () => {
 					<div
 						style={{
 							display: "flex",
-							borderTop: "1px solid #000000",
-							borderBottom: "1px solid #000000",
+							borderTop: `1px solid var(--landing-divider)`,
+							borderBottom: `1px solid var(--landing-divider)`,
 						}}
 					>
 						{stats.map((stat, idx) => (
@@ -176,17 +186,20 @@ const FeaturesPage = () => {
 									flex: "1 1 0%",
 									padding: "1.5rem",
 									borderRight:
-										idx < stats.length - 1 ? "1px solid #000000" : "none",
+										idx < stats.length - 1 ? `1px solid var(--landing-divider)` : "none",
 									borderLeft: idx > 0 ? "none" : "none",
 									boxSizing: "border-box",
+									backgroundColor: 'var(--card)',
+									color: 'var(--card-foreground)',
+									transition: 'all 0.3s ease',
 								}}
 							>
 								<stat.icon
 									className="w-4 h-4 mx-auto mb-2"
 									strokeWidth={1.5}
-									style={{ color: "#6b7280" }}
+									style={{ color: 'var(--text-secondary)' }}
 								/>
-								<div className="heading-brutal text-2xl sm:text-3xl tracking-tighter mb-1">
+								<div className="heading-brutal text-2xl sm:text-3xl tracking-tighter mb-1" style={{ color: 'var(--text-primary)' }}>
 									{stat.value}
 								</div>
 								<span className="mono-label">{stat.label}</span>

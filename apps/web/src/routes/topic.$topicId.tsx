@@ -97,22 +97,22 @@ export default function ThreadsPage() {
 					<p className="mono-meta mt-1">{topic?.topicDescription}</p>
 				</div>
 
-				<div className="action-bar flex justify-between items-center mb-3">
-					<div className="flex gap-1">
+				<div className="action-bar flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-3 mb-3">
+					<div className="flex flex-wrap gap-1">
 						{(["latest", "top", "trending", "views"] as const).map((s) => (
 							<Button
 								key={s}
 								variant={sortBy === s ? "default" : "neutral"}
-								className="text-[10px] uppercase py-1 px-2"
+								className="text-[9px] sm:text-[10px] uppercase py-1 px-1.5 sm:px-2"
 								onClick={() => setSortBy(s)}
 							>
 								{s}
 							</Button>
 						))}
 					</div>
-					<Button asChild className="py-1 px-2">
+					<Button asChild className="py-1.5 px-2 w-full sm:w-auto font-bold border-2 border-border bg-primary text-primary-foreground shadow-none hover:bg-primary/90 dark:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.22)]">
 						<Link to="/new-thread" state={{ initialTopicId: topicId }}>
-							<span className="text-xs font-bold uppercase tracking-wider">
+							<span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider">
 								New Thread
 							</span>
 						</Link>

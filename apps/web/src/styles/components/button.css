@@ -19,15 +19,18 @@
 
 .btn-primary {
 	background-color: var(--primary);
-	color: #000;
+	color: var(--button-text);
 	border-color: var(--primary);
+	transition: all 0.2s ease;
 }
 .btn-secondary {
 	background-color: var(--secondary);
-	color: #000;
+	color: var(--button-text);
 	border-color: var(--secondary);
+	transition: all 0.2s ease;
 }
 .btn-outline {
 	background-color: transparent;
 	color: currentColor;
+	transition: all 0.2s ease;
 }

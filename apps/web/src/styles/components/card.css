@@ -2,25 +2,31 @@
 	background-color: var(--card);
 	border-width: 4px;
 	border-style: solid;
-	box-shadow: 8px 8px 0px 0px #000;
-	color: #000;
+	box-shadow: 8px 8px 0px 0px var(--card-shadow);
+	color: var(--card-foreground);
+	border-color: var(--card-foreground);
+	transition: all 0.3s ease;
 }
 
 /* Color variants: yellow, red, green, blue */
 .neo-brutal-card-yellow {
-	background-color: #ffe066;
+	background-color: var(--card-variant-yellow);
+	transition: all 0.3s ease;
 }
 
 .neo-brutal-card-red {
-	background-color: #ff6b6b;
+	background-color: var(--card-variant-red);
+	transition: all 0.3s ease;
 }
 
 .neo-brutal-card-green {
 	background-color: var(--secondary);
+	transition: all 0.3s ease;
 }
 
 .neo-brutal-card-blue {
-	background-color: var(--brutal-blue);
+	background-color: var(--primary);
+	transition: all 0.3s ease;
 }
 
 .light .neo-brutal-card {
