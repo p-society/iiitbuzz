@@ -12,7 +12,7 @@ const colorMap = {
 };
 
 export const StatCard = ({ label, value, color }: StatCardProps) => (
-    <div className={`border-3 border-border ${colorMap[color]} p-3 sm:p-4 text-center shadow-[3px_3px_0px_0px_var(--shadow-color)]`}>
+    <div className={`border-3 border-border ${colorMap[color]} p-3 sm:p-4 text-center shadow-[3px_3px_0px_0px_var(--shadow-color)] transition-all hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0px_0px_var(--shadow-color)]`}>
         <div className="font-bold text-2xl sm:text-3xl">{value}</div>
         <div className="mt-1 font-bold text-[10px] sm:text-xs uppercase">{label}</div>
     </div>

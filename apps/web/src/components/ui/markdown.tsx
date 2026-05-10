@@ -130,7 +130,7 @@ function renderMentions(children: ReactNode): ReactNode {
 
 		const element = child as ReactElement<{ children?: ReactNode }>;
 		return cloneElement(element, {
-			children: renderContent(element.props.children),
+			children: renderMentions(element.props.children),
 		});
 	});
 }

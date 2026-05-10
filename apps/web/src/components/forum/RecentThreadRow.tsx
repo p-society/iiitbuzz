@@ -10,7 +10,7 @@ export const RecentThreadRow = ({ thread }: { thread: RecentThread }) => {
 
 	return (
 		<Link to={`/thread/${thread.id}`} className="block">
-			<div className="p-3 border-b border-gray-200 last:border-b-0 hover:bg-gray-50 transition-colors">
+			<div className="p-3 border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors">
 				<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
 					<div className="flex-1 min-w-0">
 						<h3 className="mb-1 font-bold text-sm leading-tight truncate">
