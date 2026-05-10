@@ -50,7 +50,7 @@ export function DeleteConfirmationModal({
 					<AlertDialogAction
 						onClick={onConfirm}
 						disabled={isLoading}
-						className="bg-destructive text-destructive-foreground border-3 border-black font-bold shadow-[4px_4px_0px_0px_var(--shadow-color)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--shadow-color)] disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="bg-destructive text-destructive-foreground border-3 border-primary font-bold shadow-[4px_4px_0px_0px_var(--shadow-color)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_var(--shadow-color)] disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						{isLoading ? "Deleting..." : confirmText}
 					</AlertDialogAction>

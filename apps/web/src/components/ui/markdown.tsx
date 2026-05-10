@@ -161,7 +161,7 @@ export function MarkdownContent({ content }: MarkdownContentProps) {
 							target="_blank"
 							rel="noopener noreferrer"
 						>
-							{renderContent(children)}
+							{children}
 						</a>
 					),
 					img: ({ src, alt }) => (

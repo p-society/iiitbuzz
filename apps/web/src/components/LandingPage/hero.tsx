@@ -144,7 +144,7 @@ const Hero = () => {
 									<div
 										className="feature-icon"
 										style={{
-											background: `${link.accent}15`,
+											background: 'color-mix(in srgb, ' + link.accent + ', transparent 92%)',
 											borderColor: 'var(--landing-icon-border)',
 										}}
 									>
