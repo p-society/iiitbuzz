@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link, Navigate } from "react-router-dom";
 import { Share2, Bookmark, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 import Footer from "@/components/ui/footer";
 import { toast } from "sonner";
 import { PostItem } from "@/components/forum/PostItem";
@@ -31,6 +32,7 @@ export default function ThreadPage() {
 	} | null>(null);
 	const [isBookmarked, setIsBookmarked] = useState(false);
 	const [bookmarkLoading, setBookmarkLoading] = useState(false);
+	const [isDeletingThread, setIsDeletingThread] = useState(false);
 	const replyContentRef = useRef<HTMLTextAreaElement>(null);
 
 	if (!isAuthLoading && !isAuthenticated) {
@@ -179,18 +181,22 @@ export default function ThreadPage() {
 	};
 
 	const handleDeleteThread = async () => {
-		if (!threadId) return;
+if (!threadId) return;
+setIsDeletingThread(true);
 
-		try {
-			await api.deleteThread(threadId);
-			toast.success("Thread deleted");
-			navigate("/threads");
-		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : "Failed to delete thread";
-			toast.error(message);
-		}
-	};
+try {
+await api.deleteThread(threadId);
+toast.success("Thread deleted");
+navigate("/threads");
+} catch (err) {
+const message =
+err instanceof Error ? err.message : "Failed to delete thread";
+toast.error(message);
+} finally {
+setIsDeletingThread(false);
+}
+};
+
 
 	const handleDeletePost = async (postId: string) => {
 		try {
@@ -230,15 +236,23 @@ export default function ThreadPage() {
 			<main className="site-container flex-1 py-3">
 				{thread && (isAdmin || thread.authorId === user?.id) && (
 					<div className="mb-2 flex justify-end">
-						<Button
-							variant="neutral"
-							size="sm"
-							className="text-red-600 border-red-600"
-							onClick={handleDeleteThread}
-						>
-							<Trash2 className="h-3.5 w-3.5 mr-1" />
-							Delete Thread
-						</Button>
+						<DeleteConfirmationModal
+							trigger={
+								<Button
+									variant="neutral"
+									size="sm"
+									className="text-red-600 border-red-600"
+								>
+									<Trash2 className="h-3.5 w-3.5 mr-1" />
+									Delete Thread
+								</Button>
+							}
+							title="Delete Thread?"
+							description="Are you sure you want to delete this thread? This action cannot be undone."
+							onConfirm={handleDeleteThread}
+							isLoading={isDeletingThread}
+							confirmText="Delete Thread"
+						/>
 					</div>
 				)}
 

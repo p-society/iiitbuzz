@@ -3,6 +3,7 @@ import { ThumbsUp, ThumbsDown, Flag, MessageSquare, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MarkdownContent } from "@/components/ui/markdown";
+import { DeleteConfirmationModal } from "@/components/ui/delete-confirmation-modal";
 import { api } from "@/lib/api";
 import type { PostDetail } from "@/types/forum";
 import { formatTimeAgo } from "@/lib/utils/date";
@@ -33,6 +34,7 @@ export const PostItem = ({
 	const [voting, setVoting] = useState(false);
 	const [reporting, setReporting] = useState(false);
 	const [hasReported, setHasReported] = useState(false);
+	const [isDeleting, setIsDeleting] = useState(false);
 	const profileUsername = !post.isAnonymous ? post.authorName : null;
 
 	useEffect(() => {
@@ -184,17 +186,30 @@ export const PostItem = ({
 							Quote
 						</Button>
 						{canDelete && onDelete && (
-							<Button
-								size="sm"
-								variant="neutral"
-								className="bg-card px-1.5 py-0.5 font-bold text-[10px] text-red-600"
-								onClick={() => {
-									void onDelete();
+							<DeleteConfirmationModal
+								trigger={
+									<Button
+										size="sm"
+										variant="neutral"
+										className="bg-card px-1.5 py-0.5 font-bold text-[10px] text-red-600"
+									>
+										<Trash2 className="h-3 w-3 mr-1" />
+										Delete
+									</Button>
+								}
+								title="Delete Post?"
+								description="Are you sure you want to delete this post? This action cannot be undone."
+								onConfirm={async () => {
+									setIsDeleting(true);
+									try {
+										await onDelete();
+									} finally {
+										setIsDeleting(false);
+									}
 								}}
-							>
-								<Trash2 className="h-3 w-3 mr-1" />
-								Delete
-							</Button>
+								isLoading={isDeleting}
+								confirmText="Delete Post"
+							/>
 						)}
 						<Button
 							size="sm"

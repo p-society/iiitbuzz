@@ -14,40 +14,40 @@ export default function LoginPage() {
 	};
 
 	return (
-		<div className="flex flex-col min-h-screen landing-theme">
+		<div className="flex flex-col min-h-screen landing-theme" style={{ backgroundColor: 'var(--background)' }}>
 			<main className="flex-1 px-4 py-10 sm:py-14 flex items-center justify-center">
-				<section className="mx-auto w-full max-w-2xl border-[1.5px] border-black bg-white fade-in-up">
-					<div className="flex items-center justify-between border-b-[1.5px] border-black bg-[#fafafa] px-4 py-2">
+				<section className="mx-auto w-full max-w-2xl border-[1.5px] fade-in-up" style={{ borderColor: 'var(--landing-divider)', backgroundColor: 'var(--card)' }}>
+					<div className="flex items-center justify-between border-b-[1.5px] px-4 py-2" style={{ borderColor: 'var(--landing-divider)', backgroundColor: 'var(--surface)' }}>
 						<span className="tech-stamp">AUTH :: ACCESS</span>
-						<span className="mono-label" style={{ color: "#000000" }}>
+						<span className="mono-label" style={{ color: 'var(--text-secondary)' }}>
 							IIIT FORUM LOGIN
 						</span>
 					</div>
 
 					<div className="p-6 md:p-8 text-center">
-						<h1 className="heading-brutal text-4xl sm:text-5xl tracking-tight mb-3">
+						<h1 className="heading-brutal text-4xl sm:text-5xl tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
 							Welcome
 						</h1>
-						<p className="subheading-brutal text-xl sm:text-2xl mb-6">
+						<p className="subheading-brutal text-xl sm:text-2xl mb-6" style={{ color: 'var(--text-primary)' }}>
 							Login to join the buzz
 						</p>
 
-						<div className="mb-4 border-[1.5px] border-black bg-black px-4 py-3">
-							<p className="text-lg sm:text-xl text-foreground public-sans-font font-semibold leading-snug">
+						<div className="mb-4 border-[1.5px] px-4 py-3" style={{ borderColor: 'var(--landing-divider)', backgroundColor: 'var(--muted)' }}>
+							<p className="text-lg sm:text-xl public-sans-font font-semibold leading-snug" style={{ color: 'var(--card-foreground)' }}>
 								Sign in with your Google account to access discussions,
 								events, and resources
 							</p>
 						</div>
 
-						<div className="mb-3 border-[1.5px] border-foreground bg-zinc-900 px-4 py-2.5">
-							<p className="text-sm sm:text-base font-semibold text-foreground public-sans-font">
+						<div className="mb-3 border-[1.5px] px-4 py-2.5" style={{ borderColor: 'var(--landing-divider)', backgroundColor: 'var(--muted)' }}>
+							<p className="text-sm sm:text-base font-semibold public-sans-font" style={{ color: 'var(--card-foreground)' }}>
 								Use your institute email only: @iiit-bh.ac.in
 							</p>
 						</div>
 
 						{domainError && (
-							<div className="mb-3 border-[1.5px] border-destructive bg-destructive/10 px-4 py-2.5">
-								<p className="text-sm font-bold text-destructive public-sans-font">
+							<div className="mb-3 border-[1.5px] px-4 py-2.5" style={{ borderColor: 'var(--destructive)', backgroundColor: 'var(--destructive)' }}>
+								<p className="text-sm font-bold public-sans-font" style={{ color: 'var(--destructive-foreground)' }}>
 									Access restricted: please sign in using your IIIT Bhubaneswar email id.
 								</p>
 							</div>
@@ -60,7 +60,8 @@ export default function LoginPage() {
 						<Button
 							size="lg"
 							onClick={redirectToGoogle}
-							className="w-full sm:w-auto neo-brutal-button bg-foreground text-black hover:bg-primary/90 border-primary text-lg px-8 py-6 ghibli-button"
+							className="w-full sm:w-auto neo-brutal-button text-lg px-8 py-6 ghibli-button"
+							style={{ backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', borderColor: 'var(--primary)' }}
 						>
 								<svg
 									xmlns="http://www.w3.org/2000/svg"

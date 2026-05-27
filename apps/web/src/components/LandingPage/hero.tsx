@@ -36,12 +36,12 @@ const Hero = () => {
 	const browseRoute = isAuthenticated ? "/threads" : "/login";
 
 	return (
-		<section className="relative min-h-screen flex items-center justify-center overflow-hidden border-b-[1.5px] border-black">
-			<div className="absolute inset-0 bg-white z-0" />
+		<section className="relative min-h-screen flex items-center justify-center overflow-hidden border-b-[1.5px] border-current" style={{ borderColor: 'var(--landing-divider)', backgroundColor: 'var(--background)' }}>
+			<div className="absolute inset-0 z-0" style={{ backgroundColor: 'var(--background)' }} />
 			<div
 				className="absolute inset-0 z-[1] opacity-[0.04]"
 				style={{
-					backgroundImage: "radial-gradient(#000000 1px, transparent 1px)",
+					backgroundImage: "radial-gradient(var(--landing-grid-color, #d1d1d1) 1px, transparent 1px)",
 					backgroundSize: "16px 16px",
 				}}
 			/>
@@ -54,12 +54,12 @@ const Hero = () => {
 
 					<h1
 						className="heading-brutal text-5xl sm:text-7xl lg:text-8xl tracking-tighter mb-6 fade-in-up"
-						style={{ lineHeight: 0.9 }}
+						style={{ lineHeight: 0.9, color: 'var(--text-primary)' }}
 					>
 						IIIT
 						<span
-							className="inline-block bg-black text-white px-3 py-1 transform rotate-1"
-							style={{ marginLeft: "4px" }}
+							className="inline-block text-white px-3 py-1 transform rotate-1"
+							style={{ marginLeft: "4px", backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' }}
 						>
 							BUZZ
 						</span>
@@ -75,14 +75,14 @@ const Hero = () => {
 					</div>
 
 					<div className="fade-in-up-delay-2 flex justify-center mb-10">
-						<div className="max-w-xl w-full border-[1.5px] border-black">
-							<div className="border-b-[1.5px] border-black bg-[#fafafa] px-4 py-2 flex items-center justify-between">
+						<div className="max-w-xl w-full border-[1.5px]" style={{ borderColor: 'var(--landing-divider)' }}>
+							<div className="border-b-[1.5px] px-4 py-2 flex items-center justify-between" style={{ borderColor: 'var(--landing-divider)', backgroundColor: 'var(--surface)' }}>
 								<span className="mono-label">ABOUT</span>
-								<span className="mono-label" style={{ color: "#000000" }}>
+								<span className="mono-label" style={{ color: 'var(--text-secondary)' }}>
 									INSTITUTE FORUM
 								</span>
 							</div>
-							<div className="p-6 bg-white">
+							<div className="p-6" style={{ backgroundColor: 'var(--card)' }}>
 								<p className="body-brutal text-base sm:text-lg mb-3">
 									<strong>
 										The ultimate community forum for IIIT students.
@@ -122,7 +122,7 @@ const Hero = () => {
 
 					<div className="fade-in-up-delay-4">
 						<div className="flex justify-center mb-6">
-							<span className="mono-label" style={{ color: "#9ca3af" }}>
+							<span className="mono-label" style={{ color: 'var(--muted-foreground)' }}>
 								&#x2500;&#x2500; CATEGORIES &#x2500;&#x2500;
 							</span>
 						</div>
@@ -131,14 +131,22 @@ const Hero = () => {
 								<Link
 									key={link.label}
 									to={isAuthenticated ? "/home" : "/login"}
-									className="landing-card p-4 flex flex-col items-center gap-2 cursor-pointer hover:bg-[#fafafa]"
+									className="landing-card p-4 flex flex-col items-center gap-2 cursor-pointer"
+									style={{
+										backgroundColor: 'var(--card)',
+										borderColor: 'var(--landing-card-border)',
+										color: 'var(--card-foreground)',
+									}}
 								>
 									<span className="mono-label" style={{ fontSize: "0.55rem" }}>
 										[ :: {link.stamp} ]
 									</span>
 									<div
 										className="feature-icon"
-										style={{ background: `${link.accent}15` }}
+										style={{
+											background: 'color-mix(in srgb, ' + link.accent + ', transparent 92%)',
+											borderColor: 'var(--landing-icon-border)',
+										}}
 									>
 										<link.icon
 											className="w-5 h-5"
@@ -146,7 +154,7 @@ const Hero = () => {
 											style={{ color: link.accent }}
 										/>
 									</div>
-									<span className="mono-label" style={{ color: "#000000" }}>
+									<span className="mono-label" style={{ color: 'var(--text-secondary)' }}>
 										{link.label}
 									</span>
 								</Link>

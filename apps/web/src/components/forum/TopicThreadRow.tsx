@@ -100,8 +100,8 @@ const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
 
 	return (
 		<Link to={`/thread/${thread.id}`} className="block">
-			<div className="py-2 px-3 flex items-center gap-3 border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors">
-				<div className="col-author w-10 flex-shrink-0">
+			<div className="py-2 px-3 flex items-center gap-2 sm:gap-3 border-b border-border last:border-b-0 hover:bg-muted/40 transition-colors">
+				<div className="col-author w-8 sm:w-10 flex-shrink-0">
 					<div
 						className={`h-8 w-8 flex items-center justify-center bg-foreground text-background text-[10px] font-bold border border-border overflow-hidden ${profileUsername ? "cursor-pointer hover:opacity-85" : ""}`}
 						onClick={goToProfile}
@@ -126,25 +126,25 @@ const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
 						)}
 					</div>
 				</div>
-				<div className="col-title flex-[60] min-w-0">
-					<div className="flex items-center gap-1 mb-0.5">
+				<div className="col-title flex-1 min-w-0">
+					<div className="flex items-center gap-1 mb-0.5 flex-wrap">
 						{thread.isPinned && (
-							<span className="tech-stamp text-[9px] bg-foreground text-background border-foreground">
+							<span className="tech-stamp text-[8px] sm:text-[9px] bg-foreground text-background border-foreground">
 								PIN
 							</span>
 						)}
 						<span
-							className="mono-label border border-current px-1 text-[9px]"
+							className="mono-label border border-current px-1 text-[8px] sm:text-[9px]"
 							style={{ color, borderColor: color }}
 						>
 							{topicName || thread.topicName}
 						</span>
 					</div>
-					<h3 className="font-bold text-sm truncate text-foreground">
+					<h3 className="font-bold text-xs sm:text-sm truncate text-foreground">
 						{thread.title || thread.threadTitle}
 					</h3>
 					<span
-						className={`mono-meta ${profileUsername ? "cursor-pointer hover:underline" : ""}`}
+						className={`mono-meta text-[9px] ${profileUsername ? "cursor-pointer hover:underline" : ""}`}
 						onClick={goToProfile}
 						onKeyDown={(event) => {
 							if (event.key === "Enter" || event.key === " ") {
@@ -157,12 +157,12 @@ const ThreadRow = ({ thread, topicName, topicColor }: ThreadRowProps) => {
 						{username || "Unknown"}
 					</span>
 				</div>
-				<div className="col-replies w-16 text-center flex-shrink-0 flex flex-col justify-center">
+				<div className="col-replies hidden sm:flex w-12 sm:w-16 text-center flex-shrink-0 flex flex-col justify-center">
 					<div className="font-bold text-sm text-foreground">{thread.replies ?? 0}</div>
-					<div className="mono-label">Replies</div>
+					<div className="mono-label text-[8px]">Replies</div>
 				</div>
-				<div className="col-last w-20 text-right flex-shrink-0 flex flex-col justify-center">
-					<span className="mono-meta text-right">
+				<div className="col-last hidden sm:flex w-16 sm:w-20 text-right flex-shrink-0 flex flex-col justify-center">
+					<span className="mono-meta text-right text-[8px] sm:text-xs">
 						[ {formatTimeAgo(thread.lastActive || "").toUpperCase()} ]
 					</span>
 				</div>

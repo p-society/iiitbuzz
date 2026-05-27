@@ -2,61 +2,34 @@
 
 body {
 	font-family: "Inter", system-ui, -apple-system, sans-serif;
-	background-color: #ffffff;
-	background-image: radial-gradient(circle, #d1d1d1 1px, transparent 1px);
+	background-color: var(--background);
+	background-image: radial-gradient(circle, var(--landing-grid-color, #d1d1d1) 1px, transparent 1px);
 	background-size: 20px 20px;
 	background-attachment: fixed;
-	color: #000000;
+	color: var(--foreground);
 	line-height: 1.6;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-:root .landing-theme {
-	--background: #ffffff;
-	--foreground: #e7b52a;
-	--bg: #ffffff;
-	--surface: #fafafa;
-	--card: #ffffff;
-	--card-foreground: #000000;
-	--popover: #262626;
-	--popover-foreground: #f5f5f5;
-	--muted: #374151;
-	--input: #374151;
-	--sidebar: #262626;
-	--sidebar-foreground: #f5f5f5;
-	--sidebar-primary: #c084fc;
-	--sidebar-primary-foreground: #f5f5f5;
-	--sidebar-accent: #374151;
-	--sidebar-accent-foreground: #f5f5f5;
-	--sidebar-border: #c084fc;
-	--sidebar-ring: #c084fc;
-	--background-image: none;
+/* Preserve pixel-font and public-sans-font for non-landing pages */
+.pixel-font {
+	font-family: "Rowdies", sans-serif;
+	font-weight: 700;
+	font-style: normal;
+}
 
-	--primary: #000000;
-	--primary-foreground: #ffffff;
-	--secondary: #22c55e;
-	--secondary-foreground: #1a1a1a;
-	--accent: #f87171;
-	--accent-foreground: #1a1a1a;
-	--destructive: #ef4444;
+.public-sans-font {
+	font-family: "Public Sans", sans-serif;
+	font-optical-sizing: auto;
+	font-weight: 400;
+	font-style: normal;
+}
 
-	--text-primary: #000000;
-	--text-secondary: #374151;
-	--muted-foreground: #6b7280;
-	--border: #000000;
-	--ring: #000000;
-	--footer: #000000;
-
-	--primary-20: #0000001a;
-	--secondary-20: #22c55e1a;
-	--accent-20: #f871711a;
-	--destructive-20: #ef44441a;
-
-	--accent-green: #22c55e;
-	--accent-yellow: #eab308;
-	--accent-red: #ef4444;
-	--accent-blue: #3b82f6;
+.para-text-font {
+	font-family: "Share Tech Mono", monospace;
+	font-style: normal;
 }
 
 /* Typography classes */
@@ -66,15 +39,17 @@ body {
 	letter-spacing: 0.05em;
 	text-transform: uppercase;
 	font-size: 0.65rem;
-	color: #6b7280;
+	color: var(--muted-foreground);
+	transition: color 0.3s ease;
 }
 
 .mono-meta {
 	font-family: "JetBrains Mono", monospace;
 	font-weight: 400;
 	font-size: 0.75rem;
-	color: #6b7280;
+	color: var(--muted-foreground);
 	letter-spacing: 0.02em;
+	transition: color 0.3s ease;
 }
 
 .heading-brutal {
@@ -83,7 +58,8 @@ body {
 	text-transform: uppercase;
 	letter-spacing: -0.03em;
 	line-height: 1;
-	color: #000000;
+	color: var(--text-primary);
+	transition: color 0.3s ease;
 }
 
 .subheading-brutal {
@@ -92,7 +68,8 @@ body {
 	text-transform: uppercase;
 	letter-spacing: -0.01em;
 	line-height: 1.2;
-	color: #000000;
+	color: var(--text-primary);
+	transition: color 0.3s ease;
 }
 
 .body-brutal {
@@ -100,7 +77,8 @@ body {
 	font-weight: 400;
 	font-size: 1rem;
 	line-height: 1.6;
-	color: #374151;
+	color: var(--text-secondary);
+	transition: color 0.3s ease;
 }
 
 /* Preserve pixel-font and public-sans-font for non-landing pages */
@@ -130,9 +108,12 @@ body {
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
 	padding: 2px 6px;
-	border: 1px solid #000000;
+	border: 1px solid var(--landing-icon-border);
 	display: inline-block;
 	line-height: 1.4;
+	color: var(--text-secondary);
+	background-color: var(--surface);
+	transition: all 0.3s ease;
 }
 
 .tech-stamp-accent {
@@ -247,10 +228,11 @@ body {
 /* Landing-specific neo-brutal components */
 .landing-card {
 	position: relative;
-	border: 1.5px solid #000000;
-	background: #ffffff;
-	transition: transform 0.2s ease;
+	border: 1.5px solid var(--landing-card-border);
+	background: var(--card);
+	transition: transform 0.2s ease, border-color 0.3s ease, background-color 0.3s ease;
 	box-sizing: border-box;
+	color: var(--card-foreground);
 }
 
 .landing-card:hover {
@@ -259,10 +241,11 @@ body {
 
 .landing-card-accent {
 	position: relative;
-	border: 1.5px solid #000000;
-	background: #ffffff;
-	transition: transform 0.2s ease;
+	border: 1.5px solid var(--landing-card-border);
+	background: var(--card);
+	transition: transform 0.2s ease, border-color 0.3s ease, background-color 0.3s ease;
 	box-sizing: border-box;
+	color: var(--card-foreground);
 }
 
 .landing-card-accent:hover {
@@ -273,7 +256,7 @@ body {
 .feature-grid {
 	display: flex;
 	flex-wrap: wrap;
-	border: 1px solid #000000;
+	border: 1px solid var(--landing-divider);
 }
 
 .feature-grid-item {
@@ -282,20 +265,23 @@ body {
 	padding: 2rem;
 	position: relative;
 	min-width: 0;
+	background-color: var(--card);
+	color: var(--card-foreground);
+	transition: background-color 0.3s ease;
 }
 
 .feature-grid-item:not(:last-child) {
-	border-right: 1px solid #000000;
+	border-right: 1px solid var(--landing-divider);
 }
 
 /* On wrapped rows, add a top border to items that start a new row */
 @media (max-width: 1023px) {
 	.feature-grid-item:not(:first-child) {
 		border-right: none;
-		border-bottom: 1px solid #000000;
+		border-bottom: 1px solid var(--landing-divider);
 	}
 	.feature-grid-item:nth-child(2) {
-		border-right: 1px solid #000000;
+		border-right: 1px solid var(--landing-divider);
 	}
 }
 
@@ -305,6 +291,8 @@ body {
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 	word-break: break-word;
+	color: var(--text-primary);
+	transition: color 0.3s ease;
 }
 
 .landing-button {
@@ -312,7 +300,7 @@ body {
 	font-weight: 700;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
-	border: 1.5px solid #000000;
+	border: 1.5px solid var(--landing-button-shadow);
 	padding: 12px 32px;
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
@@ -324,14 +312,15 @@ body {
 }
 
 .landing-button-primary {
-	background: #000000;
-	color: #ffffff;
-	box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+	background: var(--primary);
+	color: var(--primary-foreground);
+	box-shadow: 4px 4px 0px 0px var(--landing-button-shadow);
+	border-color: var(--landing-button-shadow);
 }
 
 .landing-button-primary:hover {
 	transform: translate(2px, 2px);
-	box-shadow: 2px 2px 0px 0px rgba(0, 0, 0, 1);
+	box-shadow: 2px 2px 0px 0px var(--landing-button-shadow);
 }
 
 .landing-button-primary:active {
@@ -340,14 +329,15 @@ body {
 }
 
 .landing-button-secondary {
-	background: #ffffff;
-	color: #000000;
-	box-shadow: 4px 4px 0px 0px rgba(100, 100, 100, 1);
+	background: var(--card);
+	color: var(--card-foreground);
+	box-shadow: 4px 4px 0px 0px color-mix(in srgb, var(--text-secondary) 50%, transparent);
+	border-color: var(--landing-card-border);
 }
 
 .landing-button-secondary:hover {
 	transform: translate(2px, 2px);
-	box-shadow: 2px 2px 0px 0px rgba(100, 100, 100, 1);
+	box-shadow: 2px 2px 0px 0px color-mix(in srgb, var(--text-secondary) 50%, transparent);
 }
 
 .landing-button-secondary:active {
@@ -357,7 +347,7 @@ body {
 
 /* Section divider */
 .section-divider {
-	border-bottom: 1.5px solid #000000;
+	border-bottom: 1.5px solid var(--landing-divider);
 }
 
 /* Context line - thin horizontal rule with label */
@@ -371,26 +361,28 @@ body {
 	content: "";
 	flex: 1;
 	height: 1px;
-	background: #000000;
+	background: var(--landing-divider);
 }
 
 .context-line::after {
 	content: "";
 	flex: 1;
 	height: 1px;
-	background: #000000;
+	background: var(--landing-divider);
 }
 
 /* Feature icon square */
 .feature-icon {
 	width: 48px;
 	height: 48px;
-	border: 1.5px solid #000000;
+	border: 1.5px solid var(--landing-icon-border);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	box-shadow: 3px 3px 0px 0px rgba(0, 0, 0, 1);
+	box-shadow: 3px 3px 0px 0px var(--landing-button-shadow);
+	transition: all 0.3s ease;
+	background-color: var(--surface);
 }
 
 /* Accent border-left indicator */
